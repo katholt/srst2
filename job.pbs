@@ -22,6 +22,7 @@ cd $PBS_O_WORKDIR
 # The modules to load:
 module load bowtie-gcc/2-2.1.0
 module load samtools-gcc/0.1.19
+module load python-gcc/2.7.3
 
 # The job command(s):
 ./srst2.py --input_pe data/pool11_tag1_1.fastq.gz data/pool11_tag1_2.fastq.gz --output pool11_tag1 --build data/ADK.fasta data/FUMC.fasta data/GYRB.fasta data/ICD.fasta data/MDH.fasta data/PURA.fasta data/RECA.fasta  --log log --input_type q
