@@ -7,6 +7,7 @@ import os.path
 st_true = {}
 with open(sys.argv[1]) as true_st:
     for line in true_st:
+        line = line.strip()
         fields = line.split(',')
         samplename = fields[0]
         this_st = fields[1]
@@ -14,11 +15,13 @@ with open(sys.argv[1]) as true_st:
             this_st = "NA"
         st_true[samplename] = this_st
 
+
 # e.g. ../data/pub_mlst/Shigella-sonnei/ecoli_ST_table.txt
 # XXX we should really use the CSV library for this
 st_map2 = {}
 with open(sys.argv[2]) as st_file:
     for count, line in enumerate(st_file):
+        line = line.strip()
         if count == 0:
             gene_order = line.upper().split('\t')
             # drop the first column of the heading
@@ -26,7 +29,6 @@ with open(sys.argv[2]) as st_file:
         else:
             fields = line.split('\t')
             st_map2[fields[0]] = fields[1:] 
-
 
 class AlleleInfo(object):
     def __init__(self, avg_depth, depth_a, depth_z, score):
@@ -81,7 +83,9 @@ for sample in hash:
             this_true_hash[gene] = "NA"
 
     for allele in hash[sample]:
-        for count, allelenum in enumerate(sorted(hash[sample][allele])): 
+        # XXX this loop is very weird. It sorts in order of score and then
+        # skips everything but the least value.
+        for count, allelenum in enumerate(sorted(hash[sample][allele], key = lambda n: hash[sample][allele][n].score)): 
             info = hash[sample][allele][allelenum]
             if count == 0:
                 best_score = info.score
