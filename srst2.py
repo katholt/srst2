@@ -126,7 +126,10 @@ def pileup_binomial_scoring(sam_file, size):
                 
             if count > 1 and allele != this_allele:
                 # Not the first line and allele alignment has changed in pileup
-                avg_depth = total_depth / count
+                ### Check depth here, print total_depth, count
+		avg_depth = total_depth / count
+                if this_allele == "blaCTX-M_blaCTX-M-71_1_FJ815436":
+                        print "line 132:", total_depth, count, avg_depth
                 avg_a = depth_a / edge_a   # Avg depth at 5' end, num basepairs determined by edge_a
                 avg_z = depth_z /edge_z    # 3'
                 hash_max_depth[this_allele] = max_depth
@@ -134,6 +137,8 @@ def pileup_binomial_scoring(sam_file, size):
                         
                 min_penalty = max(5, avg_depth)
 
+		#HD#print line
+		#HD#print total_depth, count, avg_depth
                 # Penalize insertions/deletions and truncations 
                 num_missing = abs(this_allele_size - (this_nuc_num - 1)) + num_indel
 
@@ -143,10 +148,12 @@ def pileup_binomial_scoring(sam_file, size):
                     hash_alignment[this_allele].append((0, min_penalty, prob_success))
 
                 if allele in avg_depth_allele:
-                    avg_depth_allele[allele] += avg_depth
+                    avg_depth_allele[this_allele] += avg_depth
                 else:
-                    avg_depth_allele[allele] = avg_depth
-                        
+                    avg_depth_allele[this_allele] = avg_depth
+		### Check above that this is saved correctly (allele is unique?)                        
+		if allele == "blaCTX-M_blaCTX-M-71_1_FJ815436":
+			print avg_depth
                 # Reset counters and indicators
                 count = 1
                 total_depth = 0
@@ -169,7 +176,7 @@ def pileup_binomial_scoring(sam_file, size):
             if allele == this_allele and nuc_num != count:
                 # Same allele but alignment skips basepairs
                 num_indel += abs(count - nuc_num)
-                count = nuc_num
+                count = nuc_num     ### Check that this is the right way to index count
                 this_nuc_num = nuc_num
                 # add dummy entries for the missing nucleotide positions
                 hash_alignment[allele] += [None] * num_indel
@@ -185,9 +192,12 @@ def pileup_binomial_scoring(sam_file, size):
                     hash_max_depth[allele] = nuc_depth
                     max_depth = nuc_depth
 
-                total_depth = total_depth + nuc_depth
+                total_depth = total_depth + nuc_depth       ### Check here
                 this_nuc_num += 1
                 count += 1 
+
+                if allele == "blaCTX-M_blaCTX-M-71_1_FJ815436":
+                        print total_depth, count, total_depth/count
 
             num_match = 0
 
@@ -208,6 +218,7 @@ def pileup_binomial_scoring(sam_file, size):
             # Hash for later processing in R
             hash_alignment[allele].append((num_match, num_mismatch, prob_success))
 
+        print avg_depth_allele["blaCTX-M_blaCTX-M-71_1_FJ815436"]
         return hash_alignment, hash_max_depth, hash_edge_depth, avg_depth_allele
 
 
@@ -229,6 +240,8 @@ def score_alleles(out_file_sam3, hash_alignment, hash_max_depth, hash_edge_depth
                         max_depth = hash_max_depth[allele]
                         weight = (match + mismatch) / float(max_depth)
                         p_value *= weight
+			if p_value == 0:
+			    p_value = 0.000000000000000000000000000001 ### Was getting a value error when p_value = 0.0
                         p_value = -log(p_value, 10)
                         pvals.append(p_value)
             # Fit linear model to observed Pval distribution vs expected Pval distribution (QQ plot)
@@ -245,7 +258,10 @@ def score_alleles(out_file_sam3, hash_alignment, hash_max_depth, hash_edge_depth
                 edge_depth_str = "NA\tNA"
             this_depth = avg_depth_allele.get(allele, "NA")
             scores.write('\t'.join([allele, str(slope), str(this_depth), edge_depth_str]) + '\n')
-
+            if allele == "blaCTX-M_blaCTX-M-71_1_FJ815436":
+            	print allele, this_depth
+		print avg_depth_allele[allele]
+		sys.exit()
 
 def run_bowtie_on_indices(args):
     'Run bowtie2 on the newly built index/indices'
@@ -278,29 +294,29 @@ def run_bowtie_on_indices(args):
             command += args.other.split()
 
         logging.info('Aligning reads to index {} using bowtie2...'.format(fasta))
-        run_command(command)
+#        run_command(command)
 
         # Modify Bowtie's SAM formatted output so that we get secondary
         # alignments in downstream pileup
 
-        modify_bowtie_sam(out_file)
+#        modify_bowtie_sam(out_file)
 
         # Analyse output with SAMtools
         logging.info('Processing Bowtie2 output with SAMtools...')
         logging.info('Generate and sort BAM file...')
         out_file_sam1 = out_file + ".bam"
-        run_command(['samtools', 'view', '-b', '-o', out_file_sam1,
-                     '-q', str(args.mapq), '-S', out_file + '.mod'])
+#        run_command(['samtools', 'view', '-b', '-o', out_file_sam1,
+#                     '-q', str(args.mapq), '-S', out_file + '.mod'])
         out_file_sam2 = out_file + ".sorted"
-        run_command(['samtools', 'sort', out_file_sam1, out_file_sam2])
-        run_command(['samtools', 'faidx', fasta])
+#        run_command(['samtools', 'sort', out_file_sam1, out_file_sam2])
+#        run_command(['samtools', 'faidx', fasta])
 
         logging.info('Generate pileup...')
         out_file_sam3 = out_file + '.pileup'
-        with open(out_file_sam3, 'w') as sam_pileup:
-            run_command(['samtools', 'mpileup', '-L', '1000', '-f', fasta,
-                         '-Q', str(args.baseq), '-q', str(args.mapq), out_file_sam2 + '.bam'],
-                         stdout=sam_pileup)
+#        with open(out_file_sam3, 'w') as sam_pileup:
+#            run_command(['samtools', 'mpileup', '-L', '250', '-f', fasta,
+#                         '-Q', str(args.baseq), '-q', str(args.mapq), out_file_sam2 + '.bam'],
+#                         stdout=sam_pileup)
 
         # Process SAMtools output
         logging.info('Processing SAMtools output...')

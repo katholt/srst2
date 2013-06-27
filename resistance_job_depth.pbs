@@ -6,7 +6,7 @@
 #PBS -q batch
 
 # The name of the job:
-#PBS -N srst2
+#PBS -N srst2_res_depth
 
 # The total amount of memory in gigabytes used by the whole job:
 #PBS -l mem=4gb
@@ -22,8 +22,8 @@ cd $PBS_O_WORKDIR
 # The modules to load:
 module load bowtie-gcc/2-2.1.0
 module load samtools-gcc/0.1.19
-module load R-gcc/2.15.0
 module load python-gcc/2.7.3
 
 # The job command(s):
-./srst2.py --input_pe /vlsci/VR0082/shared/py_srst2/data/pool11_tag1_1.fastq.gz /vlsci/VR0082/shared/py_srst2/data/pool11_tag1_2.fastq.gz --output pool11_tag1 --build /vlsci/VR0082/shared/py_srst2/data/ADK.fasta /vlsci/VR0082/shared/py_srst2/data/FUMC.fasta /vlsci/VR0082/shared/py_srst2/data/GYRB.fasta /vlsci/VR0082/shared/py_srst2/data/ICD.fasta /vlsci/VR0082/shared/py_srst2/data/MDH.fasta /vlsci/VR0082/shared/py_srst2/data/PURA.fasta /vlsci/VR0082/shared/py_srst2/data/RECA.fasta --log log --input_type q
+./srst2.py --input_pe  /vlsci/VR0082/hdashnow/raw_data/Shigella_validation_set/6581_3#8_1.fastq.gz /vlsci/VR0082/hdashnow/raw_data/Shigella_validation_set/6581_3#8_2.fastq.gz  --output 6581_3#8 --build /vlsci/VR0082/hdashnow/raw_data/reference/all.renamed.nr.fsa --log 6581_3#8.log --input_type q
+
