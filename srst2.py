@@ -143,9 +143,9 @@ def pileup_binomial_scoring(sam_file, size):
                     hash_alignment[this_allele].append((0, min_penalty, prob_success))
 
                 if allele in avg_depth_allele:
-                    avg_depth_allele[allele] += avg_depth
+                    avg_depth_allele[this_allele] += avg_depth
                 else:
-                    avg_depth_allele[allele] = avg_depth
+                    avg_depth_allele[this_allele] = avg_depth
                         
                 # Reset counters and indicators
                 count = 1
