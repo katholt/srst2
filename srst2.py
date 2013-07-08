@@ -4,6 +4,7 @@
 # 
 # Author - Michael Inouye (minouye@unimelb.edu.au)
 # Translated to Python by Bernie Pope (bjpope@unimelb.edu.au)
+# Harriet Dashnow (h.dashnow@gmail.com)
 #
 # Dependencies:
 #	bowtie2	   http://bowtie-bio.sourceforge.net/bowtie2/index.shtml
@@ -123,7 +124,7 @@ def pileup_binomial_scoring(pileup_file, size):
 		coverage_allele = {}
 
 		# Split all lines in the pileup by whitespace
-		pileup_split = [ x.split() for x in pileup ]
+		pileup_split = ( x.split() for x in pileup )
 		# Group the split lines based on the first field (allele) 
 		for allele, lines in groupby(pileup_split, itemgetter(0)):
 
@@ -203,10 +204,7 @@ def pileup_binomial_scoring(pileup_file, size):
 				# Save in hash for later processing in R
 				hash_alignment[allele].append((0, min_penalty, prob_success))
 
-			if allele in avg_depth_allele:
-				avg_depth_allele[allele] += avg_depth
-			else:
-				avg_depth_allele[allele] = avg_depth
+			avg_depth_allele[allele] = avg_depth
 
 	return hash_alignment, hash_max_depth, hash_edge_depth, avg_depth_allele, coverage_allele
 
@@ -220,7 +218,6 @@ def score_alleles(out_file_sam3, hash_alignment, hash_max_depth, hash_edge_depth
 			for nuc_info in hash_alignment[allele]:
 				if nuc_info is not None:
 					match, mismatch, prob_success = nuc_info
-#HD					print allele, nuc_info
 					if match > 0 or mismatch > 0:
 						if mismatch == 0:
 							p_value = 1.0
@@ -230,17 +227,16 @@ def score_alleles(out_file_sam3, hash_alignment, hash_max_depth, hash_edge_depth
 						max_depth = hash_max_depth[allele]
 						weight = (match + mismatch) / float(max_depth)
 						p_value *= weight
-			if p_value == 0:
-				p_value = 0.000000000000000000000000000001 ### Was getting a value error when p_value = 0.0
-			p_value = -log(p_value, 10)
-			pvals.append(p_value)
+						if p_value == 0:
+							p_value = 0.000000000000000000000000000001 ### Was getting a value error when p_value = 0.0
+						p_value = -log(p_value, 10)
+						pvals.append(p_value)
 			# Fit linear model to observed Pval distribution vs expected Pval distribution (QQ plot)
 			pvals.sort(reverse=True)
 			len_obs_pvals = len(pvals)
 			exp_pvals = range(1, len_obs_pvals + 1)
 			exp_pvals2 = [-log(float(ep) / (len_obs_pvals + 1), 10) for ep in exp_pvals]
 			# Slope is score
-#HD			print allele, pvals, exp_pvals
 			slope, _intercept, _r_value, _p_value, _std_err = linregress(exp_pvals2, pvals)
 			if allele in hash_edge_depth:
 				start_depth, end_depth = hash_edge_depth[allele]
