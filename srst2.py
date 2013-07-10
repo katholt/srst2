@@ -209,19 +209,14 @@ def pileup_binomial_scoring(pileup_file, size):
 			mismatch_allele[allele] = total_mismatch
 
 
-			#HD+print allele, "min penalty", min_penalty, "average depth", avg_depth, "total indels", total_indels
 			# Penalize insertions/deletions and truncations 
 			for j in range(total_indels):
 				# Maintain a penalty of at least 5 mismatches if there's a gap
 				# Save in hash for later processing in R
 				hash_alignment[allele].append((0, min_penalty, prob_success))
-				#HD+print (0, min_penalty, prob_success)
 
 			avg_depth_allele[allele] = avg_depth
 			
-#HD+	for allele in hash_alignment:
-#HD+		if allele.startswith("ICD"):
-			#HD+print allele, hash_alignment[allele]
 
 	return hash_alignment, hash_max_depth, hash_edge_depth, avg_depth_allele, coverage_allele, mismatch_allele
 
@@ -326,8 +321,6 @@ def run_bowtie_on_indices(args):
 
 		# Get sequence lengths for reference alleles - important for scoring
 		size = sequence_lengths_for_ref_alleles(fasta + '.fai')
-
-#HD+		out_file_sam3 = "pool10_tag6.ICD.fasta.srst2.pileup"
 
 		hash_alignment, hash_max_depth, hash_edge_depth, avg_depth_allele, coverage_allele, mismatch_allele = \
 			pileup_binomial_scoring(out_file_sam3, size)
