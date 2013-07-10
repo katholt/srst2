@@ -1,15 +1,15 @@
 #!/usr/bin/env python
 
 # SRST2 - Short Read Sequence Typer (v2)
-# 
+# Python Version 2.7.3
+#
 # Author - Michael Inouye (minouye@unimelb.edu.au)
 # Translated to Python by Bernie Pope (bjpope@unimelb.edu.au)
 # Harriet Dashnow (h.dashnow@gmail.com)
 #
 # Dependencies:
-#	bowtie2	   http://bowtie-bio.sourceforge.net/bowtie2/index.shtml
-#	SAMtools	  http://samtools.sourceforge.net
-#	R			 http://www.r-project.org 
+#	bowtie2	   http://bowtie-bio.sourceforge.net/bowtie2/index.shtml version 2.1.0
+#	SAMtools	  http://samtools.sourceforge.net Version: 0.1.18 (Version: 0.1.19 DOES NOT WORK - loss of edge coverage)
 
 from argparse import (ArgumentParser, FileType)
 import logging
@@ -154,6 +154,8 @@ def pileup_binomial_scoring(pileup_file, size):
 				if nuc_num > exp_nuc_num:
 					total_indels += abs(exp_nuc_num - nuc_num)
 				exp_nuc_num = nuc_num
+				if nuc_depth == 0:
+					total_indels += 1
 
 				# Calculate allele info: average depth -> penalise missing
 				if nuc_num <= edge_a:
@@ -173,6 +175,10 @@ def pileup_binomial_scoring(pileup_file, size):
 					if aligned_bases[i] == "^":
 						# Signifies start of a read, next char is mapping quality (skip it)
 						i += 2
+						continue
+
+					if aligned_bases[i] == "+" or aligned_bases[i] == "-":
+						i += int(aligned_bases[i+1]) + 2
 						continue
 
 					if aligned_bases[i] == "." or aligned_bases[i] == ",":
@@ -198,13 +204,20 @@ def pileup_binomial_scoring(pileup_file, size):
 			min_penalty = max(5, int(avg_depth))
 			coverage_allele[allele] = 100*(allele_size - total_indels)/float(allele_size)
 
+
+			#HD+print allele, "min penalty", min_penalty, "average depth", avg_depth, "total indels", total_indels
 			# Penalize insertions/deletions and truncations 
 			for j in range(total_indels):
 				# Maintain a penalty of at least 5 mismatches if there's a gap
 				# Save in hash for later processing in R
 				hash_alignment[allele].append((0, min_penalty, prob_success))
+				#HD+print (0, min_penalty, prob_success)
 
 			avg_depth_allele[allele] = avg_depth
+			
+#HD+	for allele in hash_alignment:
+#HD+		if allele.startswith("ICD"):
+			#HD+print allele, hash_alignment[allele]
 
 	return hash_alignment, hash_max_depth, hash_edge_depth, avg_depth_allele, coverage_allele
 
@@ -307,6 +320,8 @@ def run_bowtie_on_indices(args):
 
 		# Get sequence lengths for reference alleles - important for scoring
 		size = sequence_lengths_for_ref_alleles(fasta + '.fai')
+
+#HD+		out_file_sam3 = "pool10_tag6.ICD.fasta.srst2.pileup"
 
 		hash_alignment, hash_max_depth, hash_edge_depth, avg_depth_allele, coverage_allele = \
 			pileup_binomial_scoring(out_file_sam3, size)
