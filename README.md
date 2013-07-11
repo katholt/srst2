@@ -12,9 +12,9 @@ srst2.py
 Authors - Michael Inouye (minouye@unimelb.edu.au), Harriet Dashnow (h.dashnow@gmail.com), Bernie Pope (bjpope@unimelb.edu.au)
 
 Dependencies:
-    Python Version 2.7.3
-    bowtie2    http://bowtie-bio.sourceforge.net/bowtie2/index.shtml version 2.1.0
-    SAMtools          http://samtools.sourceforge.net Version: 0.1.18 (Version: 0.1.19 DOES NOT WORK - loss of edge coverage)
+Python Version 2.7.3
+bowtie2    http://bowtie-bio.sourceforge.net/bowtie2/index.shtml version 2.1.0
+SAMtools          http://samtools.sourceforge.net Version: 0.1.18 (Version: 0.1.19 DOES NOT WORK - loss of edge coverage)
 
 
 Running srst2.py for MLST with paired end reads:
