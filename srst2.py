@@ -122,6 +122,8 @@ def pileup_binomial_scoring(pileup_file, size):
 		avg_depth_allele = {}
 		coverage_allele = {}
 		mismatch_allele = {}
+		indel_allele = {}
+		missing_allele = {}
 
 		# Split all lines in the pileup by whitespace
 		pileup_split = ( x.split() for x in pileup )
@@ -137,6 +139,7 @@ def pileup_binomial_scoring(pileup_file, size):
 			allele_size = size[allele]
 			total_indels = 0
 			total_mismatch = 0
+			report_indels = 0
 
 			for fields in lines:
 				nuc_num = int(fields[1]) # Actual position in ref allele
@@ -170,6 +173,7 @@ def pileup_binomial_scoring(pileup_file, size):
 				total_depth = total_depth + nuc_depth
 
 				num_match = 0
+				indel = 0
 
 				i = 0
 				while i < len(aligned_bases):
@@ -180,6 +184,7 @@ def pileup_binomial_scoring(pileup_file, size):
 
 					if aligned_bases[i] == "+" or aligned_bases[i] == "-":
 						i += int(aligned_bases[i+1]) + 2
+						indel = 1
 						continue
 
 					if aligned_bases[i] == "." or aligned_bases[i] == ",":
@@ -190,6 +195,7 @@ def pileup_binomial_scoring(pileup_file, size):
 				num_mismatch = nuc_depth - num_match
 				if num_mismatch > num_match:
 					total_mismatch += 1
+				report_indels += indel
 
 				# Hash for later processing in R
 				hash_alignment[allele].append((num_match, num_mismatch, prob_success))
@@ -206,7 +212,9 @@ def pileup_binomial_scoring(pileup_file, size):
 			hash_edge_depth[allele] = (avg_a, avg_z)
 			min_penalty = max(5, int(avg_depth))
 			coverage_allele[allele] = 100*(allele_size - total_indels)/float(allele_size)
-			mismatch_allele[allele] = total_mismatch
+			mismatch_allele[allele] = total_mismatch - report_indels
+			indel_allele[allele] = report_indels
+			missing_allele[allele] = total_indels
 
 
 			# Penalize insertions/deletions and truncations 
@@ -218,13 +226,15 @@ def pileup_binomial_scoring(pileup_file, size):
 			avg_depth_allele[allele] = avg_depth
 			
 
-	return hash_alignment, hash_max_depth, hash_edge_depth, avg_depth_allele, coverage_allele, mismatch_allele
+	return hash_alignment, hash_max_depth, hash_edge_depth, avg_depth_allele, coverage_allele, mismatch_allele, indel_allele, missing_allele
+
+
 
 
 def score_alleles(out_file_sam3, hash_alignment, hash_max_depth, hash_edge_depth, 
-								avg_depth_allele, coverage_allele, mismatch_allele):
+		avg_depth_allele, coverage_allele, mismatch_allele, indel_allele, missing_allele):
 	with open(out_file_sam3 + '.table.scores', 'w') as scores:
-		scores.write("Allele\tScore\tAvg_depth\tEdge1_depth\tEdge2_depth\tPercent_coverage\tMismatches\n")
+		scores.write("Allele\tScore\tAvg_depth\tEdge1_depth\tEdge2_depth\tPercent_coverage\tSingle_base_mismatches\tIndels\tMissing_bases\n")
 		for allele in hash_alignment:
 			pvals = []
 			for nuc_info in hash_alignment[allele]:
@@ -258,8 +268,10 @@ def score_alleles(out_file_sam3, hash_alignment, hash_max_depth, hash_edge_depth
 			this_depth = avg_depth_allele.get(allele, "NA")
 			this_coverage = coverage_allele.get(allele, "NA")
 			this_mismatch = mismatch_allele.get(allele, "NA")
+			this_indel = indel_allele.get(allele, "NA")
+			this_missing = missing_allele.get(allele, "NA")
 			scores.write('\t'.join([allele, str(slope), str(this_depth), edge_depth_str, 
-										str(this_coverage), str(this_mismatch)]) + '\n')
+						str(this_coverage), str(this_mismatch), str(this_indel), str(this_missing)]) + '\n')
 
 def run_bowtie_on_indices(args):
 	'Run bowtie2 on the newly built index/indices'
@@ -322,12 +334,12 @@ def run_bowtie_on_indices(args):
 		# Get sequence lengths for reference alleles - important for scoring
 		size = sequence_lengths_for_ref_alleles(fasta + '.fai')
 
-		hash_alignment, hash_max_depth, hash_edge_depth, avg_depth_allele, coverage_allele, mismatch_allele = \
+		hash_alignment, hash_max_depth, hash_edge_depth, avg_depth_allele, coverage_allele, mismatch_allele, indel_allele, missing_allele= \
 			pileup_binomial_scoring(out_file_sam3, size)
 
 		logging.info('Scoring alleles...')
 		score_alleles(out_file_sam3, hash_alignment, hash_max_depth, hash_edge_depth, 
-									avg_depth_allele, coverage_allele, mismatch_allele)
+									avg_depth_allele, coverage_allele, mismatch_allele, indel_allele, missing_allele)
 		logging.info('Finished processing for index file {} ...'.format(fasta))
 
 

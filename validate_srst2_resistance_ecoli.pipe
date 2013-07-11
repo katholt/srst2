@@ -1,0 +1,17 @@
+// Bpipe pipeline
+// Purpose:
+// Input: 
+// Ouput: 
+// Dependancies: bowtie-gcc/2-2.0.2 samtools-gcc/0.1.18 bamtools/2.1.1 
+// Author: Harriet Dashnow
+// Created: 8/7/13
+
+refs= "/vlsci/VR0082/hdashnow/database_preprocessing/all_fixed_annotated.fsa"
+
+run_srst2 = {
+	from("fastq.gz","fastq.gz"){
+		exec "/vlsci/VR0082/hdashnow/SRST_github/srst/srst2.py --input_pe $inputs.gz --output $output.prefix --build $refs --log ${output.prefix}.log --input_type q"
+	}
+}
+
+Bpipe.run { "%_*.fastq.gz"*[run_srst2] }

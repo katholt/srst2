@@ -1,0 +1,30 @@
+// Bpipe pipeline
+// Purpose:
+// Input: 
+// Ouput: 
+// Dependancies: bowtie-gcc/2-2.0.2 samtools-gcc/0.1.18 bamtools/2.1.1 
+// Author: Harriet Dashnow
+// Created: 8/7/13
+
+refs= "/vlsci/VR0082/shared/hdashnow/testing_srst2/mlst/MLST_alleles.fasta"
+
+run_srst2 = {
+	from("fastq.gz","fastq.gz"){
+		exec "/vlsci/VR0082/hdashnow/SRST_github/srst/srst2.py --input_pe $inputs.gz --output $output.prefix --build $refs --log ${output.prefix}.log --input_type q"
+	}
+}
+
+
+//Vietnam /vlsci/VR0082/shared/ShigellaSonnei/reads/fastq/vietnam
+Bpipe.run { "pool12_tag%_*.fastq.gz"*[run_srst2] }
+Bpipe.run { "pool13_tag%_*.fastq.gz"*[run_srst2] }
+Bpipe.run { "pool14_tag%_*.fastq.gz"*[run_srst2] }
+Bpipe.run { "pool1_tag%_*.fastq.gz"*[run_srst2] }
+Bpipe.run { "pool2_tag%_*.fastq.gz"*[run_srst2] }
+Bpipe.run { "pool3_tag%_*.fastq.gz"*[run_srst2] }
+Bpipe.run { "pool4_tag%_*.fastq.gz"*[run_srst2] }
+Bpipe.run { "pool5_tag%_*.fastq.gz"*[run_srst2] }
+Bpipe.run { "pool6_tag%_*.fastq.gz"*[run_srst2] }
+Bpipe.run { "pool7_tag%_*.fastq.gz"*[run_srst2] }
+Bpipe.run { "pool8_tag%_*.fastq.gz"*[run_srst2] }
+Bpipe.run { "pool9_tag%_*.fastq.gz"*[run_srst2] }
