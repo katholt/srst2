@@ -21,13 +21,15 @@ from math import log
 edge_a = edge_z = 2
 prob_err = 0.01
 
-out_file_sam3 = "6581_3#8.all.renamed.nr.fsa.srst2.pileup"
-size = 876
+#pileup file (not sure why it's called out_file_sam3)
+out_file_sam3 = "/vlsci/VR0082/hdashnow/SRST_github/srst2_etc_output/6581_3#8.all_fixed_annotated.fsa.srst2.pileup"
+size = 972
 
 def pileup_binomial_scoring(sam_file, size):
     # Use pileup for binomial-based scoring
     with open(sam_file) as pileup:
         count = 1
+	line_count = 1
         # XXX not actually set by user even though the comment in perl says it is
         prob_success = 1 - prob_err    # Set by user, default is prob_err = 0.01
         hash_alignment = {}
@@ -42,8 +44,6 @@ def pileup_binomial_scoring(sam_file, size):
         avg_depth_allele = {}
 
         for line in pileup:
-	    if not line.startswith("blaCTX-M_blaCTX-M-71_1_FJ815436") and not line.startswith("blaCTX-M_blaCTX-M-3_2_EF437434"):
-		continue
 	    #print line
             fields = line.split()
             allele = fields[0]
@@ -59,9 +59,9 @@ def pileup_binomial_scoring(sam_file, size):
             if count > 1 and allele != this_allele:
                 # Not the first line and allele alignment has changed in pileup
                 ### Check depth here, print total_depth, count
-		print total_depth, count
-		avg_depth = total_depth / count
-		print avg_depth
+		#print total_depth, count
+		avg_depth = total_depth / float(line_count)
+		#print avg_depth
                 avg_a = depth_a / edge_a   # Avg depth at 5' end, num basepairs determined by edge_a
                 avg_z = depth_z /edge_z    # 3'
                 hash_max_depth[this_allele] = max_depth
@@ -70,7 +70,7 @@ def pileup_binomial_scoring(sam_file, size):
                 min_penalty = max(5, avg_depth)
 
 		#HD#print line
-		print total_depth, count, avg_depth
+		#print total_depth, count, avg_depth
                 # Penalize insertions/deletions and truncations 
                 num_missing = abs(this_allele_size - (this_nuc_num - 1)) + num_indel
 
@@ -80,14 +80,18 @@ def pileup_binomial_scoring(sam_file, size):
                     hash_alignment[this_allele].append((0, min_penalty, prob_success))
 
                 if allele in avg_depth_allele:
-                    avg_depth_allele[allele] += avg_depth
+                    avg_depth_allele[this_allele] += avg_depth
                 else:
-                    avg_depth_allele[allele] = avg_depth
+                    avg_depth_allele[this_allele] = avg_depth
 		### Check above that this is saved correctly (allele is unique?)                        
-		print allele, avg_depth_allele
+		#all_alleles_depth = []
+		#for allele in avg_depth_allele:
+		#	all_alleles_depth.append(avg_depth_allele[allele])
+		#print all_alleles_depth
                 # Reset counters and indicators
                 count = 1
-                total_depth = 0
+                line_count = 1
+		total_depth = 0
                 depth_a = depth_z = 0
                 num_indel = 0
                 this_allele = allele
@@ -126,6 +130,7 @@ def pileup_binomial_scoring(sam_file, size):
                 total_depth = total_depth + nuc_depth       ### Check here
                 this_nuc_num += 1
                 count += 1 
+		line_count += 1
 
             num_match = 0
 
@@ -145,7 +150,7 @@ def pileup_binomial_scoring(sam_file, size):
 
             # Hash for later processing in R
             hash_alignment[allele].append((num_match, num_mismatch, prob_success))
-
+	print avg_depth_allele["162__aadA__aadA1_1_X02340"]
         return hash_alignment, hash_max_depth, hash_edge_depth, avg_depth_allele
 
 
