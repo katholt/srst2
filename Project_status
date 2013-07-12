@@ -1,0 +1,57 @@
+Harriet Dashnow 12/7/13
+
+Score summaries
+==============
+These two programs both take one or more .scores files as input and produce summary information. Neither have been thoroughly tested.
+summary_mlst.py
+gene_summary.py
+
+summary_mlst.py assumes input fasta was in format: gene-allele
+It reports the allele with the lowest score for each gene. If the allele has any mismatches/indels/missing bases then it reports: bestallele*/#differences
+It can optionally take an MLST definition file and use this to report a sequence type.
+
+gene_summary.py assumes input fasta was in format: cluster__gene__allele
+It reports full score information for the lowest scoring allele in each cluster.
+Or it can report a table of alleles for all samples/clusters.
+If the allele has any mismatches/indels/missing bases then it reports: bestallele*/#differences
+
+
+Validation
+========
+srst2.py was been run on the following samples:
+
+MLST:
+Shigella
+/vlsci/VR0082/shared/ShigellaSonnei/reads/fastq
+/vlsci/VR0082/shared/ShigellaSonnei/reads/fastq/vietnam
+Staph
+ST22: /vlsci/VR0082/shared/SRST/Staph2/fastq/ST22
+ST398: /vlsci/VR0082/shared/SRST/Staph2/fastq/ST398
+ST239: /vlsci/VR0082/shared/SRST/Staph/fastq
+
+Resistance:
+Shigella
+/vlsci/VR0082/shared/ShigellaSonnei/reads/fastq
+/vlsci/VR0082/shared/ShigellaSonnei/reads/fastq/vietnam
+Staph
+ST22: /vlsci/VR0082/shared/SRST/Staph2/fastq/ST22
+ST398: /vlsci/VR0082/shared/SRST/Staph2/fastq/ST398
+ST239: /vlsci/VR0082/shared/SRST/Staph/fastq
+Klebsiella
+/vlsci/VR0082/shared/klebsiella/readsFastqAll/readsForAnalysis
+E. coli
+/vlsci/VR0082/shared/srst2_resistance/ecoli 
+
+It ran successfully on most (but not all). I haven't checked why it failed where it did.
+Results are in: /vlsci/VR0082/shared/hdashnow/testing_srst2
+
+I used check_ST.py to do validation on some of the Shigella samples. This code is not for distribution, but it might be useful as the basis for further validation.
+
+
+I ran the sample sample as paired end and single end (just the forward reads). The top alleles were the same in both.
+Result and commands are in: /vlsci/VR0082/shared/hdashnow/testing_srst2/mlst/single_v_paired
+(sorry for the unhelpful file names)
+
+
+Resistance gene database
+=====================
