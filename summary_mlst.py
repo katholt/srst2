@@ -38,11 +38,21 @@ def extract_top_allele(scores_file):
 			allele = allele_info[1]
 			score = float(split_line[1])
 			coverage = float(split_line[5])
+			mismatches = int(split_line[6])
+			try:
+				indels = int(split_line[7])
+				missing = int(split_line[8])
+				difference = abs(mismatches) #XXX Should be single base mismatches + indels, however these are not scored separately in srst2.py
+				if missing > 0:
+					difference += 1 # Score any truncation as a single difference
+			except IndexError:
+				difference = abs(mismatches)
+
 
 			if gene not in hash_alleles:
-				hash_alleles[gene] = (allele, score, coverage)
+				hash_alleles[gene] = (allele, score, coverage, difference)
 			elif score < hash_alleles[gene][1]:
-				hash_alleles[gene] = (allele, score, coverage)
+				hash_alleles[gene] = (allele, score, coverage, difference)
 
 	return (sample_name, hash_alleles)
 
@@ -129,7 +139,12 @@ def main():
 				outstring = "{0}\t{1}".format(sample, srst2_ST)
 				for gene_name in gene_names:
 					try:
-						outstring = outstring + "\t" + str(hash_alleles[gene_name][0])
+						allele_name = hash_alleles[gene_name][0]
+						difference = hash_alleles[gene_name][3]
+						if difference > 0:
+							allele_name = allele_name + "*/" + str(difference)
+						outstring = outstring + "\t" + str(allele_name)
+						
 					except KeyError:
 						outstring = outstring + "\tNone"
 				outstring = outstring + "\n"
@@ -147,6 +162,9 @@ def main():
 				for gene_name in all_genes:
 					try:
 						allele = hash_samples[sample_name][gene_name][0]
+						difference = hash_samples[sample_name][gene_name][3]
+						if difference > 0:
+							allele = allele + "*/" + str(difference)
 					except KeyError:
 						allele = None
 					outstring = outstring + "\t" + str(allele)
