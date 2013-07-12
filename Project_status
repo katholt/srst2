@@ -55,3 +55,11 @@ Result and commands are in: /vlsci/VR0082/shared/hdashnow/testing_srst2/mlst/sin
 
 Resistance gene database
 =====================
+Current status:
+There are three clusters to which no gene name is assigned: 365, 375, 558
+Current annotated version is: /vlsci/VR0082/hdashnow/database_preprocessing/all_fixed_annotated.fsa
+
+Code for database clustering:
+/home/UNIMELB/hdashnow/python_scripts/res_database_clustering_cdhit.py
+
+to be continued....
