@@ -6,6 +6,8 @@
 # Authors - Michael Inouye (minouye@unimelb.edu.au), Harriet Dashnow (h.dashnow@gmail.com)
 # Translated to Python by Bernie Pope (bjpope@unimelb.edu.au)
 #
+# see LICENSE.txt for the license
+#
 # Dependencies:
 #	bowtie2	   http://bowtie-bio.sourceforge.net/bowtie2/index.shtml version 2.1.0
 #	SAMtools	  http://samtools.sourceforge.net Version: 0.1.18 (Version: 0.1.19 DOES NOT WORK - loss of edge coverage)
@@ -320,6 +322,13 @@ def run_bowtie_on_indices(args):
 		out_file_sam2 = out_file + ".sorted"
 		run_command(['samtools', 'sort', out_file_sam1, out_file_sam2])
 		run_command(['samtools', 'faidx', fasta])
+
+		#XXX File deletions should be made optional. May also want to delete final sorted bam and pileup.
+		logging.info('Deleting sam and bam files that are not longer needed...')
+		del_filenames = [out_file, out_file + ".mod", out_file_sam1]
+		for f in del_filenames:
+			logging.info('Deleting ' + f)
+			os.remove(f)
 
 		logging.info('Generate pileup...')
 		out_file_sam3 = out_file + '.pileup'
