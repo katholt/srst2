@@ -214,7 +214,7 @@ def pileup_binomial_scoring(pileup_file, size):
 			hash_edge_depth[allele] = (avg_a, avg_z)
 			min_penalty = max(5, int(avg_depth))
 			coverage_allele[allele] = 100*(allele_size - total_indels)/float(allele_size)
-			mismatch_allele[allele] = total_mismatch - report_indels
+			mismatch_allele[allele] = total_mismatch
 			indel_allele[allele] = report_indels
 			missing_allele[allele] = total_indels
 
@@ -236,7 +236,7 @@ def pileup_binomial_scoring(pileup_file, size):
 def score_alleles(out_file_sam3, hash_alignment, hash_max_depth, hash_edge_depth, 
 		avg_depth_allele, coverage_allele, mismatch_allele, indel_allele, missing_allele):
 	with open(out_file_sam3 + '.table.scores', 'w') as scores:
-		scores.write("Allele\tScore\tAvg_depth\tEdge1_depth\tEdge2_depth\tPercent_coverage\tSingle_base_mismatches\tIndels\tMissing_bases\n")
+		scores.write("Allele\tScore\tAvg_depth\tEdge1_depth\tEdge2_depth\tPercent_coverage\tMismatches\tIndels\tMissing_bases\n")
 		for allele in hash_alignment:
 			pvals = []
 			for nuc_info in hash_alignment[allele]:
