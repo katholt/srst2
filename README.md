@@ -21,14 +21,16 @@ Authors - Michael Inouye (minouye@unimelb.edu.au)
 ================
 
 Basic usage:
+====
 
 srst2.py --input_pe sample_1.fastq.gz sample_2.fastq.gz --output sampleTyping 
 	--mlst_db Escherichia_coli.fasta --mlst_definitions ecoli.txt
 	--gene_db resistance.fasta
 
-====
+
 
 All usage options
+====
 SRST2 - Short Read Sequence Typer (v2)
 
 optional arguments:
@@ -86,8 +88,7 @@ optional arguments:
 ==============
 
 More basic usage examples
-
-==============
+====
 
 Run single read sets against MLST database and resistance database
 
@@ -145,14 +146,14 @@ python srst2.py --input_pe strain_R1.fastq.gz strain_R2.fastq.gz
 ------------
 
 Compile results from completed runs
+====
 
 python srst2.py --prev_output *compiledResults.txt --output Shigella_report
 	
 ==============
  
 Running lots of jobs and compiling results
-
-==============
+====
 
 Run against multiple read sets: submitting 1 job per readset to SLURM queueing system
 
