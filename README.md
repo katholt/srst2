@@ -26,7 +26,8 @@ srst2.py --input_pe sample_1.fastq.gz sample_2.fastq.gz --output sampleTyping
 	--mlst_db Escherichia_coli.fasta --mlst_definitions ecoli.txt
 	--gene_db resistance.fasta
 
-================
+====
+
 All usage options
 SRST2 - Short Read Sequence Typer (v2)
 
