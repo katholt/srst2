@@ -1,4 +1,4 @@
-srst
+SRST2
 ====
 
 Short Read Sequence Typing (for Bacterial Pathogens)
@@ -20,14 +20,16 @@ Authors - Michael Inouye (minouye@unimelb.edu.au)
 		
 ================
 
-Basic usage:
+Basic usage
+====
 
 srst2.py --input_pe sample_1.fastq.gz sample_2.fastq.gz --output sampleTyping 
 	--mlst_db Escherichia_coli.fasta --mlst_definitions ecoli.txt
 	--gene_db resistance.fasta
 
-================
+
 All usage options
+====
 SRST2 - Short Read Sequence Typer (v2)
 
 optional arguments:
@@ -82,11 +84,8 @@ optional arguments:
                         SRST2 output files to compile (any new results from
                         this run will also be incorporated)
 
-==============
-
 More basic usage examples
-
-==============
+====
 
 Run single read sets against MLST database and resistance database
 
@@ -115,6 +114,7 @@ srst2.py --input_pe *.fastq.gz
 ------------
 
 Run against new read sets, merge with previous reports (individual or compiled)
+
 srst2.py --input_pe strainsY-Z*.fastq.gz
 	--output strainsA-Z
 	--log shigella_new.log 
@@ -144,14 +144,13 @@ python srst2.py --input_pe strain_R1.fastq.gz strain_R2.fastq.gz
 ------------
 
 Compile results from completed runs
+====
 
 python srst2.py --prev_output *compiledResults.txt --output Shigella_report
 	
-==============
  
 Running lots of jobs and compiling results
-
-==============
+====
 
 Run against multiple read sets: submitting 1 job per readset to SLURM queueing system
 
