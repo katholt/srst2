@@ -141,7 +141,6 @@ python srst2.py --input_pe strain_R1.fastq.gz strain_R2.fastq.gz
 	--mlst_definitions efaecium.txt 
 	--verbose
 	
-------------
 
 Compile results from completed runs
 ====
