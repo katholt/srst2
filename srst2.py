@@ -470,9 +470,9 @@ def calculate_ST(allele_scores, ST_db, gene_names, sample_name, mlst_delimiter, 
 
 		allele_with_flags = allele_number
 		if diffs != "":
-			allele_with_flags+="*"
+			if diffs != "trun":
+				allele_with_flags+="*" # trun indicates only that a truncated form had lower score, which isn't a mismatch
 			mismatch_flags.append(allele+"/"+diffs)
-#			st_flags.append(allele+"/"+diffs)
 		if depth_problem != "":
 			allele_with_flags+="?"
 			uncertainty_flags.append(allele+"/"+depth_problem)
@@ -496,12 +496,16 @@ def calculate_ST(allele_scores, ST_db, gene_names, sample_name, mlst_delimiter, 
 	# add flags for reporting
 	st = clean_st
 	if len(mismatch_flags) > 0:
-		st += "*"
+		if mismatch_flags!=["trun"]:
+			st += "*" # trun indicates only that a truncated form had lower score, which isn't a mismatch
 	if len(uncertainty_flags) > 0:
 		st += "?"
 	
 	# mean depth across loci	
-	mean_depth = float(sum(depths))/len(depths)
+	if len(depths) > 0:
+		mean_depth = float(sum(depths))/len(depths)
+	else:
+		mean_depth = 0
 	
 	return (st,clean_st,alleles_with_flags,mismatch_flags,uncertainty_flags,mean_depth)
 	
@@ -522,10 +526,7 @@ def parse_ST_database(ST_filename,ignore_last):
 			else:
 				ST = line_split[0]
 				if ST not in ST_db.values():
-					if ignore_last:
-						ST_string = " ".join(line_split[1:-1])
-					else:
-						ST_string = " ".join(line_split[1:])
+					ST_string = " ".join(line_split[1:len(gene_names)+1])
 					ST_db[ST_string] = ST
 				else:
 					print "Warning: this ST is not unique in the ST definitions file: " + ST
