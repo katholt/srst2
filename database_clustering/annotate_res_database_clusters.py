@@ -25,8 +25,9 @@ def main():
                 clust_number = fields[5]
                 clust_annotation = fields[8]
                 unique_id = fields[0]
+                gene_allele = fields[2]+"-"+fields[3]
                 if allele not in cluster_info:
-                    cluster_info[allele] = (clust_number, clust_annotation)
+                    cluster_info[allele] = (clust_number, clust_annotation, unique_id, gene_allele)
                 else:
                     pass #report duplicates?
                     
@@ -45,11 +46,11 @@ def main():
                 allele = record.id
                 clust_number = cluster_info[allele][0]
                 clust_annotation = cluster_info[allele][1]
-                
+                unique_id = cluster_info[allele][2]
+                gene_allele = cluster_info[allele][3]
+
                 # Edit the ID with cluster info
-                record.id = record.name = record.description =  "{0}__{1}__{2}".format(clust_number, clust_annotation, allele)
-                print record.id
-                sys.exit()
+                record.id = record.name = record.description =  "{0}__{1}__{2}__{3} {4}".format(clust_number, clust_annotation, gene_allele, unique_id, allele)
 
                 # Write to a new file 
                 SeqIO.write(record, out_fasta, "fasta")
