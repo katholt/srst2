@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import string, re, collections
 import os, sys, subprocess		
+from subprocess import call
 from argparse import (ArgumentParser, FileType)
 
 def parse_args():
@@ -32,6 +33,8 @@ def parse_args():
 	parser.add_argument(
 		'--reverse', type=str, required=False, default="_2", 
 			help='Designator for reverse reads (e.g default is _2, expect reverse reads sample_2.fastq.gz)')
+	parser.add_argument('--mlst_db', type=str, required=False, nargs=1, help='Fasta file of MLST alleles (optional)')
+	parser.add_argument('--gene_db', type=str, required=False, nargs='+', help='Fasta file/s for gene databases (optional)')
 	parser.add_argument(
 		'--other_args', type=str, required=False, help='string containing all other arguments to pass to function')
 		
@@ -104,10 +107,37 @@ def read_file_sets(args):
 	if num_single_readsets > 0:
 		print 'Total single reads found:' + str(num_single_readsets)
 
-	print fileSets
-
 	return fileSets 
 
+def run_command(command, **kwargs):
+	'Execute a shell command and check the exit status and any O/S exceptions'
+	command_str = ' '.join(command)
+	print 'Running: {}'.format(command_str)
+	try:
+		exit_status = call(command, **kwargs)
+	except OSError as e:
+		exit("Command '{}' failed due to O/S error: {}".format(command_str, str(e)))
+	if exit_status != 0:
+		exit("Command '{}' failed with non-zero exit status: {}".format(command_str, exit_status))
+
+def bowtie_index(fasta_files):
+	'Build a bowtie2 index from the given input fasta(s)'
+	for fasta in fasta_files:
+		built_index = fasta + '.1.bt2'
+		if os.path.exists(built_index):
+			print 'Bowtie index for {} is already built...'.format(fasta)
+		else:
+			print 'Building bowtie2 index for {}...'.format(fasta)
+			run_command(['bowtie2-build', fasta, fasta])
+
+def samtools_index(fasta_files):
+	for fasta in fasta_files:
+		fai_file = fasta + '.fai'
+		if os.path.exists(fai_file):
+			print 'Samtools index for {} is already built...'.format(fasta)
+		else:
+			print 'Building samtools index for {}...'.format(fasta)
+			run_command(['samtools', 'faidx', fasta])
 def main():
 
 	args = parse_args()
@@ -117,6 +147,15 @@ def main():
 
 	# parse list of file sets to analyse
 	fileSets = read_file_sets(args) # get list of files to process
+	
+	# build indexes to avoid issues later
+	if args.mlst_db:
+		bowtie_index(args.mlst_db)
+		samtools_index(args.mlst_db)
+		
+	if args.gene_db:
+		bowtie_index(args.gene_db)
+		samtools_index(args.gene_db)
 	
 	# build and submit commands
 	for sample in fileSets:		
@@ -138,6 +177,10 @@ def main():
 			cmd += " --reverse " + args.reverse
 		else:
 			cmd += " --input_se " + fastq[0]
+		if args.mlst_db:
+			cmd += " --mlst_db " + args.mlst_db[0]
+		if args.gene_db:
+			cmd += " --gene_db " + " ".join(args.gene_db)
 		cmd += " --output " + sample + "_" + args.output
 		cmd += " --log log_" + sample + "_" + args.output + ".log"
 		cmd += " " + args.other_args
