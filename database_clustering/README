@@ -1,25 +1,31 @@
-##############################################################################
-Run CD-HIT cluster at 90%:
-cdhit-est -i /home/UNIMELB/hdashnow/resistance_database/all_fixed.fsa -o all_fixed_cdhit90 -d 0 > all_fixed_cdhit90.stdout
+Generate srst2-compatible clustered database from raw sequences
+====
 
-This script makes the table after clustering and checks for inconsistencies:
+srst2 can help you type allele sequences, i.e. where you have a database with multiple sequence variants (alleles) of the same gene (or for many genes) and you want to know which variant (allele) of each gene is present in each sample. Any number of sequence databases, in fasta format, can be passed to srst2 for typing using --gene_db. 
+
+To report the results properly, srst2 needs to know which sequences are actually alleles of the same gene (or sequence "cluster"). This information must be provided via the fasta headers in the database in this format: >[clusterID]__[gene]__[allele]__[seqID] [annot].
+----------
+If you know which alleles belong to the same gene family and should be clustered for reporting, then you can use this info to generate the appropriate headers. 
+
+The provided script, csv_to_gene_db.py can help:
+
+csv_to_gene_db.py -t resistance.csv > resistance.fasta
+-----------
+If your sequences are not already assigned to gene clusters, you can do this automatically using CD-HIT (http://weizhong-lab.ucsd.edu/cd-hit/).
+
+1. Run CD-HIT to cluster the sequences at 90% nucleotide identity:
+cdhit-est -i raw_sequences.fasta -o rawseqs_cdhit90 -d 0 > rawseqs_cdhit90.stdout
+
+2. This script makes a table after clustering and checks for inconsistencies between gene names and the sequence clusters:
 res_database_clustering_cdhit.py
 
-##############################################################################
-If there are inconsistencies above, you may like to:
+3. Convert the table to a sequence database using annotate_res_database_clusters.py
 
-Put 90% clusters in individual multi fasta files
-http://code.google.com/p/cdhit/source/browse/make_multi_seq.pl
+If there are inconsistencies detected at step 2 above, you may like to investigate further and change some of the cluster assignments or cluster names, these steps will help you do this by generating trees for each cluster:
+
+• Get each cluster of sequences in a separate file using this script: http://code.google.com/p/cdhit/source/browse/make_multi_seq.pl:
 ./make_multi_seq.pl ../all_fixed.fsa all_fixed_cdhit90.clstr all90 1 #all clusters in different files
 ./make_multi_seq.pl ../all_fixed.fsa all_fixed_cdhit90.clstr all90_2 2 #only clusters with 2 or more members in different files
-235 clusters contain 2 or more DNA sequences 
 
-This script makes NJ trees for clusters containing at least 3 genes:
+• Generate neighbour joining trees for each cluster that contains >2 genes:
 align_plot_tree_min3.py
-
-#############################################################################
-Once you are happy with your clusters, make a new fasta database with clusters annotated:
-
-The resistance_gene_DB can be used to produce an fasta file formatted for SRST2, using this script: annotate_res_database_clusters.py
-New fasta ID format:
->cluster.number__cluster.annotation__original.ID
