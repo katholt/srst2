@@ -215,6 +215,79 @@ You can also use unclustered sequences. This is perfectly fine for gene detectio
 
 However, this won't work well for allele typing. If the sequence database contains multiple allele sequences for the same gene, then all of these that are covered above the length threshold (default 90%) will be reported in the output, which makes for messy reporting. If you do this, you would probably find it most useful to look at the full gene results table rather than looking at the compiled results output.
 
+Output files
+====
+
+MLST results
+
+If MLST sequences and profiles were provided, STs will be printed in tab-delim format to a file called "mlst__[sequenceFileName]__[sample]__results.txt", e.g.: "mlst__Escherichia_coli__strainA__results.txt".
+
+The format looks like this:
+
+Sample  ST      adk     fumC    gyrB    icd     mdh     purA    recA    mismatches      uncertainty     depth
+
+strainA     1502    6       63      7       1       14      7       7                       12.3771855735
+
+- Each locus has a column in which the best scoring allele number is printed. * indicates the best scoring allele has >=1 mismatche (SNP or indel, according to majority rules consensus of the aligned reads vs the allele sequence). Details of the mismatches are given in the mismatches column. This often means you have a novel allele. ? indicates uncertainty in the result because the best scoring allele has some low-depth bases; either the the first or last 2 bases of the allele had <N reads mapped, or a truncation was called in which neigbhbouring bases were coverd with <N reads, or the average depth across the whole allele was <X. N is set by the parameter --min_edge_depth (default 2), X is set by --min_depth (default 5). The source of the uncertainty is printed to the uncertainty column. If no allele could be assigned, the entry is set to ‘-’. 
+
+- If the combination of these alleles appears in the ST definitions file provided by --mlst_definitions, this ST will be printed in the ST column. "NF" indicates the allele combination was not found; "ND" indicates ST calculations were not done (because no ST definitions were provided). Here, * next to the ST indicates that there were mismatches against at least one of the alleles. This suggests that you have a novel variant of this ST rather than a precise match to this ST. ? indicates that there was uncertainty in at least one of the alleles. In all cases, the ST is calculated using the best scoring alleles, whether or not there are mismatches or uncertainty in those calls.
+
+- The 'mismatches' column gives details of any mismatches (defined by majority rules consensus of the aligned reads vs the allele sequence) against the top scoring allele that is reported in the corresponding locus column. Possibilities are: (i) snps, adk-1/1snp indicates there was 1 SNP against the adk-1 allele; (ii) indels, adk-1/2indel indicates there were 1 indels (insertion or deletion calls in the alignment); (iii) holes, adk-1/5holes indicates there were 5 sections of the allele sequence that were not covered in the alignment and pileup (e.g. due to truncation at the start or end of the gene, or large deletions within the gene).
+
+- The 'uncertainty' column gives details of parts of the top scoring alleles for which the depth of coverage was too low to give confidence in the result, this may be zero or any number up to the specified cutoff levels set via --min_edge_depth and --min_depth. Possibilities are considered in this order: (i) edge depth, adk-1/edge1.0 indicates that the mean read depth across either the first 2 or last 2 bases of the assigned allele was 1.0; this is monitored particularly because coverage at the ends of the allele sequences is dependent on bowtie2 to properly map reads that overhang the ends of the allele sequences, which is not as confident as when the whole length of a read maps within the gene (reported if this value is below the cutoff specified (default --min_edge_depth 2), low values can be interpreted as indicating uncertainty in the result as we can’t confidently distinguish alleles that differ at these low-covered bases); (ii) truncations, adk-1/del1.0 indicates that a truncation or large deletion was called for which the neighbouring 2 bases were covered to depth 1.0, this can be interpreted as indicating there is only very weak evidence for the deletion, as it is likely just due to random decline in coverage at this point (reported if this value is below the cutoff specified (default --min_edge_depth 2); (iii) average depth, adk-1/depth3.5 indicates that the mean read depth across the length of the assigned allele was 3.5 (reported if this value is below the cutoff specified, which by default is --min_depth 5)
+
+- The 'depth' column indicates the mean read depth across the length of all alleles which were assigned a top scoring allele number (i.e. excluding any which are recorded as '-'). So if there are 7 loci with alleles called, this number represents the mean read depth across those 7 loci. If say, 2 of the 7 alleles were not called (recorded as ‘-’), the mean depth is that of the 5 loci that were called.
+
+------------
+Gene typing results files report the details of sequences provided in fasta files via --genes_db that are detected above the minimum %coverage theshold set by --min_coverage (default 90).
+
+Two output files are produced:
+
+1. A detailed report, fullgenes__[db]__[sample]__results.txt, with one row per gene per sample:
+
+Sample  DB      gene    allele  coverage        depth   diffs   uncertainty     cluster seqid   annotation
+
+strainA     resistance      dfrA    dfrA1_1 100.0   6.79368421053           edge1.5 590     137     
+
+strainA     resistance      aadA    aadA1-5 100.0   10.6303797468                   162     1631    
+
+strainA     resistance      sul2    sul2_9  100.0   79.01992966                     265     1763    
+
+strainA     resistance      blaTEM  blaTEM-1_5      100.0   70.8955916473                   258     1396    
+
+strainA     resistance      tet(A)  tet(A)_4        97.6666666667   83.5831202046   28holes edge0.0 76      1208    
+
+strainB     resistance      strB    strB1   100.0   90.0883054893                   282     1720    
+
+strainB     resistance      strA    strA4   100.0   99.0832298137                   325     1142 
+
+- coverage indicates the % of the gene length that was covered (if clustered DB, then this is the highest coverage of any members of the cluster)
+- uncertainty is as above
+
+2. A tabulated summary report of samples x genes, genes__[db]__[sample]__results.txt:
+
+Sample  aadA    blaTEM  dfrA    strA    strB    sul2    tet(A)
+
+strainA     aadA1-5 blaTEM-1_5      dfrA1_1?        -   -   sul2_9  tet(A)_4*?
+
+strainB     -     -      -        strA4   strB1   -  -
+
+The first column indicates the sample name, all other columns report the genes/alleles that were detected in the sample set. If multiple samples were input, or if previous outputs were provided for compiling results, then all the genes detected in ANY of the samples will have their own column in this table.
+
+If you were using a clustered gene database (such as the resistance.fasta database provided), the name of each cluster (i.e. the basic gene symbol) will be printed in the column headers, while specific alleles will be printed in the sample rows.
+
+- * indicates mismatches
+- ? indicates uncertainty due to low depth in some parts of the gene
+- - indicates the gene was not detected (> %coverage threshold, --min_coverage 90)
+
+------------
+Combined results
+
+If more then one database is provided for typing (via --mlst_db and/or --gene_db), or if previous results are provided for merging with the current run which contain data from >1 database (via --prev_output), then an additional table summarizing all the database results is produced. This is named "[sample]__compiledResults.txt" and is a combination of the MLST style table plus the tabulated gene summary (file 2 above).
+
+Sample  ST      adk     fumC    gyrB    icd     mdh     purA    recA    mismatches      uncertainty     depth   aadA    blaTEM  dfrA    strA    strB    sul2    tet(A)
+sampleA     152*     11      63*      7       1       14      7       7                       21.3139900892   aadA1-5 blaTEM-1_5      dfrA1_1?        strA4   strB1   sul2_9  tet(A)_4*?
+
 More basic usage examples
 ====
 
