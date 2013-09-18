@@ -29,17 +29,16 @@ Basic usage - MLST
 
 1 - Gather your input files:
 
-(i) sequence reads
+(i) sequence reads (this example uses paired reads in gzipped fastq format, see below for options)
 
 (ii) a fasta sequence database to match to. For MLST, this means a fasta file of all allele sequences. If you want to assign STs, you also need a tab-delim file which defines the ST profiles as a combination of alleles. You can retrieve these files automatically from pubmlst.org/data/ using the script provided:
 
 getmlst.py --species "Escherichia coli"
 
-2 - Run MLST calling:
+2 - Run MLST:
 
 srst2.py --input_pe strainA_1.fastq.gz strainA_2.fastq.gz --output test 
 	--mlst_db Escherichia_coli.fasta --mlst_definitions ecoli.txt
-	--gene_db resistance.fasta
 
 3 - Check the outputs:
 
@@ -49,6 +48,26 @@ Sample  ST      adk     fumC    gyrB    icd     mdh     purA    recA    mismatch
 
 strainA     152     11      63      7       1       14      7       7                       25.8319955826
 
+Basic usage - Resistance genes
+====
+
+1 - Gather your input files:
+
+(i) sequence reads (this example uses paired reads in gzipped fastq format, see below for options)
+
+(ii) a fasta sequence database to match to. For resistance genes, this means a fasta file of all the resistance genes/alleles that you want to screen for, clustered into gene groups. A suitable database, which combines sequences from ResFinder and CARD, is distributed with SRST2 (resistance.fasta).
+
+2 - Run gene detection:
+
+srst2.py --input_pe strainA_1.fastq.gz strainA_2.fastq.gz --output test --gene_db resistance.fasta
+
+3 - Check the outputs:
+
+(i) Gene detection results are output in: "genes__resistance__strainA_test__results.txt"
+
+Sample  aadA    dfrA    sul2    tet(B)
+
+strainA     aadA1-5 dfrA1_1 sul2_2  tet(B)_4
 
 All usage options
 ====
@@ -78,11 +97,6 @@ optional arguments:
   --mlst_definitions MLST_DEFINITIONS
                         ST definitions for MLST scheme (required if mlst_db
                         supplied and you want to calculate STs)
-                        
-  --ignore_last         Flag to ignore last column of ST definitions table
-                        (e.g. sometimes an additional column is added to
-                        indicate clonal complex, which is not part of the ST
-                        definition).
                         
   --gene_db GENE_DB [GENE_DB ...]
                         Fasta file/s for gene databases (optional)
@@ -127,6 +141,20 @@ optional arguments:
   --prev_output PREV_OUTPUT [PREV_OUTPUT ...]
                         SRST2 output files to compile (any new results from
                         this run will also be incorporated)
+
+Input read formats and options
+====
+
+Any number of readsets can be provided using --input_se (for single end reads) and/or --input_pe (for paired end reads). You can provide both types of reads at once. Note however that if you do this, each readset will be typed one by one (in serial). So if it takes 2 minutes to type each read set, and you provide 10 read sets, it will take 20 minutes to get your results. The better way to proces lots of samples quickly is to give each one its own srst2.py job (e.g. submitted simultaneously to your job scheduler or server); then compile the results into a single report using "srst2.py --prev_output *results.txt --output all". That way each readset's 2 minutes of analysis is occurring in parallel on different nodes, and you'll get your results for all 10 samples in 2 minutes rather than 20.
+
+Read formats - reads can be in any format readable by bowtie2. The format is passed on to the bowtie2 command via the --read_type flag in srst2. The default format is fastq (passed to bowtie 2 as q); other options are qseq=solexa, f=fasta. So to use fasta reads, you would need to tell srst2 this via '--read_type f'.
+
+Reads may be gzipped.
+
+Paired reads - bowtie2 requires forward and reverse reads to be supplied in separate files, e.g strainA_1.fastq.gz and strainA_2.fastq.gz. srst2 attempts to sort reads supplied via --input_pe into read pairs, based on the suffix that occurs before the file extension (which in this example would be .fastq.gz). So if you supplied --input_pe strainA_1.fastq.gz strainB_1.fastq.gz strainA_2.fastq.gz strainB_2.fastq.gz, srst2 would sort these into two pairs (strainA_1.fastq.gz, strainA_2.fastq.gz) and (strainB_1.fastq.gz, strainB_2.fastq.gz) and pass each pair to bowtie2 for mapping. By default, the suffixes are assumed to "_1" for forward reads and "_2" for reverse reads, but you can tell srst2 if you have other conventions, via --forward and --reverse. E.g. if your files were named strainA_read1.fastq.gz and strainA_read2.fastq.gz, you would use these commands: --input_pe strainA_read1.fastq.gz strainA_read2.fastq.gz --forward _read1 --reverse _read2.
+
+Sample names are taken from the first part of the read file name (before the suffix if you have paired reads). E.g. 'strainA_1.fastq.gz' is assumed to belong to a sample called "strainA"; 'strainB_C_1.fastq.gz" would be assumed to belong to a sample called "strainB_C". These sample names will be used to name all output files, and will appear in the results files.
+
 
 More basic usage examples
 ====
