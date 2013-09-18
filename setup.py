@@ -3,12 +3,12 @@
 from distutils.core import setup
 
 setup(
-    name='SRST2',
-    version='1.0.0',
+    name='srst2',
+    version='0.1.0',
     author='Kathryn Holt',
     author_email='kholt@unimelb.edu.au',
     packages=['srst2'],
-    #scripts=['bin/srst2.py'],
+    scripts=['srst2/getmlst.py', 'srst2/scores_vs_expected.py', 'srst2/slurm_srst2.py'],
     entry_points={
         'console_scripts': ['srst2 = srst2.srst2:main']
     },
