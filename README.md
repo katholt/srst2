@@ -175,6 +175,46 @@ The names of the alleles (i.e. the fasta headers) are critical for a functioning
 
 This is the file that tells you the ST number that is assigned to known combinations of alleles. Column 1 is the ST, and subsequent columns are the loci that make up the scheme. The names of these loci must match the allele names in the sequences database, e.g. adk, fumC, gyrB, icd, mdh, purA, recA in the E. coli scheme. If you download data from pubmlst this should not be a problem. Sometimes there are additional columns in this file, e.g. a column assigning STs to clonal complexes. srst2 will ignore any columns that don't match gene names found in the allele sequences file.
 
+Gene database format
+====
+
+In addition to MLST, srst2 can do gene/allele detection. This works by mapping reads to each of the reference sequences in a fasta file(s) (provided through --gene_db) and reporting details of all genes that are covered above a certain level (--min_coverage, 90% by default). 
+
+If the input database contains different alelles of the same gene, srst2 can report just the best matching allele for that gene (much like with MLST we report the best matching allele for each locus in the scheme). This makes the output manageable, as you will get one column per gene/locus (e.g. blaCTX-M) which reports the specific allele that was called in each sample (e.g. blaCTX-M-15 in sample A, blaCTX-M-13 in sample B).
+
+To do this properly, srst2 needs to know which of the reference sequences are alleles of the same gene. This is done by adhering to the following format in the naming of the sequences (i.e. the headers in the fasta sequence for the database):
+
+>[clusterUniqueIdentifier]__[clusterSymbol]__[alleleSymbol]__[alleleUniqueIdentifier]
+
+e.g. in the resistance gene database provided, the first entry is:
+
+>344__blaOXA__blaOXA-181__1
+
+Note these are separated by two underscores. The individual components are:
+
+clusterUniqueIdentifier = 344;  unique identifier for this cluster (uniquely identifes the cluster)
+clusterSymbol = blaOXA;  gene symbol for this cluster (may be shared by multiple clusters)
+alleleSymbol = blaOXA-181;  full name of this allele
+alleleUniqueIdentifier = 1;  uniquely identifies the sequence
+
+Ideally the alleleSymbol would be unique (as it is in the reference.fasta file provided). However it doesn't have to be: if allele symbols are not unique, then srst2 will use the combination '[alleleSymbol]__[alleleUniqueIdentifier]' to  uniquely identify the sequence in the resulting reports, so that you can trace exactly which sequence was present in each sample.
+
+Additional gene annotation can appear on the header line, after a space. This additional info will be printed in the full genes report, but not in the compiled results files.
+
+e.g. for the blaOXA sequence above, the full header is actually:
+
+>344__blaOXA__blaOXA-181__1 blaOXA-181_1_HM992946; HM992946; betalactamase
+
+------------
+If you want to use your own database of allele sequences, with the reporting behaviour described, you will need to assign your sequences to clusters and use the header format specified above.
+
+To facilitate this, use the scripts provided in the database_clustering directory provided with srst2.
+
+------------
+You can also use unclustered sequences. This is perfectly fine for gene detection applications, where you have one representative allele sequence for each gene, and you simply want to know which samples contain a sequence that is similar to this one (e.g. detecting plasmid replicons, where there is one target sequence per replicon).
+
+However, this won't work well for allele typing. If the sequence database contains multiple allele sequences for the same gene, then all of these that are covered above the length threshold (default 90%) will be reported in the output, which makes for messy reporting. If you do this, you would probably find it most useful to look at the full gene results table rather than looking at the compiled results output.
+
 More basic usage examples
 ====
 
