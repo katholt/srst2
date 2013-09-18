@@ -51,9 +51,7 @@ def parse_args():
 		
 	parser.add_argument('--mlst_definitions', type=str, required=False,
 		help='ST definitions for MLST scheme (required if mlst_db supplied and you want to calculate STs)')
-	parser.add_argument('--ignore_last', action="store_true", required=False,
-		help='Flag to ignore last column of ST definitions table (e.g. sometimes an additional column is added to indicate clonal complex, which is not part of the ST definition).')
-
+		
 	# Gene database parameters
 	parser.add_argument('--gene_db', type=str, required=False, nargs='+', help='Fasta file/s for gene databases (optional)')
 
@@ -135,6 +133,7 @@ def parse_fai(fai_file,db_type,delimiter):
 	gene_cluster_symbols = {} # key = cluster ID, value = gene symbol (for gene DBs)
 	unique_allele_symbols = True
 	unique_gene_symbols = True
+	delimiter_check = [] # list of names that may violate the MLST delimiter supplied
 	with open(fai_file) as fai:
 		for line in fai:
 			fields = line.split('\t')
@@ -152,6 +151,15 @@ def parse_fai(fai_file,db_type,delimiter):
 					gene_cluster_symbols[gene_cluster] = cluster_symbol
 			else:
 				gene_cluster = name.split(delimiter)[0] # accept gene clusters raw for mlst
+				# check if the delimiter makes sense
+				parts = name.split(delimiter)
+				if len(parts) != 2:
+					delimiter_check.append(name)
+				else:
+					try:
+						x = int(parts[1])
+					except:
+						delimiter_check.append(name)
 			
 			# check if we have seen this allele name before
 			if name in allele_symbols:
@@ -159,7 +167,12 @@ def parse_fai(fai_file,db_type,delimiter):
 			allele_symbols.append(name)
 			
 			# record gene:
-			gene_clusters.append(gene_cluster)
+			if gene_cluster not in gene_clusters:
+				gene_clusters.append(gene_cluster)
+
+	if len(delimiter_check) > 0:
+		print "Warning! MLST delimiter is " + delimiter + " but these genes may violate the pattern and cause problems:"
+		print ",".join(delimiter_check)
 			
 	return size, gene_clusters, unique_gene_symbols, unique_allele_symbols
 
@@ -484,11 +497,12 @@ def calculate_ST(allele_scores, ST_db, gene_names, sample_name, mlst_delimiter, 
 		try:
 			clean_st = ST_db[allele_string]
 		except KeyError:
-			print "This combination of alleles was not found in the sequence type database:"
-			print sample_name
+			print "This combination of alleles was not found in the sequence type database:",
+			print sample_name,
 			for gene in allele_scores:
 				(allele,diffs,depth_problems) = allele_scores[gene]
-				print allele
+				print allele,
+			print
 			clean_st = "NF"
 	else:
 		clean_st = "ND"
@@ -509,24 +523,34 @@ def calculate_ST(allele_scores, ST_db, gene_names, sample_name, mlst_delimiter, 
 	
 	return (st,clean_st,alleles_with_flags,mismatch_flags,uncertainty_flags,mean_depth)
 	
-def parse_ST_database(ST_filename,ignore_last):
+def parse_ST_database(ST_filename,gene_names_from_fai):
 	# Read ST definitions
 	ST_db = {} # key = allele string, value = ST
 	gene_names = []
+	num_gene_cols_expected = len(gene_names_from_fai)
+	print "Attempting to read " + str(num_gene_cols_expected) + " loci from ST database " + ST_filename
 	with open(ST_filename) as f:
 		count = 0
 		for line in f:
 			count += 1
 			line_split = line.rstrip().split("\t")
 			if count == 1: # Header
-				if ignore_last:
-					gene_names = line_split[1:-1]
-				else:
-					gene_names = line_split[1:]
+				gene_names = line_split[1:min(num_gene_cols_expected+1,len(line_split))]
+				for g in gene_names_from_fai:
+					if g not in gene_names:
+						print "Warning: gene " + g + " in database file isn't among the columns in the ST definitions: " + ",".join(gene_names)
+						print " Any sequences with this gene identifer from the database will not be included in typing."
+						if len(line_split) == num_gene_cols_expected+1:
+							gene_names.pop() # we read too many columns
+							num_gene_cols_expected -= 1
+				for g in gene_names:
+					if g not in gene_names_from_fai:
+						print "Warning: gene " + g + " in ST definitions file isn't among those in the database " + ",".join(gene_names_from_fai)
+						print " This will result in all STs being called as unknown (but allele calls will be accurate for other loci)." 
 			else:
 				ST = line_split[0]
 				if ST not in ST_db.values():
-					ST_string = " ".join(line_split[1:len(gene_names)+1])
+					ST_string = " ".join(line_split[1:num_gene_cols_expected+1])
 					ST_db[ST_string] = ST
 				else:
 					print "Warning: this ST is not unique in the ST definitions file: " + ST
@@ -836,7 +860,7 @@ def run_srst2(args,fileSets,dbs,run_type):
 			results = {} # key = sample, value = ST string for printing
 			if args.mlst_definitions:
 				# store MLST profiles, replace gene names (we want the order as they appear in this file)
-				ST_db, gene_names = parse_ST_database(args.mlst_definitions,args.ignore_last) 
+				ST_db, gene_names = parse_ST_database(args.mlst_definitions,gene_names)
 			else:
 				# no ST definitions provided
 				ST_db = False
