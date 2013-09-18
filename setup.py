@@ -20,7 +20,7 @@ setup(
                       'sequence data, a MLST database and/or a database'
                       'of gene sequences (e.g. resistance genes, virulence'
                       'genes, etc) and report the presence of STs and/or'
-                      'reference genes.')
+                      'reference genes.'),
     install_requires=[
         "scipy >= 0.12.0",
     ],
