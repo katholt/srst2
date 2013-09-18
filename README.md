@@ -8,9 +8,13 @@ of gene sequences (e.g. resistance genes, virulence genes, etc) and report the p
 STs and/or reference genes.
 
 Dependencies:
+
 python (v2.7.5), scipy
+
 bowtie2 v2.1.0     http://bowtie-bio.sourceforge.net/bowtie2/index.shtml
+
 SAMtools v0.1.18   http://samtools.sourceforge.net (NOTE 0.1.19 DOES NOT WORK)
+
 
 
 Authors - Michael Inouye (minouye@unimelb.edu.au)
@@ -34,52 +38,74 @@ SRST2 - Short Read Sequence Typer (v2)
 
 optional arguments:
   -h, --help            show this help message and exit
+  
   --input_se INPUT_SE [INPUT_SE ...]
                         Input single end read
+                        
   --input_pe INPUT_PE [INPUT_PE ...]
                         Input paired end reads
+                        
   --forward FORWARD     Designator for forward reads (e.g default is _1,
                         expect forward reads sample_1.fastq.gz)
+                        
   --reverse REVERSE     Designator for reverse reads (e.g default is _2,
                         expect reverse reads sample_2.fastq.gz)
+                        
   --mlst_db MLST_DB     Fasta file of MLST alleles (optional)
+  
   --mlst_delimiter MLST_DELIMITER
                         Character(s) separating gene name from allele number
                         in MLST database (default "-", as in arcc-1)
+                        
   --mlst_definitions MLST_DEFINITIONS
                         ST definitions for MLST scheme (required if mlst_db
                         supplied and you want to calculate STs)
+                        
   --ignore_last         Flag to ignore last column of ST definitions table
                         (e.g. sometimes an additional column is added to
                         indicate clonal complex, which is not part of the ST
                         definition).
+                        
   --gene_db GENE_DB [GENE_DB ...]
                         Fasta file/s for gene databases (optional)
+                        
   --min_coverage MIN_COVERAGE
                         Percent coverage cutoff for gene reporting (default
                         90)
+                        
   --min_depth MIN_DEPTH
                         Minimum mean depth to flag as dubious allele call
                         (default 5)
+                        
   --min_edge_depth MIN_EDGE_DEPTH
                         Minimum edge depth to flag as dubious allele call
                         (default 2)
+                        
   --prob_err PROB_ERR   Probability of sequencing error (default 0.01)
   --read_type {q,qseq,f}
                         Input file type (for bowtie input; default is q=fastq;
-                        other options: qseq=solexa, f=fasta).
-  --other OTHER         Other options for bowtie2.
+                        other options: qseq=solexa, f=fasta)
+                        
+  --other OTHER         Other options for bowtie2
+  
   --mapq MAPQ           Qual map
+  
   --baseq BASEQ         Qual base
+  
   --output OUTPUT       Output file prefix
+  
   --log FILE            log progress in FILENAME, defaults to stdout
+  
   --verbose             Switch on verbose reporting
+  
   --use_existing_pileup
                         Use existing pileups if available, otherwise they will
                         be generated
+                        
   --use_existing_scores
                         Use existing scores files if available, otherwise they
                         will be generated
+                        
   --prev_output PREV_OUTPUT [PREV_OUTPUT ...]
                         SRST2 output files to compile (any new results from
                         this run will also be incorporated)
@@ -168,21 +194,31 @@ SLURM job script usage options
 
 optional arguments:
   -h, --help            show this help message and exit
+  
   --walltime WALLTIME   wall time (default 0-0:30 = 30 minutes)
+  
   --memory MEMORY       mem (default 4096 = 4gb)
+  
   --rundir RUNDIR       directory to run in (default current dir)
+  
   --script SCRIPT       SRST2 script (/vlsci/VR0082/shared/srst2_sep/srst2_150
                         9_reporting2.py)
+                        
   --output OUTPUT       identifier for outputs (will be combined with read set
                         identifiers)
+                        
   --input_se INPUT_SE [INPUT_SE ...]
                         Input single end reads
+                        
   --input_pe INPUT_PE [INPUT_PE ...]
                         Input paired end reads
+                        
   --forward FORWARD     Designator for forward reads (e.g default is _1,
                         expect forward reads sample_1.fastq.gz)
+                        
   --reverse REVERSE     Designator for reverse reads (e.g default is _2,
                         expect reverse reads sample_2.fastq.gz)
+                        
   --other_args OTHER_ARGS
                         string containing all other arguments to pass to
                         function
