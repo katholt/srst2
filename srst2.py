@@ -141,14 +141,18 @@ def parse_fai(fai_file,db_type,delimiter):
 			size[name] = int(fields[1]) # store length
 			if db_type!="mlst":
 				allele_info = name.split()[0].split("__")
-				gene_cluster = allele_info[0] # ID number for the cluster
-				cluster_symbol = allele_info[1] # gene name for the cluster
-				name = allele_info[2] # specific allele name
-				if gene_cluster in gene_cluster_symbols:
-					if gene_cluster_symbols[gene_cluster] != cluster_symbol:
-						unique_gene_symbols = False # already seen this cluster name
+				if len(allele_info) > 2:
+					gene_cluster = allele_info[0] # ID number for the cluster
+					cluster_symbol = allele_info[1] # gene name for the cluster
+					name = allele_info[2] # specific allele name
+					if gene_cluster in gene_cluster_symbols:
+						if gene_cluster_symbols[gene_cluster] != cluster_symbol:
+							unique_gene_symbols = False # already seen this cluster name
+					else:
+						gene_cluster_symbols[gene_cluster] = cluster_symbol
 				else:
-					gene_cluster_symbols[gene_cluster] = cluster_symbol
+					# treat as unclustered database, use whole header
+					gene_cluster = cluster_symbol = name
 			else:
 				gene_cluster = name.split(delimiter)[0] # accept gene clusters raw for mlst
 				# check if the delimiter makes sense
@@ -476,7 +480,7 @@ def calculate_ST(allele_scores, ST_db, gene_names, sample_name, mlst_delimiter, 
 			allele_number = allele.split(mlst_delimiter)[-1]
 			depths.append(avg_depth_allele[allele])
 		else:
-			allele_number = "?"
+			allele_number = "-"
 			diffs = ""
 			depth_problem = ""
 		allele_numbers.append(allele_number)
@@ -563,11 +567,17 @@ def get_allele_name_from_db(allele,unique_allele_symbols,unique_cluster_symbols,
 		# header format: >0__oqxB__oqxB__2 oqxB_1_EU370913; EU370913; quinolone
 		allele_parts = allele.split()
 		allele_info = allele_parts[0].split("__")
-		cluster_id = allele_info[0] # ID number for the cluster
-		gene_name = allele_info[1] # gene name for the cluster
-		allele_name = allele_info[2] # specific allele name
-		seqid = allele_info[3] # unique identifier for this seq
-		annotation = " ".join(allele_parts[1:-1])
+		if len(allele_info)>2:
+			cluster_id = allele_info[0] # ID number for the cluster
+			gene_name = allele_info[1] # gene name for the cluster
+			allele_name = allele_info[2] # specific allele name
+			seqid = allele_info[3] # unique identifier for this seq
+		else:
+			cluster_id = gene_name = allele_name = seqid = allele_parts[0]
+		if len(allele_parts) > 1:
+			annotation = " ".join(allele_parts[1:-1])
+		else:
+			annotation = ""
 	
 		if not unique_allele_symbols:	
 			allele_name += "_" + seq_id
