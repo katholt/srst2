@@ -24,12 +24,30 @@ Authors - Michael Inouye (minouye@unimelb.edu.au)
 		
 ================
 
-Basic usage
+Basic usage - MLST
 ====
 
-srst2.py --input_pe sample_1.fastq.gz sample_2.fastq.gz --output sampleTyping 
+1 - Gather your input files:
+
+(i) sequence reads
+
+(ii) a fasta sequence database to match to. For MLST, this means a fasta file of all allele sequences. If you want to assign STs, you also need a tab-delim file which defines the ST profiles as a combination of alleles. You can retrieve these files automatically from pubmlst.org/data/ using the script provided:
+
+getmlst.py --species "Escherichia coli"
+
+2 - Run MLST calling:
+
+srst2.py --input_pe strainA_1.fastq.gz strainA_2.fastq.gz --output test 
 	--mlst_db Escherichia_coli.fasta --mlst_definitions ecoli.txt
 	--gene_db resistance.fasta
+
+3 - Check the outputs:
+
+(i) MLST results are output in: "mlst__Escherichia_coli__strainA_test__results.txt"
+
+Sample  ST      adk     fumC    gyrB    icd     mdh     purA    recA    mismatches      uncertainty     depth
+
+strainA     152     11      63      7       1       14      7       7                       25.8319955826
 
 
 All usage options
