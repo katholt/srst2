@@ -22,6 +22,12 @@ setup(
                       'genes, etc) and report the presence of STs and/or'
                       'reference genes.'),
     install_requires=[
-        "scipy >= 0.12.0",
+        # Although we depend on scipy, which depends on numpy, we don't
+        # specify the dependencies here because they don't play well with
+        # any Python installing system, such as pip or easy_install.
+        # So we assume the user has already installed the dependencies
+        # themselves.
+        #"numpy >= 1.7.1",
+        #"scipy >= 0.12.0",
     ],
 )
