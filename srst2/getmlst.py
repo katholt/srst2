@@ -37,7 +37,7 @@ def parse_args():
 	parser.add_argument('--species',
 						metavar = 'NAME',
 						required = True,
-						help = 'The name of the species that you want to download')
+						help = 'The name of the species that you want to download (e.g. "Escherichia coli")')
 	return parser.parse_args()
 
 # test if a node is an Element and that it has a specific tag name

@@ -18,8 +18,7 @@ def parse_args():
 	
 	# SRST2 inputs
 	parser.add_argument(
-		'--script', type=str, required=True, help='SRST2 script (/vlsci/VR0082/shared/srst2_sep/srst2_1509_reporting2.py)', 
-		default="/vlsci/VR0082/shared/srst2_sep/srst2_1509_reporting2.py")
+		'--script', type=str, required=True, help='path to srst2.py script (default srst2.py)', default="srst2.py")
 	parser.add_argument(
 		'--output', type=str, required=True, help='identifier for outputs (will be combined with read set identifiers)')
 	parser.add_argument(
@@ -33,7 +32,7 @@ def parse_args():
 		'--reverse', type=str, required=False, default="_2", 
 			help='Designator for reverse reads (e.g default is _2, expect reverse reads sample_2.fastq.gz)')
 	parser.add_argument(
-		'--other_args', type=str, required=False, help='string containing all other arguments to pass to function')
+		'--other_args', type=str, required=False, help='string containing all other arguments to pass to srst2.py')
 		
 	return parser.parse_args() 
 
