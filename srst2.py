@@ -87,6 +87,10 @@ def parse_args():
 	return parser.parse_args() 
 
 
+# Exception to raise if the command we try to run fails for some reason
+class CommandError(Exception):
+	pass
+
 def run_command(command, **kwargs):
 	'Execute a shell command and check the exit status and any O/S exceptions'
 	command_str = ' '.join(command)
@@ -94,9 +98,11 @@ def run_command(command, **kwargs):
 	try:
 		exit_status = call(command, **kwargs)
 	except OSError as e:
-		exit("Command '{}' failed due to O/S error: {}".format(command_str, str(e)))
+		message = "Command '{}' failed due to O/S error: {}".format(command_str, str(e))
+		raise CommandError({"message": message})
 	if exit_status != 0:
-		exit("Command '{}' failed with non-zero exit status: {}".format(command_str, exit_status))
+		message = "Command '{}' failed with non-zero exit status: {}".format(command_str, exit_status)
+		raise CommandError({"message": message})
 
 
 def bowtie_index(fasta_files):
@@ -841,172 +847,182 @@ def read_scores_file(scores_file):
 	return hash_edge_depth, avg_depth_allele, coverage_allele, mismatch_allele, indel_allele, \
 			missing_allele, size_allele, next_to_del_depth_allele, scores
 
-def run_srst2(args,fileSets,dbs,run_type):
+def run_srst2(args, fileSets, dbs, run_type):
 
 	db_reports = [] # list of db-specific output files to return
 	db_results_list = [] # list of results hashes, one per db
 
 	for fasta in dbs:
-	
-		logging.info('Processing database ' + fasta)
-	
-		db_path, db_name = os.path.split(fasta) # database
-		(db_name,db_ext) = os.path.splitext(db_name)
-		db_results = "__".join([run_type,db_name,args.output,"results.txt"])
-		db_report = file(db_results,"w")
-		db_reports.append(db_results)
-		
-		# Get sequence lengths and gene names
-		#  lengths are needed for MLST heuristic to distinguish alleles from their truncated forms
-		#  gene names read from here are needed for non-MLST dbs
-		fai_file = fasta + '.fai'
-		if not os.path.exists(fai_file):
-			run_command(['samtools', 'faidx', fasta])
-		size, gene_names, unique_gene_symbols, unique_allele_symbols = \
-			parse_fai(fai_file,run_type,args.mlst_delimiter)
+		# try processing this fasta database
+		try:
+			process_fasta_db(args, fileSets, runType, db_reports, db_results_list, fasta)
+		# if we get an error from one of the commands we called
+		# log the error message and continue onto the next fasta db
+            	except CommandError as e:
+                	logging.error(e.message)
 
-		# Prepare for MLST reporting
-		if run_type == "mlst":
-			results = {} # key = sample, value = ST string for printing
-			if args.mlst_definitions:
-				# store MLST profiles, replace gene names (we want the order as they appear in this file)
-				ST_db, gene_names = parse_ST_database(args.mlst_definitions,gene_names)
+	return db_reports, db_results_list
+
+def process_fasta_db(args, fileSets, run_type, db_reports, db_results_list, fasta):
+
+	logging.info('Processing database ' + fasta)
+
+	db_path, db_name = os.path.split(fasta) # database
+	(db_name,db_ext) = os.path.splitext(db_name)
+	db_results = "__".join([run_type,db_name,args.output,"results.txt"])
+	db_report = file(db_results,"w")
+	db_reports.append(db_results)
+	
+	# Get sequence lengths and gene names
+	#  lengths are needed for MLST heuristic to distinguish alleles from their truncated forms
+	#  gene names read from here are needed for non-MLST dbs
+	fai_file = fasta + '.fai'
+	if not os.path.exists(fai_file):
+		run_command(['samtools', 'faidx', fasta])
+	size, gene_names, unique_gene_symbols, unique_allele_symbols = \
+		parse_fai(fai_file,run_type,args.mlst_delimiter)
+
+	# Prepare for MLST reporting
+	if run_type == "mlst":
+		results = {} # key = sample, value = ST string for printing
+		if args.mlst_definitions:
+			# store MLST profiles, replace gene names (we want the order as they appear in this file)
+			ST_db, gene_names = parse_ST_database(args.mlst_definitions,gene_names)
+		else:
+			# no ST definitions provided
+			ST_db = False
+		db_report.write("\t".join(["Sample","ST"]+gene_names+["mismatches","uncertainty","depth"]) + "\n")
+		results["Sample"] = "\t".join(["Sample","ST"]+gene_names+["mismatches","uncertainty","depth"])
+		
+	else:
+		# store final results for later tabulation
+		results = collections.defaultdict(dict) #key1 = sample, key2 = gene, value = allele
+		gene_list = []
+
+	# Align and score each read set against this DB
+	for sample_name in fileSets:
+	
+		logging.info('Processing sample ' + sample_name)
+	
+		fastq_inputs = fileSets[sample_name] # reads
+	
+		pileup_file = sample_name + '.' + db_name + '.srst2.pileup'
+		scores_file = pileup_file + '.table.scores'
+		
+		# Get or read scores
+		
+		if args.use_existing_scores and os.path.exists(scores_file):
+			
+			logging.info(' Using existing scores in ' + scores_file)
+				
+			# read in scores and info from existing scores file
+			hash_edge_depth, avg_depth_allele, coverage_allele, \
+					mismatch_allele, indel_allele, missing_allele, size_allele, \
+					next_to_del_depth_allele, scores = read_scores_file(scores_file)
+		
+		else:
+		
+			# Get or read pileup
+			
+			if args.use_existing_pileup and os.path.exists(pileup_file):
+				logging.info(' Using existing pileup in ' + pileup_file)
+	
 			else:
-				# no ST definitions provided
-				ST_db = False
-			db_report.write("\t".join(["Sample","ST"]+gene_names+["mismatches","uncertainty","depth"]) + "\n")
-			results["Sample"] = "\t".join(["Sample","ST"]+gene_names+["mismatches","uncertainty","depth"])
+				
+				# run bowtie against this db
+				bowtie_sam = run_bowtie(sample_name,fastq_inputs,args,db_name,fasta)
+
+				# Modify Bowtie's SAM formatted output so that we get secondary
+				# alignments in downstream pileup
+				(raw_bowtie_sam,bowtie_sam_mod) = modify_bowtie_sam(bowtie_sam)
+		
+				# generate pileup from sam (via sorted bam)
+				get_pileup(args,raw_bowtie_sam,bowtie_sam_mod,fasta,pileup_file)
+
+			# Get scores
+
+			# Process the pileup and extract info for scoring and reporting on each allele
+			logging.info(' Processing SAMtools pileup...')
+			hash_alignment, hash_max_depth, hash_edge_depth, avg_depth_allele, coverage_allele, \
+					mismatch_allele, indel_allele, missing_allele, size_allele, next_to_del_depth_allele= \
+					read_pileup_data(pileup_file, size, args.prob_err)
+
+			# Generate scores for all alleles (prints these and associated info if verbose)
+			#   result = dict, with key=allele, value=score
+			logging.info(' Scoring alleles...')
+			scores = score_alleles(args,pileup_file, hash_alignment, hash_max_depth, hash_edge_depth, \
+					avg_depth_allele, coverage_allele, mismatch_allele, indel_allele, missing_allele, \
+					size_allele, next_to_del_depth_allele, run_type)
+			
+		# Determine best score for each gene/cluster
+		
+		#  result = dict, with key = gene, value = (allele,diffs,depth_problem)
+		#			for MLST DBs, key = gene = locus, allele = gene-number
+		#           for gene DBs, key = gene = cluster ID, allele = cluster__gene__allele__id
+		#  for gene DBs, only those alleles passing the coverage cutoff are returned
+		allele_scores = parse_scores(run_type,args,scores, \
+				hash_edge_depth, avg_depth_allele, coverage_allele, mismatch_allele,  \
+				indel_allele, missing_allele, size_allele, next_to_del_depth_allele,
+				unique_gene_symbols, unique_allele_symbols)
+				
+		# Report results
+		if run_type == "mlst":
+						
+			# Calculate ST and get info for reporting
+			(st,clean_st,alleles_with_flags,mismatch_flags,uncertainty_flags,mean_depth) = \
+					calculate_ST(allele_scores, ST_db, gene_names, sample_name, args.mlst_delimiter, avg_depth_allele)
+
+			# Print to database-specific report, log and save the result
+			st_result_string = "\t".join([sample_name,st]+alleles_with_flags+[";".join(mismatch_flags),";".join(uncertainty_flags),str(mean_depth)])
+			db_report.write( st_result_string + "\n")
+			logging.info(" " + st_result_string)
+			results[sample_name] = st_result_string
 			
 		else:
-			# store final results for later tabulation
-			results = collections.defaultdict(dict) #key1 = sample, key2 = gene, value = allele
-			gene_list = []
-
-		# Align and score each read set against this DB
-		for sample_name in fileSets:
-		
-			logging.info('Processing sample ' + sample_name)
-		
-			fastq_inputs = fileSets[sample_name] # reads
-		
-			pileup_file = sample_name + '.' + db_name + '.srst2.pileup'
-			scores_file = pileup_file + '.table.scores'
-			
-			# Get or read scores
-			
-			if args.use_existing_scores and os.path.exists(scores_file):
-				
-				logging.info(' Using existing scores in ' + scores_file)
-					
-				# read in scores and info from existing scores file
-				hash_edge_depth, avg_depth_allele, coverage_allele, \
-						mismatch_allele, indel_allele, missing_allele, size_allele, \
-						next_to_del_depth_allele, scores = read_scores_file(scores_file)
-			
-			else:
-			
-				# Get or read pileup
-				
-				if args.use_existing_pileup and os.path.exists(pileup_file):
-					logging.info(' Using existing pileup in ' + pileup_file)
-		
-				else:
-					
-					# run bowtie against this db
-					bowtie_sam = run_bowtie(sample_name,fastq_inputs,args,db_name,fasta)
-
-					# Modify Bowtie's SAM formatted output so that we get secondary
-					# alignments in downstream pileup
-					(raw_bowtie_sam,bowtie_sam_mod) = modify_bowtie_sam(bowtie_sam)
-			
-					# generate pileup from sam (via sorted bam)
-					get_pileup(args,raw_bowtie_sam,bowtie_sam_mod,fasta,pileup_file)
-
-				# Get scores
-
-				# Process the pileup and extract info for scoring and reporting on each allele
-				logging.info(' Processing SAMtools pileup...')
-				hash_alignment, hash_max_depth, hash_edge_depth, avg_depth_allele, coverage_allele, \
-						mismatch_allele, indel_allele, missing_allele, size_allele, next_to_del_depth_allele= \
-						read_pileup_data(pileup_file, size, args.prob_err)
-
-				# Generate scores for all alleles (prints these and associated info if verbose)
-				#   result = dict, with key=allele, value=score
-				logging.info(' Scoring alleles...')
-				scores = score_alleles(args,pileup_file, hash_alignment, hash_max_depth, hash_edge_depth, \
-						avg_depth_allele, coverage_allele, mismatch_allele, indel_allele, missing_allele, \
-						size_allele, next_to_del_depth_allele, run_type)
-				
-			# Determine best score for each gene/cluster
-			
-			#  result = dict, with key = gene, value = (allele,diffs,depth_problem)
-			#			for MLST DBs, key = gene = locus, allele = gene-number
-			#           for gene DBs, key = gene = cluster ID, allele = cluster__gene__allele__id
-			#  for gene DBs, only those alleles passing the coverage cutoff are returned
-			allele_scores = parse_scores(run_type,args,scores, \
-					hash_edge_depth, avg_depth_allele, coverage_allele, mismatch_allele,  \
-					indel_allele, missing_allele, size_allele, next_to_del_depth_allele,
-					unique_gene_symbols, unique_allele_symbols)
-					
-			# Report results
-			if run_type == "mlst":
-							
-				# Calculate ST and get info for reporting
-				(st,clean_st,alleles_with_flags,mismatch_flags,uncertainty_flags,mean_depth) = \
-						calculate_ST(allele_scores, ST_db, gene_names, sample_name, args.mlst_delimiter, avg_depth_allele)
-
-				# Print to database-specific report, log and save the result
-				st_result_string = "\t".join([sample_name,st]+alleles_with_flags+[";".join(mismatch_flags),";".join(uncertainty_flags),str(mean_depth)])
-				db_report.write( st_result_string + "\n")
-				logging.info(" " + st_result_string)
-				results[sample_name] = st_result_string
-				
-			else:
+			if args.verbose:
+				full_results = "__".join(["full"+run_type,db_name,args.output,"results.txt"])
+				logging.info("Printing verbose gene detection results to " + full_results)
+				f = file(full_results,"w")
+				f.write("\t".join(["Sample","DB","gene","allele","coverage","depth","diffs","uncertainty","cluster","seqid","annotation"])+"\n")
+			for gene in allele_scores:
+				(allele,diffs,depth_problem) = allele_scores[gene]
+				gene_name, allele_name, cluster_id, annotation, seqid = \
+					get_allele_name_from_db(allele,unique_allele_symbols,unique_gene_symbols,run_type,args)
+				if gene not in gene_list:
+					gene_list.append(gene_name)
+				results[sample_name][gene_name] = allele_name
+				if diffs != "":
+					results[sample_name][gene_name] += "*"
+				if depth_problem != "":
+					results[sample_name][gene_name] += "?"
 				if args.verbose:
-					full_results = "__".join(["full"+run_type,db_name,args.output,"results.txt"])
-					logging.info("Printing verbose gene detection results to " + full_results)
-					f = file(full_results,"w")
-					f.write("\t".join(["Sample","DB","gene","allele","coverage","depth","diffs","uncertainty","cluster","seqid","annotation"])+"\n")
-				for gene in allele_scores:
-					(allele,diffs,depth_problem) = allele_scores[gene]
-					gene_name, allele_name, cluster_id, annotation, seqid = \
-						get_allele_name_from_db(allele,unique_allele_symbols,unique_gene_symbols,run_type,args)
-					if gene not in gene_list:
-						gene_list.append(gene_name)
-					results[sample_name][gene_name] = allele_name
-					if diffs != "":
-						results[sample_name][gene_name] += "*"
-					if depth_problem != "":
-						results[sample_name][gene_name] += "?"
-					if args.verbose:
-						f.write("\t".join([sample_name,db_name,gene_name,allele_name,str(coverage_allele[allele]),str(avg_depth_allele[allele]),diffs,depth_problem,cluster_id,seqid,annotation])+"\n")
-			
-				# log the gene detection result
-				logging.info(" " + str(len(allele_scores)) + " genes identified in " + sample_name)
-			
-			# Finished with this read set
-			logging.info(' Finished processing for read set {} ...'.format(sample_name))
-
-		if run_type != "mlst":
-			# tabulate results across samples for this gene db
-			logging.info('Tabulating results for database {} ...'.format(fasta))
-			gene_list.sort()
-			db_report.write("\t".join(["Sample"]+gene_list)+"\n") # report header row
-			for sample in results:
-				db_report.write(sample)
-				for gene in gene_list:
-					if gene in results[sample]:
-						db_report.write("\t"+results[sample][gene])
-					else:
-						db_report.write("\t-") # no hits for this gene cluster
-				db_report.write("\n")
-
-		# Finished with this database
-		logging.info('Finished processing for database {} ...'.format(fasta))
-		db_report.close()
-		db_results_list.append(results)
+					f.write("\t".join([sample_name,db_name,gene_name,allele_name,str(coverage_allele[allele]),str(avg_depth_allele[allele]),diffs,depth_problem,cluster_id,seqid,annotation])+"\n")
 		
-	return db_reports, db_results_list
+			# log the gene detection result
+			logging.info(" " + str(len(allele_scores)) + " genes identified in " + sample_name)
+		
+		# Finished with this read set
+		logging.info(' Finished processing for read set {} ...'.format(sample_name))
+
+	if run_type != "mlst":
+		# tabulate results across samples for this gene db
+		logging.info('Tabulating results for database {} ...'.format(fasta))
+		gene_list.sort()
+		db_report.write("\t".join(["Sample"]+gene_list)+"\n") # report header row
+		for sample in results:
+			db_report.write(sample)
+			for gene in gene_list:
+				if gene in results[sample]:
+					db_report.write("\t"+results[sample][gene])
+				else:
+					db_report.write("\t-") # no hits for this gene cluster
+			db_report.write("\n")
+
+	# Finished with this database
+	logging.info('Finished processing for database {} ...'.format(fasta))
+	db_report.close()
+	db_results_list.append(results)
+		
 	
 def compile_results(args,mlst_results,db_results,compiled_output_file):
 
