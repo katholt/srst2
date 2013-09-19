@@ -101,6 +101,8 @@ optional arguments:
   --gene_db GENE_DB [GENE_DB ...]
                         Fasta file/s for gene databases (optional)
                         
+  --no_gene_details     Switch OFF verbose reporting of gene typing
+                                                
   --min_coverage MIN_COVERAGE
                         Percent coverage cutoff for gene reporting (default
                         90)
@@ -114,6 +116,7 @@ optional arguments:
                         (default 2)
                         
   --prob_err PROB_ERR   Probability of sequencing error (default 0.01)
+  
   --read_type {q,qseq,f}
                         Input file type (for bowtie input; default is q=fastq;
                         other options: qseq=solexa, f=fasta)
@@ -128,7 +131,7 @@ optional arguments:
   
   --log FILE            log progress in FILENAME, defaults to stdout
   
-  --verbose             Switch on verbose reporting
+  --save_scores         Switch ON verbose reporting of all scores
   
   --use_existing_pileup
                         Use existing pileups if available, otherwise they will
@@ -300,7 +303,7 @@ srst2.py --input_pe pool11_tag2_1.fastq.gz pool11_tag2_2.fastq.gz
 	--mlst_db Escherichia_coli.fasta 
 	--mlst_definitions ecoli.txt 
 	--ignore_last 
-	--verbose 
+	--save_scores 
 
 ------------
 
@@ -313,7 +316,7 @@ srst2.py --input_pe *.fastq.gz
 	--mlst_db Escherichia_coli.fasta 
 	--mlst_definitions ecoli.txt 
 	--ignore_last 
-	--verbose 
+	--save_scores 
 
 ------------
 
@@ -326,7 +329,7 @@ srst2.py --input_pe strainsY-Z*.fastq.gz
 	--mlst_db Escherichia_coli.fasta 
 	--mlst_definitions ecoli.txt 
 	--ignore_last 
-	--verbose
+	--save_scores
 	--prev_output genes__resistance__strainA_results.txt
 		  mlst__Escherichia_coli__strainA_results.txt
 		  genes__resistance__strainB_results.txt
@@ -343,7 +346,7 @@ python srst2.py --input_pe strain_R1.fastq.gz strain_R2.fastq.gz
 	--gene_db /vlsci/VR0082/shared/srst2_sep/resistance.fasta 
 	--mlst_db Enterococcus_faecium.fasta 
 	--mlst_definitions efaecium.txt 
-	--verbose
+	--save_scores
 	
 Compile results from completed runs
 ====
@@ -361,7 +364,7 @@ python slurm_srst2.py --script srst2.py
 	--other_args '--gene_db resistance.fasta 
 	--mlst_db Escherichia_coli.fasta 
 	--mlst_definitions ecoli.txt 
-	--verbose 
+	--save_scores 
 	--ignore_last' 
 	--walltime 0-1:0 
 		> job_sub_list.txt
