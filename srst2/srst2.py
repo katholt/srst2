@@ -10,7 +10,7 @@
 #
 # Dependencies:
 #	bowtie2	   http://bowtie-bio.sourceforge.net/bowtie2/index.shtml version 2.1.0
-#	SAMtools	  http://samtools.sourceforge.net Version: 0.1.18 (Version: 0.1.19 DOES NOT WORK - loss of edge coverage)
+#	SAMtools   http://samtools.sourceforge.net Version: 0.1.18 (Version: 0.1.19 DOES NOT WORK - loss of edge coverage)
 
 from argparse import (ArgumentParser, FileType)
 import logging
