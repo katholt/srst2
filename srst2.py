@@ -14,7 +14,7 @@
 
 from argparse import (ArgumentParser, FileType)
 import logging
-from subprocess import call, check_output, CalledProcessError
+from subprocess import call, check_output, CalledProcessError, STDOUT
 import os, sys, re, collections, operator
 from scipy.stats import binom_test, linregress
 from math import log
@@ -433,7 +433,7 @@ def score_alleles(args,out_file_sam3, hash_alignment, hash_max_depth, hash_edge_
 # - required_version is the version number to show in error messages.
 def check_command_version(command_list, version_identifier, command_name, required_version):
 	try:
-		command_stdout = check_output(command_list)
+		command_stdout = check_output(command_list, stderr=STDOUT)
 	except OSError as e:
 		logging.error("Failed command: {}".format(' '.join(command_list)))
 		logging.error(str(e))
