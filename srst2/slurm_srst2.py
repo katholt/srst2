@@ -103,8 +103,6 @@ def read_file_sets(args):
 	if num_single_readsets > 0:
 		print 'Total single reads found:' + str(num_single_readsets)
 
-	print fileSets
-
 	return fileSets 
 
 def main():
