@@ -901,6 +901,11 @@ def run_srst2(args, fileSets, dbs, run_type):
 
 def process_fasta_db(args, fileSets, run_type, db_reports, db_results_list, fasta):
 
+	check_command_version(['samtools'],
+				'Version: 0.1.8',
+				'samtools',
+				'0.1.8')
+
 	logging.info('Processing database ' + fasta)
 
 	db_path, db_name = os.path.split(fasta) # database
