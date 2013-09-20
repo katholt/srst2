@@ -440,6 +440,10 @@ def check_command_version(command_list, version_identifier, command_name, requir
 		logging.error("Could not determine the version of {}.".format(command_name))
 		logging.error("Do you have {} installed in your PATH?".format(command_name))
 		exit(-1)
+	except CalledProcessError as e:
+		# some programs such as samtools return a non-zero exit status
+		# when you ask for the version (sigh). We ignore it here.
+		pass
 
 	if version_identifier not in command_stdout:
 		logging.error("Incorrect version of {} installed.".format(command_name))
