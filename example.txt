@@ -1,0 +1,125 @@
+This example uses real public data from three Shigella sonnei genomes, two of which were 
+sequenced twice and so allow for reproducibility testing. 
+
+As Shigella sonnei is a sublineage of E. coli, we must use the E. coli MLST scheme. 
+
+We will also use the resistance genes database provided with srst2, resistance.fasta 
+(modified from ResFinder).
+
+1. Download the files for the E. coli MLST scheme, using the script provided:
+
+python srst/getmlst.py --species "Escherichia coli"
+
+  For SRST2, remember to check what separator is being used in this allele database
+
+  Looks like --mlst_delimiter '-'
+
+  >adk-1  --> -->   ('adk', '-', '1')
+  
+Note, this is correctly guessing that we should use the default --mlst_delimiter '-' with
+this database. The log file will tell you exactly what files were downloaded.
+
+Check that the allele sequences have been downloaded and compiled into a single fasta file:
+Escherichia_coli#1.fasta
+
+Check that the ST definitions have been downloaded:
+ecoli.txt
+
+
+2. Download Illumina paired end read sets from the ENA. Note if you have limited download
+capacity or time to spare, you could download the first two files only (total ~30MB) for 
+basic testing of srst2.
+
+# strain 20081885 from ERP000182 (14M, 13M; 51M, 44M)
+wget ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR024/ERR024070/ERR024070_1.fastq.gz
+wget ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR024/ERR024070/ERR024070_2.fastq.gz
+
+wget ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR028/ERR028678/ERR028678_1.fastq.gz
+wget ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR028/ERR028678/ERR028678_2.fastq.gz
+
+# strain 20031275 from ERP000182 (89M, 94M; 88M, 74M)
+wget ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR024/ERR024082/ERR024082_1.fastq.gz
+wget ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR024/ERR024082/ERR024082_2.fastq.gz
+
+wget ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR028/ERR028690/ERR028690_1.fastq.gz
+wget ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR028/ERR028690/ERR028690_2.fastq.gz
+
+# strain IB694 from ERP000182 (80M, 64M)
+wget ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR024/ERR024619/ERR024619_1.fastq.gz
+wget ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR024/ERR024619/ERR024619_2.fastq.gz
+
+
+3. Try running MLST and gene detection against a tiny read set with low coverage (~3x):
+
+python srst/srst2.py --input_pe ERR024070*.fastq.gz --output shigella1 --log shigella1.log --save_scores --mlst_db Escherichia_coli#1.fasta --mlst_definitions ecoli.txt --gene_db srst/resistance.fasta
+
+Note that, as the databases have not been indexed for bowtie2 yet, that srst2 has to run
+bowtie2-build which spits out a lot of messages to stdout. This is not a problem!
+
+Bowtie2 also reports its mapping stats, it should indicate that there were only 
+400,882 reads in this data set, of which 0.02% mapped to our MLST/resistance loci.
+This probably won't be enough to get good quality information.
+
+Check the log file to see what happened.
+
+Outputs are printed to:
+	mlst__Escherichia_coli#1__shigella1__results.txt - mlst results only
+	fullgenes__resistance__shigella1__results.txt - resistance results, one line per gene
+	genes__resistance__shigella1__results.txt - resistance results only, tabulated
+	shigella1__compiledResults.txt - MLST and resistance genes, tabulated
+	ERR024070.Escherichia_coli#1.srst2.pileup.table.scores - full score & alignment info for all MLST alleles
+	ERR024070.resistance.srst2.pileup.table.scores - full score & alignment info for resistance genes with >90% coverage
+	
+Because we ran with the --save_scores flag, we have also got a scores file for each database, 
+which details the score and mapping information for every allele in that database.
+	
+The ST was not called correctly because depth was too low (average read depth 2.19; this 
+is printed in the MLST result table.
+
+Only 1 resistance gene was detected with >90% coverage (the default threshold), which looks 
+like a variant of strB (marked with * to indicate it was not a precise match, and ? to 
+indicate uncertainty because some bases weren't covered). If you look in the scores file 
+(ERR024070.resistance.srst2.pileup.table.scores) you will see that two different alleles of 
+strB were covered >90% (both at 95%) and at low depth (~3.9x). The Truncated_bases column
+shows 41, indicating there were 41 "holes" in the alignment of reads to these alleles. The
+next column, "DepthNeighbouringTruncation" contains 1, which tells us that the depth near
+these holes are 1x, indicating that they are likely to reflect random fluctuation in read
+depth rather than actual deletions.
+
+This shows us that this level of data (which was considered a failed sequencing run) isn't 
+enough to get good results. Luckily this genome was resequenced; let's see what happens
+when we analyse that data set.
+
+
+4. Try running MLST and gene detection against a proper read set, and compile together with
+the results from the poor read set for comparison.
+
+python srst/srst2.py --input_pe ERR028678*.fastq.gz --output shigella2 --log shigella2.log --mlst_db Escherichia_coli#1.fasta --mlst_definitions ecoli.txt --gene_db srst/resistance.fasta --prev_output shigella1__compiledResults.txt
+
+Check the log file to see what happened.
+
+Outputs are printed to:
+	mlst__Escherichia_coli#1__shigella2__results.txt - mlst results only
+	fullgenes__resistance__shigella2__results.txt - resistance results, one line per gene
+	genes__resistance__shigella2__results.txt - resistance results only, tabulated
+	shigella2__compiledResults.txt - MLST and resistance genes, tabulated
+
+This time there is a confident ST called, which should look like this:
+
+There are also lots of resistance genes identified.
+
+Because we supplied a prior results file, shigella2__compiledResults.txt contains the new
+results as well as the old results.
+
+
+5. Now try running on the other three read sets:
+
+python srst/srst2.py --input_pe ERR024082*.fastq.gz ERR028690*.fastq.gz ERR024619*.fastq.gz --output shigella3 --log shigella3.log --mlst_db Escherichia_coli#1.fasta --mlst_definitions ecoli.txt --gene_db srst/resistance.fasta
+
+
+6. Now compile the results from all 5 read sets:
+
+python srst/srst2.py --output all --prev_output shigella2__compiledResults.txt shigella3__compiledResults.txt
+
+This outputs a file, all__compiledResults.txt, containing the compilation of all results
+for MLST and resistance genes across the 5 strains.
