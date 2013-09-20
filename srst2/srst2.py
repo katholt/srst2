@@ -443,7 +443,7 @@ def check_command_version(command_list, version_identifier, command_name, requir
 	except CalledProcessError as e:
 		# some programs such as samtools return a non-zero exit status
 		# when you ask for the version (sigh). We ignore it here.
-		pass
+		command_stdout = e.output
 
 	if version_identifier not in command_stdout:
 		logging.error("Incorrect version of {} installed.".format(command_name))
