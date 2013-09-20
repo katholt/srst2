@@ -460,9 +460,9 @@ def run_bowtie(sample_name,fastqs,args,db_name,db_full_path):
 				'2.1.0')
 
 	check_command_version(['samtools'],
-				'Version: 0.1.8',
+				'Version: 0.1.18',
 				'samtools',
-				'0.1.8')
+				'0.1.18')
 
 	command = ['bowtie2']
 
@@ -906,9 +906,9 @@ def run_srst2(args, fileSets, dbs, run_type):
 def process_fasta_db(args, fileSets, run_type, db_reports, db_results_list, fasta):
 
 	check_command_version(['samtools'],
-				'Version: 0.1.8',
+				'Version: 0.1.18',
 				'samtools',
-				'0.1.8')
+				'0.1.18')
 
 	logging.info('Processing database ' + fasta)
 
