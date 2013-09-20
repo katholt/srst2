@@ -108,6 +108,13 @@ def run_command(command, **kwargs):
 
 def bowtie_index(fasta_files):
 	'Build a bowtie2 index from the given input fasta(s)'
+
+	# check that both bowtie and samtools have the right versions
+	check_command_version(['bowtie2', '--version'],
+				'bowtie2-align version 2.1.0',
+				'bowtie',
+				'2.1.0')
+
 	for fasta in fasta_files:
 		built_index = fasta + '.1.bt2'
 		if os.path.exists(built_index):
