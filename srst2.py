@@ -14,7 +14,7 @@
 
 from argparse import (ArgumentParser, FileType)
 import logging
-from subprocess import call
+from subprocess import call, check_output, CalledProcessError
 import os, sys, re, collections, operator
 from scipy.stats import binom_test, linregress
 from math import log
@@ -418,8 +418,41 @@ def score_alleles(args,out_file_sam3, hash_alignment, hash_max_depth, hash_edge_
 		
 	return(scores)
 
+# Check that an acceptable version of a command is installed
+# Exits the program if it can't be found.
+# - command_list is the command to run to determine the version.
+# - version_identifier is the unique string we look for in the stdout of the program.
+# - command_name is the name of the command to show in error messages.
+# - required_version is the version number to show in error messages.
+def check_command_version(command_list, version_identifier, command_name, required_version):
+	try:
+		command_stdout = check_output(command_list)
+	except OSError as e:
+		logging.error("Failed command: {}".format(' '.join(command_list)))
+		logging.error(str(e))
+		logging.error("Could not determine the version of {}.".format(command_name))
+		logging.error("Do you have {} installed in your PATH?".format(command_name))
+		exit(-1)
+
+	if version_identifier not in command_stdout:
+		logging.error("Incorrect version of {} installed.".format(command_name))
+		logging.error("{} version {} is required by SRST2.".format(command_name, required_version))
+		exit(-1)
+
 
 def run_bowtie(sample_name,fastqs,args,db_name,db_full_path):
+
+	# check that both bowtie and samtools have the right versions
+	check_command_version(['bowtie2', '--version'],
+				'bowtie2-align version 2.1.0',
+				'bowtie',
+				'2.1.0')
+
+	check_command_version(['samtools'],
+				'Version: 0.1.8',
+				'samtools',
+				'0.1.8')
+
 	command = ['bowtie2']
 
 	if len(fastqs)==1:
