@@ -75,6 +75,8 @@ SRST2 - Short Read Sequence Typer (v2)
 
 optional arguments:
   -h, --help            show this help message and exit
+
+  --version             show version number and exit 
   
   --input_se INPUT_SE [INPUT_SE ...]
                         Input single end read
