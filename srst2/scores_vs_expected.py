@@ -315,7 +315,8 @@ def main():
 			avg_depth_allele, coverage_allele, mismatch_allele, indel_allele, \
 			missing_allele, size_allele, next_to_del_depth_allele)
 							
-		sample_name = scores_file.split(".")[0]
+		(scores_file_path,scores_file_name) = os.path.split(scores_file)
+		sample_name = scores_file_name.split(".")[0]
 		
 		# process score info for each allele call
 		for locus in gene_names:
