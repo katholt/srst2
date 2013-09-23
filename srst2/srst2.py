@@ -659,8 +659,9 @@ def parse_scores(run_type,args,scores, hash_edge_depth,
 	
 	if run_type=="mlst":	
 		for allele in scores:
-			allele_info = allele.split(args.mlst_delimiter)
-			scores_by_gene[allele_info[0]][allele] = scores[allele]
+			if coverage_allele[allele] > args.min_coverage:
+				allele_info = allele.split(args.mlst_delimiter)
+				scores_by_gene[allele_info[0]][allele] = scores[allele]
 	else:
 		for allele in scores:
 			if coverage_allele[allele] > args.min_coverage:
