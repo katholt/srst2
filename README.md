@@ -39,7 +39,7 @@ getmlst.py --species "Escherichia coli"
 
 2 - Run MLST:
 
-srst2.py --input_pe strainA_1.fastq.gz strainA_2.fastq.gz --output test 
+srst2.py --input_pe strainA_1.fastq.gz strainA_2.fastq.gz --output test --log 
 	--mlst_db Escherichia_coli.fasta --mlst_definitions ecoli.txt
 
 3 - Check the outputs:
@@ -61,7 +61,7 @@ Basic usage - Resistance genes
 
 2 - Run gene detection:
 
-srst2.py --input_pe strainA_1.fastq.gz strainA_2.fastq.gz --output test --gene_db resistance.fasta
+srst2.py --input_pe strainA_1.fastq.gz strainA_2.fastq.gz --output test --log --gene_db resistance.fasta
 
 3 - Check the outputs:
 
@@ -127,13 +127,13 @@ optional arguments:
                         
   --other OTHER         Other options for bowtie2
   
-  --mapq MAPQ           Qual map
+  --mapq MAPQ           Samtools -q parameter
   
-  --baseq BASEQ         Qual base
+  --baseq BASEQ         Samtools -Q parameter
   
   --output OUTPUT       Output file prefix
   
-  --log FILE            log progress in FILENAME, defaults to stdout
+  --log            	Switch ON logging to file (otherwise log to stdout)
   
   --save_scores         Switch ON verbose reporting of all scores
   
@@ -303,8 +303,7 @@ More basic usage examples
 Run single read sets against MLST database and resistance database
 
 srst2.py --input_pe pool11_tag2_1.fastq.gz pool11_tag2_2.fastq.gz 
-	--output pool11_tag2_Shigella 
-	--log log_pool11_tag2_Shigella.log 
+	--output pool11_tag2_Shigella --log 
 	--gene_db /vlsci/VR0082/shared/srst2_sep/resistance.fasta 
 	--mlst_db Escherichia_coli.fasta 
 	--mlst_definitions ecoli.txt
@@ -315,8 +314,7 @@ srst2.py --input_pe pool11_tag2_1.fastq.gz pool11_tag2_2.fastq.gz
 Run against multiple read sets in serial
 
 srst2.py --input_pe *.fastq.gz
-	--output Shigella 
-	--log Shigella.log 
+	--output Shigella --log
 	--gene_db /vlsci/VR0082/shared/srst2_sep/resistance.fasta 
 	--mlst_db Escherichia_coli.fasta 
 	--mlst_definitions ecoli.txt 
@@ -327,8 +325,7 @@ srst2.py --input_pe *.fastq.gz
 Run against new read sets, merge with previous reports (individual or compiled)
 
 srst2.py --input_pe strainsY-Z*.fastq.gz
-	--output strainsA-Z
-	--log shigella_new.log 
+	--output strainsA-Z --log
 	--gene_db /vlsci/VR0082/shared/srst2_sep/resistance.fasta 
 	--mlst_db Escherichia_coli.fasta 
 	--mlst_definitions ecoli.txt 
@@ -345,7 +342,7 @@ Run against Enterococcus reads, where read names are different from the usual _1
 
 python srst2.py --input_pe strain_R1.fastq.gz strain_R2.fastq.gz 
 	--forward _R1 --reverse _R2 
-	--output strainA --log strainA.log 
+	--output strainA --log 
 	--gene_db /vlsci/VR0082/shared/srst2_sep/resistance.fasta 
 	--mlst_db Enterococcus_faecium.fasta 
 	--mlst_definitions efaecium.txt 
