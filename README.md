@@ -17,10 +17,7 @@ SAMtools v0.1.18   https://sourceforge.net/projects/samtools/files/samtools/0.1.
 
 
 
-Authors - Michael Inouye (minouye@unimelb.edu.au)
-		- Harriet Dashnow (h.dashnow@gmail.com)
-		- Kathryn Holt (kholt@unimelb.edu.au)
-		- Bernie Pope (bjpope@unimelb.edu.au)
+Authors - Michael Inouye, Harriet Dashnow, Bernie Pope, Kathryn Holt (University of Melbourne)
 		
 How to cite - Please check back for news on the paper. In the meantime, please cite "SRST2 - Short Read Sequence Typing for Bacterial Pathogens, http://katholt.github.io/srst/"
 		
@@ -39,7 +36,7 @@ getmlst.py --species "Escherichia coli"
 
 2 - Run MLST:
 
-srst2.py --input_pe strainA_1.fastq.gz strainA_2.fastq.gz --output test --log 
+srst2 --input_pe strainA_1.fastq.gz strainA_2.fastq.gz --output test --log 
 	--mlst_db Escherichia_coli.fasta --mlst_definitions ecoli.txt
 
 3 - Check the outputs:
@@ -61,7 +58,7 @@ Basic usage - Resistance genes
 
 2 - Run gene detection:
 
-srst2.py --input_pe strainA_1.fastq.gz strainA_2.fastq.gz --output test --log --gene_db resistance.fasta
+srst2 --input_pe strainA_1.fastq.gz strainA_2.fastq.gz --output test --log --gene_db resistance.fasta
 
 3 - Check the outputs:
 
@@ -152,7 +149,7 @@ optional arguments:
 Input read formats and options
 ====
 
-Any number of readsets can be provided using --input_se (for single end reads) and/or --input_pe (for paired end reads). You can provide both types of reads at once. Note however that if you do this, each readset will be typed one by one (in serial). So if it takes 2 minutes to type each read set, and you provide 10 read sets, it will take 20 minutes to get your results. The better way to proces lots of samples quickly is to give each one its own srst2.py job (e.g. submitted simultaneously to your job scheduler or server); then compile the results into a single report using "srst2.py --prev_output *results.txt --output all". That way each readset's 2 minutes of analysis is occurring in parallel on different nodes, and you'll get your results for all 10 samples in 2 minutes rather than 20.
+Any number of readsets can be provided using --input_se (for single end reads) and/or --input_pe (for paired end reads). You can provide both types of reads at once. Note however that if you do this, each readset will be typed one by one (in serial). So if it takes 2 minutes to type each read set, and you provide 10 read sets, it will take 20 minutes to get your results. The better way to proces lots of samples quickly is to give each one its own srst2 job (e.g. submitted simultaneously to your job scheduler or server); then compile the results into a single report using "srst2 --prev_output *results.txt --output all". That way each readset's 2 minutes of analysis is occurring in parallel on different nodes, and you'll get your results for all 10 samples in 2 minutes rather than 20.
 
 Read formats - reads can be in any format readable by bowtie2. The format is passed on to the bowtie2 command via the --read_type flag in srst2. The default format is fastq (passed to bowtie 2 as q); other options are qseq=solexa, f=fasta. So to use fasta reads, you would need to tell srst2 this via '--read_type f'.
 
@@ -162,7 +159,7 @@ Paired reads - bowtie2 requires forward and reverse reads to be supplied in sepa
 
 Sample names are taken from the first part of the read file name (before the suffix if you have paired reads). E.g. 'strainA_1.fastq.gz' is assumed to belong to a sample called "strainA"; 'strainB_C_1.fastq.gz" would be assumed to belong to a sample called "strainB_C". These sample names will be used to name all output files, and will appear in the results files.
 
-* Illumina MiSeq reads files: The current standard Illumina MiSeq naming conventions are also accomodated. We assume that files with names in the format 'samplename_S1_L001_R1_001.fastq.gz' and 'XXX_S1_L001_R2_001.fastq.gz' are the forward and reverse reads from a sample named 'XXX'. So, you can simply use 'srst2 --input_pe XXX_S1_L001_R1_001.fastq.gz XXX_S1_L001_R2_001.fastq.gz' and srst2 will recognise these as forward and reverse reads of a sample named XXX. If you have single rather than paired MiSeq reads, you would use 'srst2 --input_pe XXX_S1_L001_R1_001.fastq.gz'.
+* Illumina MiSeq reads files: The current standard Illumina MiSeq naming conventions are also accomodated. We assume that files with names in the format 'samplename_S1_L001_R1_001.fastq.gz' and 'XXX_S1_L001_R2_001.fastq.gz' are the forward and reverse reads from a sample named 'XXX'. So, you can simply use 'srst2 --input_pe XXX_S1_L001_R1_001.fastq.gz XXX_S1_L001_R2_001.fastq.gz' and srst2 will recognise these as forward and reverse reads of a sample named XXX. If you have single rather than paired MiSeq reads, you would use 'srst2 --input_se XXX_S1_L001_R1_001.fastq.gz'.
 
 MLST Database format
 ====
@@ -229,7 +226,7 @@ Output files
 
 MLST results
 
-If MLST sequences and profiles were provided, STs will be printed in tab-delim format to a file called "mlst__[sequenceFileName]__[sample]__results.txt", e.g.: "mlst__Escherichia_coli__strainA__results.txt".
+If MLST sequences and profiles were provided, STs will be printed in tab-delim format to a file called "[prefix]__mlst__[db]__results.txt", e.g.: "strainA__mlst__Escherichia_coli__results.txt".
 
 The format looks like this:
 
@@ -252,7 +249,7 @@ Gene typing results files report the details of sequences provided in fasta file
 
 Two output files are produced:
 
-1. A detailed report, fullgenes__[db]__[sample]__results.txt, with one row per gene per sample:
+1. A detailed report, [prefix]__fullgenes__[db]__results.txt, with one row per gene per sample:
 
 Sample  DB      gene    allele  coverage        depth   diffs   uncertainty     cluster seqid   annotation
 
@@ -271,9 +268,10 @@ strainB     resistance      strB    strB1   100.0   90.0883054893               
 strainB     resistance      strA    strA4   100.0   99.0832298137                   325     1142 
 
 - coverage indicates the % of the gene length that was covered (if clustered DB, then this is the highest coverage of any members of the cluster)
+
 - uncertainty is as above
 
-2. A tabulated summary report of samples x genes, genes__[db]__[sample]__results.txt:
+2. A tabulated summary report of samples x genes, [prefix]__genes__[db]__results.txt:
 
 Sample  aadA    blaTEM  dfrA    strA    strB    sul2    tet(A)
 
@@ -286,15 +284,18 @@ The first column indicates the sample name, all other columns report the genes/a
 If you were using a clustered gene database (such as the resistance.fasta database provided), the name of each cluster (i.e. the basic gene symbol) will be printed in the column headers, while specific alleles will be printed in the sample rows.
 
 - * indicates mismatches
+
 - ? indicates uncertainty due to low depth in some parts of the gene
+
 - - indicates the gene was not detected (> %coverage threshold, --min_coverage 90)
 
 ------------
 Combined results
 
-If more then one database is provided for typing (via --mlst_db and/or --gene_db), or if previous results are provided for merging with the current run which contain data from >1 database (via --prev_output), then an additional table summarizing all the database results is produced. This is named "[sample]__compiledResults.txt" and is a combination of the MLST style table plus the tabulated gene summary (file 2 above).
+If more then one database is provided for typing (via --mlst_db and/or --gene_db), or if previous results are provided for merging with the current run which contain data from >1 database (via --prev_output), then an additional table summarizing all the database results is produced. This is named "[prefix]__compiledResults.txt" and is a combination of the MLST style table plus the tabulated gene summary (file 2 above).
 
 Sample  ST      adk     fumC    gyrB    icd     mdh     purA    recA    mismatches      uncertainty     depth   aadA    blaTEM  dfrA    strA    strB    sul2    tet(A)
+
 sampleA     152*     11      63*      7       1       14      7       7                       21.3139900892   aadA1-5 blaTEM-1_5      dfrA1_1?        strA4   strB1   sul2_9  tet(A)_4*?
 
 More basic usage examples
@@ -302,7 +303,7 @@ More basic usage examples
 
 Run single read sets against MLST database and resistance database
 
-srst2.py --input_pe pool11_tag2_1.fastq.gz pool11_tag2_2.fastq.gz 
+srst2 --input_pe pool11_tag2_1.fastq.gz pool11_tag2_2.fastq.gz 
 	--output pool11_tag2_Shigella --log 
 	--gene_db /vlsci/VR0082/shared/srst2_sep/resistance.fasta 
 	--mlst_db Escherichia_coli.fasta 
@@ -313,7 +314,7 @@ srst2.py --input_pe pool11_tag2_1.fastq.gz pool11_tag2_2.fastq.gz
 
 Run against multiple read sets in serial
 
-srst2.py --input_pe *.fastq.gz
+srst2 --input_pe *.fastq.gz
 	--output Shigella --log
 	--gene_db /vlsci/VR0082/shared/srst2_sep/resistance.fasta 
 	--mlst_db Escherichia_coli.fasta 
@@ -324,7 +325,7 @@ srst2.py --input_pe *.fastq.gz
 
 Run against new read sets, merge with previous reports (individual or compiled)
 
-srst2.py --input_pe strainsY-Z*.fastq.gz
+srst2 --input_pe strainsY-Z*.fastq.gz
 	--output strainsA-Z --log
 	--gene_db /vlsci/VR0082/shared/srst2_sep/resistance.fasta 
 	--mlst_db Escherichia_coli.fasta 
@@ -340,7 +341,7 @@ srst2.py --input_pe strainsY-Z*.fastq.gz
 
 Run against Enterococcus reads, where read names are different from the usual _1.fastq and _2.fastq
 
-python srst2.py --input_pe strain_R1.fastq.gz strain_R2.fastq.gz 
+srst2 --input_pe strain_R1.fastq.gz strain_R2.fastq.gz 
 	--forward _R1 --reverse _R2 
 	--output strainA --log 
 	--gene_db /vlsci/VR0082/shared/srst2_sep/resistance.fasta 
@@ -351,7 +352,7 @@ python srst2.py --input_pe strain_R1.fastq.gz strain_R2.fastq.gz
 Compile results from completed runs
 ====
 
-python srst2.py --prev_output *compiledResults.txt --output Shigella_report
+srst2 --prev_output *compiledResults.txt --output Shigella_report
  
 Running lots of jobs and compiling results
 ====
@@ -360,7 +361,7 @@ Run against multiple read sets: submitting 1 job per readset to SLURM queueing s
 
 The results from all the separate runs can be compiled together using the above command.
 
-python slurm_srst2.py --script srst2.py 
+python slurm_srst2.py --script srst2 
 	--output test 
 	--input_pe *.fastq.gz 
 	--other_args '--gene_db resistance.fasta 
@@ -408,4 +409,4 @@ optional arguments:
 Known issues
 ====
 
-Reference indexing - srst2 uses bowtie2 for mapping reads to reference sequences. To do this, srst2 must first check the index exists, call bowtie2-build to generate the index if it doesn't already exist, and then call bowtie2 to map the reads to this indexed reference. Occasionallly bowtie2 will return an Error message saying that it doesn't like the index. This seems to be due to the fact that if you submit multiple srst2 jobs to a cluster at the same time, they will all test for the presence of the index and, if index files are present, will proceed with mapping... but this doesn't mean the indexing process is actually finished, and so errors will arise. The simple way out of this is, if you are running lots of srst2 jobs, FIRST index your reference(s) for bowtie2 and samtools (using 'bowtie2-build ref.fasta ref.fasta' and 'samtools faidx ref.fasta'), then submit your srst2 jobs. The slurm_srst2.py script takes care of this by formatting the databases before submitting any srst2.py jobs.
+Reference indexing - srst2 uses bowtie2 for mapping reads to reference sequences. To do this, srst2 must first check the index exists, call bowtie2-build to generate the index if it doesn't already exist, and then call bowtie2 to map the reads to this indexed reference. Occasionallly bowtie2 will return an Error message saying that it doesn't like the index. This seems to be due to the fact that if you submit multiple srst2 jobs to a cluster at the same time, they will all test for the presence of the index and, if index files are present, will proceed with mapping... but this doesn't mean the indexing process is actually finished, and so errors will arise. The simple way out of this is, if you are running lots of srst2 jobs, FIRST index your reference(s) for bowtie2 and samtools (using 'bowtie2-build ref.fasta ref.fasta' and 'samtools faidx ref.fasta'), then submit your srst2 jobs. The slurm_srst2.py script takes care of this by formatting the databases before submitting any srst2 jobs.
