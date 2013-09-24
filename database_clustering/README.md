@@ -68,3 +68,29 @@ For comparing gene names to cluster assignments, this script assumes very basic 
 csv_to_gene_db.py -t rawseqs_clustered.csv -o rawseqs_clustered.fasta -f rawseqs.fasta -c 4
 
 If there are potential inconsistencies detected at step 2 above (e.g. multiple clusters for the same gene, or different gene names within the same cluster), you may like to investigate further and change some of the cluster assignments or cluster names. You may find it useful to generate neighbour joining trees for each cluster that contains >2 genes, using align_plot_tree_min3.py
+
+VFBD Virulence Factor Database
+====
+
+The VFDB houses sets of virulence genes for a range of bacterial genera, see http://www.mgc.ac.cn/VFs/. 
+
+To type these virulence genes using SRST2, download the full set of sequences from the VFDB website (http://www.mgc.ac.cn/VFs/Down/CP_VFs.ffn.gz) and follow these steps to generate SRST2-compatible files for your genus of interest.
+
+1 - Extract virulence genes by genus from the main VFDB file, CP_VFs.ffn:
+
+python VFDBgenus.py --infile CP_VFs.ffn --genus Clostridium
+
+	or, to get all availabel genera in separate files:
+
+python VFDBgenus.py --infile CP_VFs.ffn
+
+2 - Run CD-HIT to cluster the sequences at 90% nucleotide identity:
+
+cd-hit -i Clostridium.fsa -o Clostridium_cdhit90 -c 0.9 > Clostridium_cdhit90.stdout
+ - Parse the cluster output and tabulate the results using the specific Virulence gene DB compatible script:
+
+python VFDB_cdhit_to_csv.py --cluster_file Clostridium_cdhit90.clstr --infile Clostridium.fsa --outfile Clostridium_cdhit90.csv
+
+3 - Convert the resulting csv table to a SRST2-comptaible sequence database using:
+
+python csv_to_gene_db.py -t Clostridium_cdhit90.csv -o Clostridium_clustered.fasta -s 5
