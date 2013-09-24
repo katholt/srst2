@@ -20,7 +20,7 @@ from scipy.stats import binom_test, linregress
 from math import log
 from itertools import groupby
 from operator import itemgetter
-from version import srst2_version
+#from version import srst2_version
 
 edge_a = edge_z = 2
 
@@ -31,7 +31,7 @@ def parse_args():
 	parser = ArgumentParser(description='SRST2 - Short Read Sequence Typer (v2)')
 
 	# version number of srst2, print and then exit
-	parser.add_argument('--version', action='version', version='%(prog)s ' + srst2_version) 
+#	parser.add_argument('--version', action='version', version='%(prog)s ' + srst2_version) 
 
 	# Read inputs
 	parser.add_argument(
@@ -387,12 +387,13 @@ def score_alleles(args,out_file_sam3, hash_alignment, hash_max_depth, hash_edge_
 						max_depth = hash_max_depth[allele]
 						weight = (match + mismatch) / float(max_depth)
 						p_value *= weight
-						if p_value == 0:
-							p_value = 0.000000000000000000000000000001 ### Was getting a value error when p_value = 0.0
 						if p_value < min_pval:
 							min_pval = p_value
 							min_pval_data = (mismatch,match + mismatch)
-						p_value = -log(p_value, 10)
+						if p_value > 0:
+							p_value = -log(p_value, 10)
+						else:
+							p_value = 10000 # approximate infinity
 						pvals.append(p_value)
 			# Fit linear model to observed Pval distribution vs expected Pval distribution (QQ plot)
 			pvals.sort(reverse=True)
