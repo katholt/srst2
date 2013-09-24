@@ -1,7 +1,7 @@
-Generate srst2-compatible clustered database from raw sequences
+Generate SRST2-compatible clustered database from raw sequences
 ====
 
-srst2 can help you type allele sequences, i.e. where you have a database with multiple sequence variants (alleles) of the same gene (or for many genes) and you want to know which variant (allele) of each gene is present in each sample. Any number of sequence databases, in fasta format, can be passed to srst2 for typing using --gene_db. 
+SRST2 can help you type allele sequences, i.e. where you have a database with multiple sequence variants (alleles) of the same gene (or for many genes) and you want to know which variant (allele) of each gene is present in each sample. Any number of sequence databases, in fasta format, can be passed to srst2 for typing using --gene_db. 
 
 To report the results properly, srst2 needs to know which sequences are actually alleles of the same gene (or sequence "cluster"). 
 
@@ -69,7 +69,16 @@ csv_to_gene_db.py -t rawseqs_clustered.csv -o rawseqs_clustered.fasta -f rawseqs
 
 If there are potential inconsistencies detected at step 2 above (e.g. multiple clusters for the same gene, or different gene names within the same cluster), you may like to investigate further and change some of the cluster assignments or cluster names. You may find it useful to generate neighbour joining trees for each cluster that contains >2 genes, using align_plot_tree_min3.py
 
-VFBD Virulence Factor Database
+Resistance genes
+====
+
+A preliminary set of resistance genes is in the /data directory of srst2, this is based on the ResFinder database and CARD. The fasta file is ready for use with SRST2. The CSV table contains the same sequence information, but in tabular format for easier parsing/editing. 
+
+An easy way to add sequences to this database would be to add new rows to the table, and then generate an updated fasta file using: 
+
+csv_to_gene_db.py -t rawseqs_clustered.csv -s rawseqs.fasta -c 5
+
+Using the VFBD Virulence Factor Database
 ====
 
 The VFDB houses sets of virulence genes for a range of bacterial genera, see http://www.mgc.ac.cn/VFs/. 
@@ -80,7 +89,7 @@ To type these virulence genes using SRST2, download the full set of sequences fr
 
 python VFDBgenus.py --infile CP_VFs.ffn --genus Clostridium
 
-	or, to get all availabel genera in separate files:
+or, to get all availabel genera in separate files:
 
 python VFDBgenus.py --infile CP_VFs.ffn
 
