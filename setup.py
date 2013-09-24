@@ -8,14 +8,15 @@ setup(
     author='Kathryn Holt',
     author_email='kholt@unimelb.edu.au',
     packages=['srst2'],
-    scripts=['srst2/getmlst.py', 'srst2/scores_vs_expected.py', 'srst2/slurm_srst2.py'],
+    scripts=['scripts/getmlst.py', 'scripts/scores_vs_expected.py', 'scripts/slurm_srst2.py'],
     entry_points={
         'console_scripts': ['srst2 = srst2.srst2:main']
     },
-    package_data={'srst2': ['srst2/data/resistance.*']},
+    package_dir = {'srst2': 'scripts'},
+    package_data={'srst2': ['data/resistance.*']},
     url='https://github.com/katholt/srst',
     license='LICENSE.txt',
-    description='Short Read Sequence Typing (for Bacterial Pathogens)',
+    description='Short Read Sequence Typing for Bacterial Pathogens',
     long_description=('This program is designed to take Illumina'
                       'sequence data, a MLST database and/or a database'
                       'of gene sequences (e.g. resistance genes, virulence'
