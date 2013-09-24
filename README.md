@@ -307,8 +307,7 @@ srst2.py --input_pe pool11_tag2_1.fastq.gz pool11_tag2_2.fastq.gz
 	--log log_pool11_tag2_Shigella.log 
 	--gene_db /vlsci/VR0082/shared/srst2_sep/resistance.fasta 
 	--mlst_db Escherichia_coli.fasta 
-	--mlst_definitions ecoli.txt 
-	--ignore_last 
+	--mlst_definitions ecoli.txt
 	--save_scores 
 
 ------------
@@ -321,7 +320,6 @@ srst2.py --input_pe *.fastq.gz
 	--gene_db /vlsci/VR0082/shared/srst2_sep/resistance.fasta 
 	--mlst_db Escherichia_coli.fasta 
 	--mlst_definitions ecoli.txt 
-	--ignore_last 
 	--save_scores 
 
 ------------
@@ -334,7 +332,6 @@ srst2.py --input_pe strainsY-Z*.fastq.gz
 	--gene_db /vlsci/VR0082/shared/srst2_sep/resistance.fasta 
 	--mlst_db Escherichia_coli.fasta 
 	--mlst_definitions ecoli.txt 
-	--ignore_last 
 	--save_scores
 	--prev_output genes__resistance__strainA_results.txt
 		  mlst__Escherichia_coli__strainA_results.txt
@@ -365,13 +362,12 @@ Running lots of jobs and compiling results
 Run against multiple read sets: submitting 1 job per readset to SLURM queueing system
 
 python slurm_srst2.py --script srst2.py 
-	--output Shigella1609 
+	--output test 
 	--input_pe *.fastq.gz 
 	--other_args '--gene_db resistance.fasta 
 	--mlst_db Escherichia_coli.fasta 
 	--mlst_definitions ecoli.txt 
-	--save_scores 
-	--ignore_last' 
+	--save_scores' 
 	--walltime 0-1:0 
 		> job_sub_list.txt
 
@@ -413,4 +409,4 @@ optional arguments:
 Known issues
 ====
 
-Reference indexing - srst2 uses bowtie2 for mapping reads to reference sequences. To do this, srst2 must first check the index exists, call bowtie2-build to generate the index if it doesn't already exist, and then call bowtie2 to map the reads to this indexed reference. Occasionallly bowtie2 will return an Error message saying that it doesn't like the index. This seems to be due to the fact that if you submit multiple srst2 jobs to a cluster at the same time, they will all test for the presence of the index and, if index files are present, will proceed with mapping... but this doesn't mean the indexing process is actually finished, and so errors will arise. The simple way out of this is, if you are running lots of srst2 jobs, FIRST index your reference(s) for bowtie2 and samtools (using 'bowtie2-build ref.fasta ref.fasta' and 'samtools faidx ref.fasta'), then submit your srst2 jobs.
+Reference indexing - srst2 uses bowtie2 for mapping reads to reference sequences. To do this, srst2 must first check the index exists, call bowtie2-build to generate the index if it doesn't already exist, and then call bowtie2 to map the reads to this indexed reference. Occasionallly bowtie2 will return an Error message saying that it doesn't like the index. This seems to be due to the fact that if you submit multiple srst2 jobs to a cluster at the same time, they will all test for the presence of the index and, if index files are present, will proceed with mapping... but this doesn't mean the indexing process is actually finished, and so errors will arise. The simple way out of this is, if you are running lots of srst2 jobs, FIRST index your reference(s) for bowtie2 and samtools (using 'bowtie2-build ref.fasta ref.fasta' and 'samtools faidx ref.fasta'), then submit your srst2 jobs. The slurm_srst2.py script takes care of this by formatting the databases before submitting any srst2.py jobs.
