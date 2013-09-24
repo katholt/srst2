@@ -8,7 +8,7 @@ We will also use the resistance genes database provided with srst2, resistance.f
 
 1. Download the files for the E. coli MLST scheme, using the script provided:
 
-python srst/getmlst.py --species "Escherichia coli"
+python getmlst.py --species "Escherichia coli"
 
   For SRST2, remember to check what separator is being used in this allele database
 
@@ -51,7 +51,7 @@ wget ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR024/ERR024619/ERR024619_2.fastq.gz
 
 3. Try running MLST and gene detection against a tiny read set with low coverage (~3x):
 
-python srst/srst2.py --input_pe ERR024070*.fastq.gz --output shigella1 --log shigella1.log --save_scores --mlst_db Escherichia_coli#1.fasta --mlst_definitions ecoli.txt --gene_db srst/resistance.fasta
+python srst2.py --input_pe ERR024070*.fastq.gz --output shigella1 --log shigella1.log --save_scores --mlst_db Escherichia_coli#1.fasta --mlst_definitions ecoli.txt --gene_db resistance.fasta
 
 Note that, as the databases have not been indexed for bowtie2 yet, that srst2 has to run
 bowtie2-build which spits out a lot of messages to stdout. This is not a problem!
@@ -94,7 +94,7 @@ when we analyse that data set.
 4. Try running MLST and gene detection against a proper read set, and compile together with
 the results from the poor read set for comparison.
 
-python srst/srst2.py --input_pe ERR028678*.fastq.gz --output shigella2 --log shigella2.log --mlst_db Escherichia_coli#1.fasta --mlst_definitions ecoli.txt --gene_db srst/resistance.fasta --prev_output shigella1__compiledResults.txt
+python srst2.py --input_pe ERR028678*.fastq.gz --output shigella2 --log shigella2.log --mlst_db Escherichia_coli#1.fasta --mlst_definitions ecoli.txt --gene_db srst/resistance.fasta --prev_output shigella1__compiledResults.txt
 
 Check the log file to see what happened.
 
@@ -114,12 +114,12 @@ results as well as the old results.
 
 5. Now try running on the other three read sets:
 
-python srst/srst2.py --input_pe ERR024082*.fastq.gz ERR028690*.fastq.gz ERR024619*.fastq.gz --output shigella3 --log shigella3.log --mlst_db Escherichia_coli#1.fasta --mlst_definitions ecoli.txt --gene_db srst/resistance.fasta
+python srst2.py --input_pe ERR024082*.fastq.gz ERR028690*.fastq.gz ERR024619*.fastq.gz --output shigella3 --log shigella3.log --mlst_db Escherichia_coli#1.fasta --mlst_definitions ecoli.txt --gene_db srst/resistance.fasta
 
 
 6. Now compile the results from all 5 read sets:
 
-python srst/srst2.py --output all --prev_output shigella2__compiledResults.txt shigella3__compiledResults.txt
+python srst2.py --output all --prev_output shigella2__compiledResults.txt shigella3__compiledResults.txt
 
 This outputs a file, all__compiledResults.txt, containing the compilation of all results
 for MLST and resistance genes across the 5 strains.
