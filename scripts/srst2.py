@@ -79,8 +79,7 @@ def parse_args():
 	
 	# Reporting options
 	parser.add_argument('--output', type=str, required=True, help='Output file prefix')
-	parser.add_argument('--log', metavar='FILE', type=str,
-		help='log progress in FILENAME, defaults to stdout')
+	parser.add_argument('--log', action="store_true", required=False, help='Switch ON logging to file (otherwise log to stdout)')
 	parser.add_argument('--save_scores', action="store_true", required=False, help='Switch ON verbose reporting of all scores')
 
 	# Run options
@@ -332,7 +331,7 @@ def read_pileup_data(pileup_file, size, prob_err):
 					next_to_del_depth = m # keep track of lowest near-del depth for reporting
 
 			# Calculate allele summary stats and save
-			avg_depth = total_depth / float(allele_line)
+			avg_depth = round(total_depth / float(allele_line),3)
 			avg_a = depth_a / float(edge_a)   # Avg depth at 5' end, num basepairs determined by edge_a
 			avg_z = depth_z / float(edge_z)	# 3'
 			hash_max_depth[allele] = max_depth
@@ -365,12 +364,12 @@ def read_pileup_data(pileup_file, size, prob_err):
 	return hash_alignment, hash_max_depth, hash_edge_depth, avg_depth_allele, coverage_allele, mismatch_allele, indel_allele, missing_allele, size_allele, next_to_del_depth_allele
 
 
-def score_alleles(args,out_file_sam3, hash_alignment, hash_max_depth, hash_edge_depth, 
+def score_alleles(args, mapping_files_pre, hash_alignment, hash_max_depth, hash_edge_depth, 
 		avg_depth_allele, coverage_allele, mismatch_allele, indel_allele, missing_allele, 
 		size_allele, next_to_del_depth_allele, run_type):
 	
 	if args.save_scores:
-		scores_output = file(out_file_sam3 + '.table.scores', 'w')
+		scores_output = file(mapping_files_pre + '.scores', 'w')
 		scores_output.write("Allele\tScore\tAvg_depth\tEdge1_depth\tEdge2_depth\tPercent_coverage\tSize\tMismatches\tIndels\tTruncated_bases\tDepthNeighbouringTruncation\tLeastConfident_Rate\tLeastConfident_Mismatches\tLeastConfident_Depth\tLeastConfident_Pvalue\n")
 	
 	scores = {} # key = allele, value = score
@@ -463,7 +462,7 @@ def check_command_version(command_list, version_identifier, command_name, requir
 		exit(-1)
 
 
-def run_bowtie(sample_name,fastqs,args,db_name,db_full_path):
+def run_bowtie(mapping_files_pre,sample_name,fastqs,args,db_name,db_full_path):
 
 	# check that both bowtie and samtools have the right versions
 	check_command_version(['bowtie2', '--version'],
@@ -485,10 +484,10 @@ def run_bowtie(sample_name,fastqs,args,db_name,db_full_path):
 		# paired end
 		command += ['-1', fastqs[0], '-2', fastqs[1]]
 		
-	out_file = sample_name + '.' + db_name + '.srst2'
-	logging.info('Output prefix set to: ' + out_file)
+	sam = mapping_files_pre + ".sam"
+	logging.info('Output prefix set to: ' + mapping_files_pre)
 
-	command += ['-S', out_file,
+	command += ['-S', sam,
 				'-' + args.read_type,	# add a dash to the front of the option
 				'--very-sensitive-local',
 				'--no-unal',
@@ -503,16 +502,16 @@ def run_bowtie(sample_name,fastqs,args,db_name,db_full_path):
 	
 	run_command(command)
 	
-	return(out_file)
+	return(sam)
 	
-def get_pileup(args,raw_bowtie_sam,bowtie_sam_mod,fasta,pileup_file):
+def get_pileup(mapping_files_pre,args,raw_bowtie_sam,bowtie_sam_mod,fasta,pileup_file):
 	# Analyse output with SAMtools
 	logging.info('Processing Bowtie2 output with SAMtools...')
 	logging.info('Generate and sort BAM file...')
-	out_file_bam = raw_bowtie_sam + ".bam"
+	out_file_bam = mapping_files_pre + ".unsorted.bam"
 	run_command(['samtools', 'view', '-b', '-o', out_file_bam,
 				 '-q', str(args.mapq), '-S', bowtie_sam_mod])
-	out_file_bam_sorted = raw_bowtie_sam + ".sorted"
+	out_file_bam_sorted = mapping_files_pre + ".sorted"
 	run_command(['samtools', 'sort', out_file_bam, out_file_bam_sorted])
 
 	#XXX File deletions should be made optional. May also want to delete final sorted bam and pileup.
@@ -579,8 +578,12 @@ def calculate_ST(allele_scores, ST_db, gene_names, sample_name, mlst_delimiter, 
 	if len(mismatch_flags) > 0:
 		if mismatch_flags!=["trun"]:
 			st += "*" # trun indicates only that a truncated form had lower score, which isn't a mismatch
+	else:
+		mismatch_flags = ['0'] # record no mismatches
 	if len(uncertainty_flags) > 0:
 		st += "?"
+	else:
+		uncertainty_flags = ['-']
 	
 	# mean depth across loci	
 	if len(depths) > 0:
@@ -834,8 +837,8 @@ def read_results_from_file(infile):
 			dbtype = "compiled"
 			dbname = results_info[0] # output identifier
 		else:
-			dbtype = results_info[0] # mlst or genes
-			dbname = results_info[1]
+			dbtype = results_info[1] # mlst or genes
+			dbname = results_info[2] # database
 
 		logging.info("Processing " + dbtype + " results from file " + infile)
 	
@@ -947,7 +950,7 @@ def process_fasta_db(args, fileSets, run_type, db_reports, db_results_list, fast
 
 	db_path, db_name = os.path.split(fasta) # database
 	(db_name,db_ext) = os.path.splitext(db_name)
-	db_results = "__".join([run_type,db_name,args.output,"results.txt"])
+	db_results = "__".join([args.output,run_type,db_name,"results.txt"])
 	db_report = file(db_results,"w")
 	db_reports.append(db_results)
 	
@@ -1038,8 +1041,9 @@ def process_fasta_db(args, fileSets, run_type, db_reports, db_results_list, fast
 def map_fileSet_to_db(args,sample_name,fastq_inputs,db_name,fasta,size,gene_names,\
 	unique_gene_symbols, unique_allele_symbols,run_type,ST_db,results,gene_list,db_report):
 	
-	pileup_file = sample_name + '.' + db_name + '.srst2.pileup'
-	scores_file = pileup_file + '.table.scores'
+	mapping_files_pre = args.output + '.' + sample_name + '.' + db_name
+	pileup_file = mapping_files_pre + '.pileup'
+	scores_file = mapping_files_pre + '.scores'
 	
 	# Get or read scores
 	
@@ -1062,14 +1066,14 @@ def map_fileSet_to_db(args,sample_name,fastq_inputs,db_name,fasta,size,gene_name
 		else:
 			
 			# run bowtie against this db
-			bowtie_sam = run_bowtie(sample_name,fastq_inputs,args,db_name,fasta)
+			bowtie_sam = run_bowtie(mapping_files_pre,sample_name,fastq_inputs,args,db_name,fasta)
 
 			# Modify Bowtie's SAM formatted output so that we get secondary
 			# alignments in downstream pileup
 			(raw_bowtie_sam,bowtie_sam_mod) = modify_bowtie_sam(bowtie_sam)
 	
 			# generate pileup from sam (via sorted bam)
-			get_pileup(args,raw_bowtie_sam,bowtie_sam_mod,fasta,pileup_file)
+			get_pileup(mapping_files_pre,args,raw_bowtie_sam,bowtie_sam_mod,fasta,pileup_file)
 
 		# Get scores
 
@@ -1082,7 +1086,7 @@ def map_fileSet_to_db(args,sample_name,fastq_inputs,db_name,fasta,size,gene_name
 		# Generate scores for all alleles (prints these and associated info if verbose)
 		#   result = dict, with key=allele, value=score
 		logging.info(' Scoring alleles...')
-		scores = score_alleles(args,pileup_file, hash_alignment, hash_max_depth, hash_edge_depth, \
+		scores = score_alleles(args, mapping_files_pre, hash_alignment, hash_max_depth, hash_edge_depth, \
 				avg_depth_allele, coverage_allele, mismatch_allele, indel_allele, missing_allele, \
 				size_allele, next_to_del_depth_allele, run_type)
 		
@@ -1110,9 +1114,24 @@ def map_fileSet_to_db(args,sample_name,fastq_inputs,db_name,fasta,size,gene_name
 		logging.info(" " + st_result_string)
 		results[sample_name] = st_result_string
 		
+		# Make sure scores are printed if there was uncertainty in the call
+		scores_output_file = mapping_files_pre + '.scores'
+		if uncertainty_flags != ["-"] and not args.save_scores and not os.path.exists(scores_output_file):
+			# print full score set
+			logging.info("Printing all MLST scores to " + scores_output_file)
+			scores_output = file(scores_output_file, 'w')
+			scores_output.write("Allele\tScore\tAvg_depth\tEdge1_depth\tEdge2_depth\tPercent_coverage\tSize\tMismatches\tIndels\tTruncated_bases\tDepthNeighbouringTruncation\n")
+			for allele in scores.keys():
+				score = scores[allele]
+				scores_output.write('\t'.join([allele, str(score), str(avg_depth_allele[allele]), \
+					str(hash_edge_depth[allele][0]), str(hash_edge_depth[allele][1]), \
+					str(coverage_allele[allele]), str(size_allele[allele]), str(mismatch_allele[allele]), \
+					str(indel_allele[allele]), str(missing_allele[allele]), str(next_to_del_depth_allele[allele])]) + '\n')				
+			scores_output.close()
+		
 	elif run_type == "genes" and len(allele_scores) > 0:
 		if args.no_gene_details:
-			full_results = "__".join(["full"+run_type,db_name,args.output,"results.txt"])
+			full_results = "__".join([args.output,"full"+run_type,db_name,"results.txt"])
 			logging.info("Printing verbose gene detection results to " + full_results)
 			f = file(full_results,"w")
 			f.write("\t".join(["Sample","DB","gene","allele","coverage","depth","diffs","uncertainty","cluster","seqid","annotation"])+"\n")
@@ -1245,12 +1264,12 @@ def compile_results(args,mlst_results,db_results,compiled_output_file):
 
 def main():
 	args = parse_args()
-	if args.log is None:
-		logfile = sys.stdout
+	if args.log is True:
+		logfile = args.output + ".log"
 	else:
-		logfile = args.log
+		logfile = None
 	logging.basicConfig(
-		filename=args.log,
+		filename=logfile,
 		level=logging.DEBUG,
 		filemode='w',
 		format='%(asctime)s %(message)s',

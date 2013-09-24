@@ -155,7 +155,7 @@ def main():
 		else:
 			cmd += " --input_se " + fastq[0]
 		cmd += " --output " + sample + "_" + args.output
-		cmd += " --log log_" + sample + "_" + args.output + ".log"
+		cmd += " --log"
 		cmd += " " + args.other_args
 		
 		# print and run command
