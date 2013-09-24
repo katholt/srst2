@@ -359,7 +359,9 @@ python srst2.py --prev_output *compiledResults.txt --output Shigella_report
 Running lots of jobs and compiling results
 ====
 
-Run against multiple read sets: submitting 1 job per readset to SLURM queueing system
+Run against multiple read sets: submitting 1 job per readset to SLURM queueing system.
+
+The results from all the separate runs can be compiled together using the above command.
 
 python slurm_srst2.py --script srst2.py 
 	--output test 
