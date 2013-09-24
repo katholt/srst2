@@ -387,13 +387,16 @@ def score_alleles(args,out_file_sam3, hash_alignment, hash_max_depth, hash_edge_
 						max_depth = hash_max_depth[allele]
 						weight = (match + mismatch) / float(max_depth)
 						p_value *= weight
+						#if p_value == 0:
+						#	p_value = 0.000000000000000000000000000001 ### Was getting a value error when p_value = 0.0
 						if p_value < min_pval:
 							min_pval = p_value
 							min_pval_data = (mismatch,match + mismatch)
 						if p_value > 0:
 							p_value = -log(p_value, 10)
 						else:
-							p_value = 10000 # approximate infinity
+							#p_value = 1e1000 # approximate infinity
+							p_value = 1000
 						pvals.append(p_value)
 			# Fit linear model to observed Pval distribution vs expected Pval distribution (QQ plot)
 			pvals.sort(reverse=True)
@@ -751,7 +754,11 @@ def read_file_sets(args):
 		# single end
 		for fastq in args.input_se:
 			(file_path,file_name_before_ext,full_ext) = get_readFile_components(fastq)
-			fileSets[file_name_before_ext] = [fastq]
+			m=re.match("(.*)(_S.*)(_L.*)(_R.*)(_.*)", file_name_before_ext)
+			if m==None:
+				fileSets[file_name_before_ext] = [fastq]
+			else:
+				fileSets[m.groups()[0]] = [fastq] # Illumina names
 			num_single_readsets += 1
 			
 	elif args.input_pe:
@@ -762,19 +769,35 @@ def read_file_sets(args):
 		num_single_readsets = 0
 		for fastq in args.input_pe:
 			(file_path,file_name_before_ext,full_ext) = get_readFile_components(fastq)
-			m=re.match("(.*)("+args.forward+")",file_name_before_ext)
-			if m!=None:
-				# store as forward read
-				(baseName,read) = m.groups()
-				forward_reads[baseName] = fastq
-			else:
-				m=re.match("(.*)("+args.reverse+")",file_name_before_ext)
+			# try to match to MiSeq format:
+			m=re.match("(.*)(_S.*)(_L.*)(_R.*)(_.*)", file_name_before_ext)
+			if m==None:
+				# not default Illumina file naming format, expect simple/ENA format
+				m=re.match("(.*)("+args.forward+")",file_name_before_ext)
 				if m!=None:
-				# store as reverse read
+					# store as forward read
 					(baseName,read) = m.groups()
+					forward_reads[baseName] = fastq
+				else:
+					m=re.match("(.*)("+args.reverse+")",file_name_before_ext)
+					if m!=None:
+					# store as reverse read
+						(baseName,read) = m.groups()
+						reverse_reads[baseName] = fastq
+					else:
+						print "Could not determine forward/reverse read status for input file " + fastq
+			else:
+				# matches default Illumina file naming format, e.g. m.groups() = ('samplename', '_S1', '_L001', '_R1', '_001')
+				baseName, read  = m.groups()[0], m.groups()[3]
+				if read == "_R1":
+					forward_reads[baseName] = fastq
+				elif read == "_R2":
 					reverse_reads[baseName] = fastq
 				else:
 					print "Could not determine forward/reverse read status for input file " + fastq
+					print "  this file appears to match the MiSeq file naming convention (samplename_S1_L001_[R1]_001), but we were expecting [R1] or [R2] to designate read as forward or reverse?"
+					fileSets[file_name_before_ext] = fastq
+					num_single_readsets += 1
 		# store in pairs
 		for sample in forward_reads:
 			if sample in reverse_reads:

@@ -58,10 +58,14 @@ def read_file_sets(args):
 		# single end
 		for fastq in args.input_se:
 			(file_path,file_name_before_ext,full_ext) = get_readFile_components(fastq)
-			fileSets[file_name_before_ext] = [fastq]
+			m=re.match("(.*)(_S.*)(_L.*)(_R.*)(_.*)", file_name_before_ext)
+			if m==None:
+				fileSets[file_name_before_ext] = [fastq]
+			else:
+				fileSets[m.groups()[0]] = [fastq] # Illumina names
 			num_single_readsets += 1
 			
-	if args.input_pe:
+	elif args.input_pe:
 		# paired end
 		forward_reads = {} # key = sample, value = full path to file
 		reverse_reads = {} # key = sample, value = full path to file
@@ -69,19 +73,35 @@ def read_file_sets(args):
 		num_single_readsets = 0
 		for fastq in args.input_pe:
 			(file_path,file_name_before_ext,full_ext) = get_readFile_components(fastq)
-			m=re.match("(.*)("+args.forward+")",file_name_before_ext)
-			if m!=None:
-				# store as forward read
-				(baseName,read) = m.groups()
-				forward_reads[baseName] = fastq
-			else:
-				m=re.match("(.*)("+args.reverse+")",file_name_before_ext)
+			# try to match to MiSeq format:
+			m=re.match("(.*)(_S.*)(_L.*)(_R.*)(_.*)", file_name_before_ext)
+			if m==None:
+				# not default Illumina file naming format, expect simple/ENA format
+				m=re.match("(.*)("+args.forward+")",file_name_before_ext)
 				if m!=None:
-				# store as reverse read
+					# store as forward read
 					(baseName,read) = m.groups()
+					forward_reads[baseName] = fastq
+				else:
+					m=re.match("(.*)("+args.reverse+")",file_name_before_ext)
+					if m!=None:
+					# store as reverse read
+						(baseName,read) = m.groups()
+						reverse_reads[baseName] = fastq
+					else:
+						print "Could not determine forward/reverse read status for input file " + fastq
+			else:
+				# matches default Illumina file naming format, e.g. m.groups() = ('samplename', '_S1', '_L001', '_R1', '_001')
+				baseName, read  = m.groups()[0], m.groups()[3]
+				if read == "_R1":
+					forward_reads[baseName] = fastq
+				elif read == "_R2":
 					reverse_reads[baseName] = fastq
 				else:
 					print "Could not determine forward/reverse read status for input file " + fastq
+					print "  this file appears to match the MiSeq file naming convention (samplename_S1_L001_[R1]_001), but we were expecting [R1] or [R2] to designate read as forward or reverse?"
+					fileSets[file_name_before_ext] = fastq
+					num_single_readsets += 1
 		# store in pairs
 		for sample in forward_reads:
 			if sample in reverse_reads:
@@ -96,14 +116,13 @@ def read_file_sets(args):
 				fileSets[sample] = reverse_reads[sample] # no forward found
 				num_single_readsets += 1
 				print 'Warning, could not find pair for read:' + reverse_reads[sample]
-
+				
 	if num_paired_readsets > 0:
 		print 'Total paired readsets found:' + str(num_paired_readsets)
-
 	if num_single_readsets > 0:
 		print 'Total single reads found:' + str(num_single_readsets)
 
-	return fileSets 
+	return fileSets
 
 def main():
 
