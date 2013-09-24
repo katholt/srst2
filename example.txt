@@ -60,15 +60,15 @@ Bowtie2 also reports its mapping stats, it should indicate that there were only
 400,882 reads in this data set, of which 0.02% mapped to our MLST/resistance loci.
 This probably won't be enough to get good quality information.
 
-Check the log file to see what happened.
+Check the log file (shigella1.log) to see what happened.
 
 Outputs are printed to:
-	mlst__Escherichia_coli#1__shigella1__results.txt - mlst results only
-	fullgenes__resistance__shigella1__results.txt - resistance results, one line per gene
-	genes__resistance__shigella1__results.txt - resistance results only, tabulated
+	shigella1__mlst__Escherichia_coli#1__results.txt - mlst results only
+	shigella1__fullgenes__resistance__results.txt - resistance results, one line per gene
+	shigella1__genes__resistance__results.txt - resistance results only, tabulated
 	shigella1__compiledResults.txt - MLST and resistance genes, tabulated
-	ERR024070.Escherichia_coli#1.srst2.pileup.table.scores - full score & alignment info for all MLST alleles
-	ERR024070.resistance.srst2.pileup.table.scores - full score & alignment info for resistance genes with >90% coverage
+	shigella1.ERR024070.Escherichia_coli#1.scores - full score & alignment info for all MLST alleles
+	shigella1.ERR024070.resistance.scores - full score & alignment info for resistance genes with >90% coverage
 	
 Because we ran with the --save_scores flag, we have also got a scores file for each database, 
 which details the score and mapping information for every allele in that database.
@@ -99,9 +99,9 @@ python srst2.py --input_pe ERR028678*.fastq.gz --output shigella2 --log --mlst_d
 Check the log file to see what happened.
 
 Outputs are printed to:
-	mlst__Escherichia_coli#1__shigella2__results.txt - mlst results only
-	fullgenes__resistance__shigella2__results.txt - resistance results, one line per gene
-	genes__resistance__shigella2__results.txt - resistance results only, tabulated
+	shigella2__mlst__Escherichia_coli#1__results.txt - mlst results only
+	shigella2__fullgenes__resistance__results.txt - resistance results, one line per gene
+	shigella2__genes__resistance__results.txt - resistance results only, tabulated
 	shigella2__compiledResults.txt - MLST and resistance genes, tabulated
 
 This time there is a confident ST called, which should look like this:
