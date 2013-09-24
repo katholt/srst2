@@ -13,7 +13,7 @@ python (v2.7.5), scipy
 
 bowtie2 v2.1.0     http://bowtie-bio.sourceforge.net/bowtie2/index.shtml
 
-SAMtools v0.1.18   http://samtools.sourceforge.net (NOTE 0.1.19 DOES NOT WORK)
+SAMtools v0.1.18   https://sourceforge.net/projects/samtools/files/samtools/0.1.18/ (NOTE 0.1.19 DOES NOT WORK)
 
 
 
