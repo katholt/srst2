@@ -72,8 +72,10 @@ def parse_args():
 	parser.add_argument('--read_type', type=str, choices=['q', 'qseq', 'f'], default='q',
 		help='Input file type (for bowtie input; default is q=fastq; other options: qseq=solexa, f=fasta).')
 	parser.add_argument('--other', type=str, help='Other options for bowtie2.', required=False) 
-	parser.add_argument('--mapq', type=int, default=1, help='Qual map') # ADD EXPLANATION
-	parser.add_argument('--baseq', type=int, default=20, help='Qual base') # ADD EXPLANATION
+
+	# Samtools parameters
+	parser.add_argument('--mapq', type=int, default=1, help='Samtools -q parameter')
+	parser.add_argument('--baseq', type=int, default=20, help='Samtools -Q parameter')
 	
 	# Reporting options
 	parser.add_argument('--output', type=str, required=True, help='Output file prefix')
