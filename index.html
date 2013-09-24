@@ -45,12 +45,9 @@ STs and/or reference genes.</p>
 
 <p>bowtie2 v2.1.0     <a href="http://bowtie-bio.sourceforge.net/bowtie2/index.shtml">http://bowtie-bio.sourceforge.net/bowtie2/index.shtml</a></p>
 
-<p>SAMtools v0.1.18   <a href="http://samtools.sourceforge.net">http://samtools.sourceforge.net</a> (NOTE 0.1.19 DOES NOT WORK)</p>
+<p>SAMtools v0.1.18   <a href="https://sourceforge.net/projects/samtools/files/samtools/0.1.18/">https://sourceforge.net/projects/samtools/files/samtools/0.1.18/</a> (NOTE 0.1.19 DOES NOT WORK)</p>
 
-<p>Authors - Michael Inouye (<a href="mailto:minouye@unimelb.edu.au">minouye@unimelb.edu.au</a>)
-        - Harriet Dashnow (<a href="mailto:h.dashnow@gmail.com">h.dashnow@gmail.com</a>)
-        - Kathryn Holt (<a href="mailto:kholt@unimelb.edu.au">kholt@unimelb.edu.au</a>)
-        - Bernie Pope (<a href="mailto:bjpope@unimelb.edu.au">bjpope@unimelb.edu.au</a>)</p>
+<p>Authors - Michael Inouye, Harriet Dashnow, Bernie Pope, Kathryn Holt (University of Melbourne)</p>
 
 <p>How to cite - Please check back for news on the paper. In the meantime, please cite "SRST2 - Short Read Sequence Typing for Bacterial Pathogens, <a href="http://katholt.github.io/srst/">http://katholt.github.io/srst/</a>"</p>
 
@@ -69,7 +66,7 @@ STs and/or reference genes.</p>
 
 <p>2 - Run MLST:</p>
 
-<p>srst2.py --input_pe strainA_1.fastq.gz strainA_2.fastq.gz --output test 
+<p>srst2 --input_pe strainA_1.fastq.gz strainA_2.fastq.gz --output test --log 
     --mlst_db Escherichia_coli.fasta --mlst_definitions ecoli.txt</p>
 
 <p>3 - Check the outputs:</p>
@@ -91,7 +88,7 @@ STs and/or reference genes.</p>
 
 <p>2 - Run gene detection:</p>
 
-<p>srst2.py --input_pe strainA_1.fastq.gz strainA_2.fastq.gz --output test --gene_db resistance.fasta</p>
+<p>srst2 --input_pe strainA_1.fastq.gz strainA_2.fastq.gz --output test --log --gene_db resistance.fasta</p>
 
 <p>3 - Check the outputs:</p>
 
@@ -158,13 +155,13 @@ STs and/or reference genes.</p>
 
 <p>--other OTHER         Other options for bowtie2</p>
 
-<p>--mapq MAPQ           Qual map</p>
+<p>--mapq MAPQ           Samtools -q parameter</p>
 
-<p>--baseq BASEQ         Qual base</p>
+<p>--baseq BASEQ         Samtools -Q parameter</p>
 
 <p>--output OUTPUT       Output file prefix</p>
 
-<p>--log FILE            log progress in FILENAME, defaults to stdout</p>
+<p>--log             Switch ON logging to file (otherwise log to stdout)</p>
 
 <p>--save_scores         Switch ON verbose reporting of all scores</p>
 
@@ -183,7 +180,7 @@ STs and/or reference genes.</p>
 <h1>
 <a name="input-read-formats-and-options" class="anchor" href="#input-read-formats-and-options"><span class="octicon octicon-link"></span></a>Input read formats and options</h1>
 
-<p>Any number of readsets can be provided using --input_se (for single end reads) and/or --input_pe (for paired end reads). You can provide both types of reads at once. Note however that if you do this, each readset will be typed one by one (in serial). So if it takes 2 minutes to type each read set, and you provide 10 read sets, it will take 20 minutes to get your results. The better way to proces lots of samples quickly is to give each one its own srst2.py job (e.g. submitted simultaneously to your job scheduler or server); then compile the results into a single report using "srst2.py --prev_output *results.txt --output all". That way each readset's 2 minutes of analysis is occurring in parallel on different nodes, and you'll get your results for all 10 samples in 2 minutes rather than 20.</p>
+<p>Any number of readsets can be provided using --input_se (for single end reads) and/or --input_pe (for paired end reads). You can provide both types of reads at once. Note however that if you do this, each readset will be typed one by one (in serial). So if it takes 2 minutes to type each read set, and you provide 10 read sets, it will take 20 minutes to get your results. The better way to proces lots of samples quickly is to give each one its own srst2 job (e.g. submitted simultaneously to your job scheduler or server); then compile the results into a single report using "srst2 --prev_output *results.txt --output all". That way each readset's 2 minutes of analysis is occurring in parallel on different nodes, and you'll get your results for all 10 samples in 2 minutes rather than 20.</p>
 
 <p>Read formats - reads can be in any format readable by bowtie2. The format is passed on to the bowtie2 command via the --read_type flag in srst2. The default format is fastq (passed to bowtie 2 as q); other options are qseq=solexa, f=fasta. So to use fasta reads, you would need to tell srst2 this via '--read_type f'.</p>
 
@@ -194,7 +191,7 @@ STs and/or reference genes.</p>
 <p>Sample names are taken from the first part of the read file name (before the suffix if you have paired reads). E.g. 'strainA_1.fastq.gz' is assumed to belong to a sample called "strainA"; 'strainB_C_1.fastq.gz" would be assumed to belong to a sample called "strainB_C". These sample names will be used to name all output files, and will appear in the results files.</p>
 
 <ul>
-<li>Illumina MiSeq reads files: The current standard Illumina MiSeq naming conventions are also accomodated. We assume that files with names in the format 'samplename_S1_L001_R1_001.fastq.gz' and 'XXX_S1_L001_R2_001.fastq.gz' are the forward and reverse reads from a sample named 'XXX'. So, you can simply use 'srst2 --input_pe XXX_S1_L001_R1_001.fastq.gz XXX_S1_L001_R2_001.fastq.gz' and srst2 will recognise these as forward and reverse reads of a sample named XXX. If you have single rather than paired MiSeq reads, you would use 'srst2 --input_pe XXX_S1_L001_R1_001.fastq.gz'.</li>
+<li>Illumina MiSeq reads files: The current standard Illumina MiSeq naming conventions are also accomodated. We assume that files with names in the format 'samplename_S1_L001_R1_001.fastq.gz' and 'XXX_S1_L001_R2_001.fastq.gz' are the forward and reverse reads from a sample named 'XXX'. So, you can simply use 'srst2 --input_pe XXX_S1_L001_R1_001.fastq.gz XXX_S1_L001_R2_001.fastq.gz' and srst2 will recognise these as forward and reverse reads of a sample named XXX. If you have single rather than paired MiSeq reads, you would use 'srst2 --input_se XXX_S1_L001_R1_001.fastq.gz'.</li>
 </ul><h1>
 <a name="mlst-database-format" class="anchor" href="#mlst-database-format"><span class="octicon octicon-link"></span></a>MLST Database format</h1>
 
@@ -265,7 +262,7 @@ alleleUniqueIdentifier = 1;  uniquely identifies the sequence</p>
 
 <p>MLST results</p>
 
-<p>If MLST sequences and profiles were provided, STs will be printed in tab-delim format to a file called "mlst__[sequenceFileName]__[sample]__results.txt", e.g.: "mlst__Escherichia_coli__strainA__results.txt".</p>
+<p>If MLST sequences and profiles were provided, STs will be printed in tab-delim format to a file called "[prefix]__mlst__[db]__results.txt", e.g.: "strainA__mlst__Escherichia_coli__results.txt".</p>
 
 <p>The format looks like this:</p>
 
@@ -284,7 +281,7 @@ alleleUniqueIdentifier = 1;  uniquely identifies the sequence</p>
 <p>Two output files are produced:</p>
 
 <ol>
-<li>A detailed report, fullgenes__[db]__[sample]__results.txt, with one row per gene per sample:</li>
+<li>A detailed report, [prefix]__fullgenes__[db]__results.txt, with one row per gene per sample:</li>
 </ol><p>Sample  DB      gene    allele  coverage        depth   diffs   uncertainty     cluster seqid   annotation</p>
 
 <p>strainA     resistance      dfrA    dfrA1_1 100.0   6.79368421053           edge1.5 590     137     </p>
@@ -302,10 +299,10 @@ alleleUniqueIdentifier = 1;  uniquely identifies the sequence</p>
 <p>strainB     resistance      strA    strA4   100.0   99.0832298137                   325     1142 </p>
 
 <ul>
-<li>coverage indicates the % of the gene length that was covered (if clustered DB, then this is the highest coverage of any members of the cluster)</li>
-<li>uncertainty is as above</li>
+<li><p>coverage indicates the % of the gene length that was covered (if clustered DB, then this is the highest coverage of any members of the cluster)</p></li>
+<li><p>uncertainty is as above</p></li>
 </ul><ol>
-<li>A tabulated summary report of samples x genes, genes__[db]__[sample]__results.txt:</li>
+<li>A tabulated summary report of samples x genes, [prefix]__genes__[db]__results.txt:</li>
 </ol><p>Sample  aadA    blaTEM  dfrA    strA    strB    sul2    tet(A)</p>
 
 <p>strainA     aadA1-5 blaTEM-1_5      dfrA1_1?        -   -   sul2_9  tet(A)_4*?</p>
@@ -317,24 +314,28 @@ alleleUniqueIdentifier = 1;  uniquely identifies the sequence</p>
 <p>If you were using a clustered gene database (such as the resistance.fasta database provided), the name of each cluster (i.e. the basic gene symbol) will be printed in the column headers, while specific alleles will be printed in the sample rows.</p>
 
 <ul>
-<li>* indicates mismatches</li>
-<li>? indicates uncertainty due to low depth in some parts of the gene</li>
-<li>- indicates the gene was not detected (&gt; %coverage threshold, --min_coverage 90)</li>
+<li><ul>
+<li>indicates mismatches</li>
+</ul></li>
+<li><p>? indicates uncertainty due to low depth in some parts of the gene</p></li>
+<li><ul>
+<li>indicates the gene was not detected (&gt; %coverage threshold, --min_coverage 90)</li>
+</ul></li>
 </ul><hr><p>Combined results</p>
 
-<p>If more then one database is provided for typing (via --mlst_db and/or --gene_db), or if previous results are provided for merging with the current run which contain data from &gt;1 database (via --prev_output), then an additional table summarizing all the database results is produced. This is named "[sample]__compiledResults.txt" and is a combination of the MLST style table plus the tabulated gene summary (file 2 above).</p>
+<p>If more then one database is provided for typing (via --mlst_db and/or --gene_db), or if previous results are provided for merging with the current run which contain data from &gt;1 database (via --prev_output), then an additional table summarizing all the database results is produced. This is named "[prefix]__compiledResults.txt" and is a combination of the MLST style table plus the tabulated gene summary (file 2 above).</p>
 
-<p>Sample  ST      adk     fumC    gyrB    icd     mdh     purA    recA    mismatches      uncertainty     depth   aadA    blaTEM  dfrA    strA    strB    sul2    tet(A)
-sampleA     152*     11      63*      7       1       14      7       7                       21.3139900892   aadA1-5 blaTEM-1_5      dfrA1_1?        strA4   strB1   sul2_9  tet(A)_4*?</p>
+<p>Sample  ST      adk     fumC    gyrB    icd     mdh     purA    recA    mismatches      uncertainty     depth   aadA    blaTEM  dfrA    strA    strB    sul2    tet(A)</p>
+
+<p>sampleA     152*     11      63*      7       1       14      7       7                       21.3139900892   aadA1-5 blaTEM-1_5      dfrA1_1?        strA4   strB1   sul2_9  tet(A)_4*?</p>
 
 <h1>
 <a name="more-basic-usage-examples" class="anchor" href="#more-basic-usage-examples"><span class="octicon octicon-link"></span></a>More basic usage examples</h1>
 
 <p>Run single read sets against MLST database and resistance database</p>
 
-<p>srst2.py --input_pe pool11_tag2_1.fastq.gz pool11_tag2_2.fastq.gz 
-    --output pool11_tag2_Shigella 
-    --log log_pool11_tag2_Shigella.log 
+<p>srst2 --input_pe pool11_tag2_1.fastq.gz pool11_tag2_2.fastq.gz 
+    --output pool11_tag2_Shigella --log 
     --gene_db /vlsci/VR0082/shared/srst2_sep/resistance.fasta 
     --mlst_db Escherichia_coli.fasta 
     --mlst_definitions ecoli.txt
@@ -342,9 +343,8 @@ sampleA     152*     11      63*      7       1       14      7       7         
 
 <hr><p>Run against multiple read sets in serial</p>
 
-<p>srst2.py --input_pe *.fastq.gz
-    --output Shigella 
-    --log Shigella.log 
+<p>srst2 --input_pe *.fastq.gz
+    --output Shigella --log
     --gene_db /vlsci/VR0082/shared/srst2_sep/resistance.fasta 
     --mlst_db Escherichia_coli.fasta 
     --mlst_definitions ecoli.txt 
@@ -352,9 +352,8 @@ sampleA     152*     11      63*      7       1       14      7       7         
 
 <hr><p>Run against new read sets, merge with previous reports (individual or compiled)</p>
 
-<p>srst2.py --input_pe strainsY-Z*.fastq.gz
-    --output strainsA-Z
-    --log shigella_new.log 
+<p>srst2 --input_pe strainsY-Z*.fastq.gz
+    --output strainsA-Z --log
     --gene_db /vlsci/VR0082/shared/srst2_sep/resistance.fasta 
     --mlst_db Escherichia_coli.fasta 
     --mlst_definitions ecoli.txt 
@@ -367,9 +366,9 @@ sampleA     152*     11      63*      7       1       14      7       7         
 
 <hr><p>Run against Enterococcus reads, where read names are different from the usual _1.fastq and _2.fastq</p>
 
-<p>python srst2.py --input_pe strain_R1.fastq.gz strain_R2.fastq.gz 
+<p>srst2 --input_pe strain_R1.fastq.gz strain_R2.fastq.gz 
     --forward _R1 --reverse _R2 
-    --output strainA --log strainA.log 
+    --output strainA --log 
     --gene_db /vlsci/VR0082/shared/srst2_sep/resistance.fasta 
     --mlst_db Enterococcus_faecium.fasta 
     --mlst_definitions efaecium.txt 
@@ -378,7 +377,7 @@ sampleA     152*     11      63*      7       1       14      7       7         
 <h1>
 <a name="compile-results-from-completed-runs" class="anchor" href="#compile-results-from-completed-runs"><span class="octicon octicon-link"></span></a>Compile results from completed runs</h1>
 
-<p>python srst2.py --prev_output *compiledResults.txt --output Shigella_report
+<p>srst2 --prev_output *compiledResults.txt --output Shigella_report
  </p>
 
 <h1>
@@ -388,7 +387,7 @@ sampleA     152*     11      63*      7       1       14      7       7         
 
 <p>The results from all the separate runs can be compiled together using the above command.</p>
 
-<p>python slurm_srst2.py --script srst2.py 
+<p>python slurm_srst2.py --script srst2 
     --output test 
     --input_pe *.fastq.gz 
     --other_args '--gene_db resistance.fasta 
@@ -434,7 +433,244 @@ sampleA     152*     11      63*      7       1       14      7       7         
 <h1>
 <a name="known-issues" class="anchor" href="#known-issues"><span class="octicon octicon-link"></span></a>Known issues</h1>
 
-<p>Reference indexing - srst2 uses bowtie2 for mapping reads to reference sequences. To do this, srst2 must first check the index exists, call bowtie2-build to generate the index if it doesn't already exist, and then call bowtie2 to map the reads to this indexed reference. Occasionallly bowtie2 will return an Error message saying that it doesn't like the index. This seems to be due to the fact that if you submit multiple srst2 jobs to a cluster at the same time, they will all test for the presence of the index and, if index files are present, will proceed with mapping... but this doesn't mean the indexing process is actually finished, and so errors will arise. The simple way out of this is, if you are running lots of srst2 jobs, FIRST index your reference(s) for bowtie2 and samtools (using 'bowtie2-build ref.fasta ref.fasta' and 'samtools faidx ref.fasta'), then submit your srst2 jobs. The slurm_srst2.py script takes care of this by formatting the databases before submitting any srst2.py jobs.</p>
+<p>Reference indexing - srst2 uses bowtie2 for mapping reads to reference sequences. To do this, srst2 must first check the index exists, call bowtie2-build to generate the index if it doesn't already exist, and then call bowtie2 to map the reads to this indexed reference. Occasionallly bowtie2 will return an Error message saying that it doesn't like the index. This seems to be due to the fact that if you submit multiple srst2 jobs to a cluster at the same time, they will all test for the presence of the index and, if index files are present, will proceed with mapping... but this doesn't mean the indexing process is actually finished, and so errors will arise. The simple way out of this is, if you are running lots of srst2 jobs, FIRST index your reference(s) for bowtie2 and samtools (using 'bowtie2-build ref.fasta ref.fasta' and 'samtools faidx ref.fasta'), then submit your srst2 jobs. The slurm_srst2.py script takes care of this by formatting the databases before submitting any srst2 jobs.</p>
+
+<h1>
+<a name="example---shigella-sonnei-public-data" class="anchor" href="#example---shigella-sonnei-public-data"><span class="octicon octicon-link"></span></a>Example - Shigella sonnei public data</h1>
+
+<p>This example uses real public data from three Shigella sonnei genomes, two of which were 
+sequenced twice and so allow for reproducibility testing. </p>
+
+<p>As Shigella sonnei is a sublineage of E. coli, we must use the E. coli MLST scheme. </p>
+
+<p>We will also use the resistance genes database provided with srst2, resistance.fasta 
+(modified from ResFinder).</p>
+
+<ol>
+<li>Download the files for the E. coli MLST scheme, using the script provided:</li>
+</ol><p>python getmlst.py --species "Escherichia coli"</p>
+
+<p>For SRST2, remember to check what separator is being used in this allele database</p>
+
+<p>Looks like --mlst_delimiter '-'</p>
+
+<blockquote>
+<p>adk-1  --&gt; --&gt;   ('adk', '-', '1')</p>
+</blockquote>
+
+<p>Note, this is correctly guessing that we should use the default --mlst_delimiter '-' with
+this database. The log file will tell you exactly what files were downloaded.</p>
+
+<p>Check that the allele sequences have been downloaded and compiled into a single fasta file:
+Escherichia_coli#1.fasta</p>
+
+<p>Check that the ST definitions have been downloaded:
+ecoli.txt</p>
+
+<ol>
+<li>Download Illumina paired end read sets from the ENA. Note if you have limited download
+capacity or time to spare, you could download the first two files only (total ~30MB) for 
+basic testing of srst2.</li>
+</ol><p>strain 20081885 from ERP000182 (14M, 13M; 51M, 44M)</p>
+
+<p>wget <a>ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR024/ERR024070/ERR024070_1.fastq.gz</a></p>
+
+<p>wget <a>ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR024/ERR024070/ERR024070_2.fastq.gz</a></p>
+
+<p>wget <a>ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR028/ERR028678/ERR028678_1.fastq.gz</a></p>
+
+<p>wget <a>ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR028/ERR028678/ERR028678_2.fastq.gz</a></p>
+
+<p>strain 20031275 from ERP000182 (89M, 94M; 88M, 74M)</p>
+
+<p>wget <a>ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR024/ERR024082/ERR024082_1.fastq.gz</a></p>
+
+<p>wget <a>ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR024/ERR024082/ERR024082_2.fastq.gz</a></p>
+
+<p>wget <a>ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR028/ERR028690/ERR028690_1.fastq.gz</a></p>
+
+<p>wget <a>ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR028/ERR028690/ERR028690_2.fastq.gz</a></p>
+
+<p>strain IB694 from ERP000182 (80M, 64M)</p>
+
+<p>wget <a>ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR024/ERR024619/ERR024619_1.fastq.gz</a></p>
+
+<p>wget <a>ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR024/ERR024619/ERR024619_2.fastq.gz</a></p>
+
+<ol>
+<li>Try running MLST and gene detection against a tiny read set with low coverage (~3x):</li>
+</ol><p>srst2 --input_pe ERR024070*.fastq.gz --output shigella1 --log --save_scores --mlst_db Escherichia_coli#1.fasta --mlst_definitions ecoli.txt --gene_db resistance.fasta</p>
+
+<p>Note that, as the databases have not been indexed for bowtie2 yet, that srst2 has to run
+bowtie2-build which spits out a lot of messages to stdout. This is not a problem!</p>
+
+<p>Bowtie2 also reports its mapping stats, it should indicate that there were only 
+400,882 reads in this data set, of which 0.02% mapped to our MLST/resistance loci.
+This probably won't be enough to get good quality information.</p>
+
+<p>Check the log file (shigella1.log) to see what happened.</p>
+
+<p>Outputs are printed to:
+    shigella1__mlst__Escherichia_coli#1__results.txt - mlst results only
+    shigella1__fullgenes__resistance__results.txt - resistance results, one line per gene
+    shigella1__genes__resistance__results.txt - resistance results only, tabulated
+    shigella1__compiledResults.txt - MLST and resistance genes, tabulated
+    shigella1.ERR024070.Escherichia_coli#1.scores - full score &amp; alignment info for all MLST alleles
+    shigella1.ERR024070.resistance.scores - full score &amp; alignment info for resistance genes with &gt;90% coverage</p>
+
+<p>Because we ran with the --save_scores flag, we have also got a scores file for each database, 
+which details the score and mapping information for every allele in that database.</p>
+
+<p>The ST was not called correctly because depth was too low (average read depth 2.19; this 
+is printed in the MLST result table.</p>
+
+<p>Only 1 resistance gene was detected with &gt;90% coverage (the default threshold), which looks 
+like a variant of strB (marked with * to indicate it was not a precise match, and ? to 
+indicate uncertainty because some bases weren't covered). If you look in the scores file 
+(ERR024070.resistance.srst2.pileup.table.scores) you will see that two different alleles of 
+strB were covered &gt;90% (both at 95%) and at low depth (~3.9x). The Truncated_bases column
+shows 41, indicating there were 41 "holes" in the alignment of reads to these alleles. The
+next column, "DepthNeighbouringTruncation" contains 1, which tells us that the depth near
+these holes are 1x, indicating that they are likely to reflect random fluctuation in read
+depth rather than actual deletions.</p>
+
+<p>This shows us that this level of data (which was considered a failed sequencing run) isn't 
+enough to get good results. Luckily this genome was resequenced; let's see what happens
+when we analyse that data set.</p>
+
+<ol>
+<li>Try running MLST and gene detection against a proper read set, and compile together with
+the results from the poor read set for comparison.</li>
+</ol><p>srst2 --input_pe ERR028678*.fastq.gz --output shigella2 --log --mlst_db Escherichia_coli#1.fasta --mlst_definitions ecoli.txt --gene_db srst/resistance.fasta --prev_output shigella1__compiledResults.txt</p>
+
+<p>Check the log file to see what happened.</p>
+
+<p>Outputs are printed to:
+    shigella2__mlst__Escherichia_coli#1__results.txt - mlst results only
+    shigella2__fullgenes__resistance__results.txt - resistance results, one line per gene
+    shigella2__genes__resistance__results.txt - resistance results only, tabulated
+    shigella2__compiledResults.txt - MLST and resistance genes, tabulated</p>
+
+<p>This time there is a confident ST called, which should look like this:</p>
+
+<p>There are also lots of resistance genes identified.</p>
+
+<p>Because we supplied a prior results file, shigella2__compiledResults.txt contains the new
+results as well as the old results.</p>
+
+<ol>
+<li>Now try running on the other three read sets:</li>
+</ol><p>srst2 --input_pe ERR024082*.fastq.gz ERR028690*.fastq.gz ERR024619*.fastq.gz --output shigella3 --log --mlst_db Escherichia_coli#1.fasta --mlst_definitions ecoli.txt --gene_db srst/resistance.fasta</p>
+
+<ol>
+<li>Now compile the results from all 5 read sets:</li>
+</ol><p>srst2 --output all --prev_output shigella2__compiledResults.txt shigella3__compiledResults.txt</p>
+
+<p>This outputs a file, all__compiledResults.txt, containing the compilation of all results
+for MLST and resistance genes across the 5 strains.</p>
+
+<h1>
+<a name="generating-srst2-compatible-clustered-database-from-raw-sequences" class="anchor" href="#generating-srst2-compatible-clustered-database-from-raw-sequences"><span class="octicon octicon-link"></span></a>Generating SRST2-compatible clustered database from raw sequences</h1>
+
+<p>SRST2 can help you type allele sequences, i.e. where you have a database with multiple sequence variants (alleles) of the same gene (or for many genes) and you want to know which variant (allele) of each gene is present in each sample. Any number of sequence databases, in fasta format, can be passed to srst2 for typing using --gene_db. </p>
+
+<p>To report the results properly, srst2 needs to know which sequences are actually alleles of the same gene (or sequence "cluster"). </p>
+
+<p>This information must be provided via the fasta headers in the database in this format: &gt;[clusterID]__[gene]__[allele]__[seqID]. Note the elements are separated by two underscores '__'. </p>
+
+<p>Additional annotation can be included after this, separated by a space. See the main readme for a more detailed description of the file format required.</p>
+
+<hr><p>If you already know which alleles belong to the same gene family and should be clustered for reporting, then you can use this info to generate the appropriate headers. </p>
+
+<p>The provided script, csv_to_gene_db.py can help:</p>
+
+<p>csv_to_gene_db.py -h</p>
+
+<p>Usage: csv_to_gene_db.py [options]</p>
+
+<p>Options:
+  -h, --help            show this help message and exit
+  -t TABLE_FILE, --table=TABLE_FILE
+                        table to read (csv)
+  -o OUTPUT_FILE, --out=OUTPUT_FILE
+                        output file (fasta)
+  -s SEQ_COL, --seq_col=SEQ_COL
+                        column number containing sequences
+  -f FASTA_FILE, --fasta=FASTA_FILE
+                        fasta file to read sequences from (must specify which
+                        column in the table contains the sequence names that
+                        match the fasta file headers)
+  -c HEADERS_COL, --headers_col=HEADERS_COL
+                        column number that contains the sequence names that
+                        match the fasta file headers</p>
+
+<p>The input table should be csv and have these columns:</p>
+
+<p>seqID,clusterid,gene,allele,(DNAseq),other....</p>
+
+<p>which will be used to make headers of the required form [clusterID]__[gene]__[allele]__[seqID] [other stuff]</p>
+
+<ul>
+<li>If you have the sequences as a column in the table, specify which column they are in using -s:</li>
+</ul><p>csv_to_gene_db.py -t genes.csv -o genes.fasta -s 5</p>
+
+<ul>
+<li>Alternatively, if you have sequences in a separate fasta file, you can provide this file via -f. You will also need to have a column in the table that links the rows to unique sequences, specify which column this is using -c:</li>
+</ul><p>csv_to_gene_db.py -t genes.csv -o genes.fasta -f rawseqs.fasta -c 5</p>
+
+<hr><p>If your sequences are not already assigned to gene clusters, you can do this automatically using CD-HIT (<a href="http://weizhong-lab.ucsd.edu/cd-hit/">http://weizhong-lab.ucsd.edu/cd-hit/</a>).</p>
+
+<p>1 - Run CD-HIT to cluster the sequences at 90% nucleotide identity:</p>
+
+<p>cdhit-est -i rawseqs.fasta -o rawseqs_cdhit90 -d 0 &gt; rawseqs_cdhit90.stdout</p>
+
+<p>2 - Parse the cluster output and tabulate the results, check for inconsistencies between gene names and the sequence clusters, and generate individual fasta files for each cluster to facilitate further checking:</p>
+
+<p>python cdhit_to_csv.py --cluster_file rawseqs_cdhit90.clstr --infasta raw_sequences.fasta --outfile rawseqs_clustered.csv</p>
+
+<p>For comparing gene names to cluster assignments, this script assumes very basic nomenclature of the form gene-allele, ie a gene symbol followed by '-' followed by some more specific allele designation. E.g. adk-1, blaCTX-M-15. The full name of the gene (adk-1, blaCTX-M-15) will be stored as the allele, and the bit before the '-' will be stored as the name of the gene cluster (adk, blaCTX). This won't always give you exactly what you want, because there really are no standards for gene nomenclature! But it will work for many cases, and you can always modify the script if you need to parse names in a different way. Note though that this only affects how sensible the gene cluster nomenclature is going to be in your srst2 results, and will not affect the behaviour of the clustering (which is purely sequence based using cdhit) or srst2 (which will assign a top scoring allele per cluster, the cluster name may not be perfect but the full allele name will always be reported anyway).</p>
+
+<p>3 - Convert the resulting csv table to a sequence database using:</p>
+
+<p>csv_to_gene_db.py -t rawseqs_clustered.csv -o rawseqs_clustered.fasta -f rawseqs.fasta -c 4</p>
+
+<p>If there are potential inconsistencies detected at step 2 above (e.g. multiple clusters for the same gene, or different gene names within the same cluster), you may like to investigate further and change some of the cluster assignments or cluster names. You may find it useful to generate neighbour joining trees for each cluster that contains &gt;2 genes, using align_plot_tree_min3.py</p>
+
+<h1>
+<a name="screening-for-resistance-genes-with-srst2" class="anchor" href="#screening-for-resistance-genes-with-srst2"><span class="octicon octicon-link"></span></a>Screening for resistance genes with SRST2</h1>
+
+<p>A preliminary set of resistance genes is in the /data directory of srst2, this is based on the ResFinder database and CARD. The fasta file is ready for use with SRST2. The CSV table contains the same sequence information, but in tabular format for easier parsing/editing. </p>
+
+<p>An easy way to add sequences to this database would be to add new rows to the table, and then generate an updated fasta file using: </p>
+
+<p>csv_to_gene_db.py -t rawseqs_clustered.csv -s rawseqs.fasta -c 5</p>
+
+<h1>
+<a name="using-the-vfbd-virulence-factor-database-with-srst2" class="anchor" href="#using-the-vfbd-virulence-factor-database-with-srst2"><span class="octicon octicon-link"></span></a>Using the VFBD Virulence Factor Database with SRST2</h1>
+
+<p>The VFDB houses sets of virulence genes for a range of bacterial genera, see <a href="http://www.mgc.ac.cn/VFs/">http://www.mgc.ac.cn/VFs/</a>. </p>
+
+<p>To type these virulence genes using SRST2, download the full set of sequences from the VFDB website (<a href="http://www.mgc.ac.cn/VFs/Down/CP_VFs.ffn.gz">http://www.mgc.ac.cn/VFs/Down/CP_VFs.ffn.gz</a>) and follow these steps to generate SRST2-compatible files for your genus of interest.</p>
+
+<ul>
+<li>Extract virulence genes by genus from the main VFDB file, CP_VFs.ffn:</li>
+</ul><p>python VFDBgenus.py --infile CP_VFs.ffn --genus Clostridium</p>
+
+<p>or, to get all availabel genera in separate files:</p>
+
+<p>python VFDBgenus.py --infile CP_VFs.ffn</p>
+
+<ul>
+<li>Run CD-HIT to cluster the sequences for this genus, at 90% nucleotide identity:</li>
+</ul><p>cd-hit -i Clostridium.fsa -o Clostridium_cdhit90 -c 0.9 &gt; Clostridium_cdhit90.stdout</p>
+
+<ul>
+<li>Parse the cluster output and tabulate the results using the specific Virulence gene DB compatible script:</li>
+</ul><p>python VFDB_cdhit_to_csv.py --cluster_file Clostridium_cdhit90.clstr --infile Clostridium.fsa --outfile Clostridium_cdhit90.csv</p>
+
+<ul>
+<li>Convert the resulting csv table to a SRST2-comptaible sequence database using:</li>
+</ul><p>python csv_to_gene_db.py -t Clostridium_cdhit90.csv -o Clostridium_VF_clustered.fasta -s 5</p>
       </section>
       <footer>
         <p><small>Hosted on <a href="https://pages.github.com">GitHub Pages</a> using the Dinky theme</small></p>
