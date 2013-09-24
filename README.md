@@ -22,7 +22,7 @@ Authors - Michael Inouye (minouye@unimelb.edu.au)
 		- Kathryn Holt (kholt@unimelb.edu.au)
 		- Bernie Pope (bjpope@unimelb.edu.au)
 		
-How to cite - Please check back for news on the paper. In the meantime, please cite "SRST2 - Short Read Sequence Typing for Bacterial Pathogens, http://srst2.sourceforge.net"
+How to cite - Please check back for news on the paper. In the meantime, please cite "SRST2 - Short Read Sequence Typing for Bacterial Pathogens, https://github.com/katholt/srst/"
 		
 ================
 
