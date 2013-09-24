@@ -20,7 +20,10 @@ from scipy.stats import binom_test, linregress
 from math import log
 from itertools import groupby
 from operator import itemgetter
-#from version import srst2_version
+try:
+	from version import srst2_version
+except:
+	srst2_version = "version unknown"
 
 edge_a = edge_z = 2
 
@@ -31,7 +34,7 @@ def parse_args():
 	parser = ArgumentParser(description='SRST2 - Short Read Sequence Typer (v2)')
 
 	# version number of srst2, print and then exit
-#	parser.add_argument('--version', action='version', version='%(prog)s ' + srst2_version) 
+	parser.add_argument('--version', action='version', version='%(prog)s ' + srst2_version) 
 
 	# Read inputs
 	parser.add_argument(
