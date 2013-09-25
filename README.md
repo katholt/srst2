@@ -33,11 +33,11 @@ Installation
 
 You may need to use sudo to install centrally:
 
-pip install srst2-v0.1.0-beta/
+pip install srst2-0.1.0-beta/
 
 OR
 
-easy_install srst2-v0.1.0-beta/
+easy_install srst2-0.1.0-beta/
 
 4 - Test that the programs are installed properly
 
