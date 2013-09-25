@@ -426,7 +426,7 @@ alleleUniqueIdentifier = 1;  uniquely identifies the sequence</p>
 
 <p>The results from all the separate runs can be compiled together using the above command.</p>
 
-<p>python slurm_srst2.py --script srst2 
+<p>slurm_srst2.py --script srst2 
     --output test 
     --input_pe *.fastq.gz 
     --other_args '--gene_db resistance.fasta 
@@ -487,7 +487,7 @@ sequenced twice and so allow for reproducibility testing. </p>
 
 <ol>
 <li>Download the files for the E. coli MLST scheme, using the script provided:</li>
-</ol><p>python getmlst.py --species "Escherichia coli"</p>
+</ol><p>getmlst.py --species "Escherichia coli"</p>
 
 <p>For SRST2, remember to check what separator is being used in this allele database</p>
 
