@@ -361,7 +361,7 @@ Run against multiple read sets: submitting 1 job per readset to SLURM queueing s
 
 The results from all the separate runs can be compiled together using the above command.
 
-python slurm_srst2.py --script srst2 
+slurm_srst2.py --script srst2 
 	--output test 
 	--input_pe *.fastq.gz 
 	--other_args '--gene_db resistance.fasta 
