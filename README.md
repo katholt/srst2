@@ -21,7 +21,42 @@ Authors - Michael Inouye, Harriet Dashnow, Bernie Pope, Kathryn Holt (University
 		
 How to cite - Please check back for news on the paper. In the meantime, please cite "SRST2 - Short Read Sequence Typing for Bacterial Pathogens, http://katholt.github.io/srst/"
 		
-================
+
+
+Installation
+====
+1 - Install dependencies first
+
+2 - Download the zip or tarball at the top left of this page and unpack it
+
+3 - Install using pip (http://www.pip-installer.org/) or easy_install
+
+You may need to use sudo to install centrally:
+
+pip install srst2-v0.1.0-beta/
+
+OR
+
+easy_install srst2-v0.1.0-beta/
+
+4 - Test that the programs are installed properly
+
+srst2 --version
+
+getmlst.py -h
+
+scores_vs_expected.py -h
+
+slurm_srst2.py -h
+
+The downloaded directory also contains things that might be useful for srst2 users:
+
+data/resistance.fasta contains a preliminary resistance sequence database that can be used for identifying resistance genes
+
+database_clustering/ contains scripts and instructions for formatting of gene databases for use with srst2
+
+example.txt contains a tutorial/example on running srst2 using public data (this example also appears at the bottom of this page)
+
 
 Basic usage - MLST
 ====
