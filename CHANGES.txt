@@ -1,1 +1,5 @@
+v0.1.1-beta, Wed 26 Sep 2013, -- Fixed problem with forward/reverse pattern matching. 
+
+v0.1.0-beta, Wed 25 Sep 2013, -- Initial public release. 
+
 v0.1.0, Wed 18 Sep 2013, -- Initial release.
