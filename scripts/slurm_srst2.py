@@ -18,7 +18,7 @@ def parse_args():
 	
 	# SRST2 inputs
 	parser.add_argument(
-		'--script', type=str, required=True, help='path to srst2.py script (default srst2.py)', default="srst2.py")
+		'--script', type=str, required=True, help='path to srst2 (default srst2)', default="srst")
 	parser.add_argument(
 		'--output', type=str, required=True, help='identifier for outputs (will be combined with read set identifiers)')
 	parser.add_argument(
