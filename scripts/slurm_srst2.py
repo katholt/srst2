@@ -77,13 +77,13 @@ def read_file_sets(args):
 			m=re.match("(.*)(_S.*)(_L.*)(_R.*)(_.*)", file_name_before_ext)
 			if m==None:
 				# not default Illumina file naming format, expect simple/ENA format
-				m=re.match("(.*)("+args.forward+")",file_name_before_ext)
+				m=re.match("(.*)("+args.forward+")$",file_name_before_ext)
 				if m!=None:
 					# store as forward read
 					(baseName,read) = m.groups()
 					forward_reads[baseName] = fastq
 				else:
-					m=re.match("(.*)("+args.reverse+")",file_name_before_ext)
+					m=re.match("(.*)("+args.reverse+")$",file_name_before_ext)
 					if m!=None:
 					# store as reverse read
 						(baseName,read) = m.groups()
