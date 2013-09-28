@@ -36,21 +36,21 @@ Installation
 
 You may need to use sudo to install centrally:
 
-pip install srst2-0.1.0-beta/
+    pip install srst2-0.1.0-beta/
 
 OR
 
-easy_install srst2-0.1.0-beta/
+    easy_install srst2-0.1.0-beta/
 
 4 - Test that the programs are installed properly
 
-srst2 --version
+    srst2 --version
 
-getmlst.py -h
+    getmlst.py -h
 
-scores_vs_expected.py -h
+    scores_vs_expected.py -h
 
-slurm_srst2.py -h
+    slurm_srst2.py -h
 
 The downloaded directory also contains things that might be useful for srst2 users:
 
@@ -58,7 +58,7 @@ data/resistance.fasta contains a preliminary resistance sequence database that c
 
 database_clustering/ contains scripts and instructions for formatting of gene databases for use with srst2
 
-example.txt contains a tutorial/example on running srst2 using public data (this example also appears at the bottom of this page)
+example.txt contains a tutorial/example on running srst2 using public data
 
 
 Basic usage - MLST
@@ -74,16 +74,18 @@ getmlst.py --species "Escherichia coli"
 
 2 - Run MLST:
 
-srst2 --input_pe strainA_1.fastq.gz strainA_2.fastq.gz --output test --log 
+srst2 --input_pe strainA_1.fastq.gz strainA_2.fastq.gz --output strainA_test --log 
 	--mlst_db Escherichia_coli.fasta --mlst_definitions ecoli.txt
 
 3 - Check the outputs:
 
-(i) MLST results are output in: "mlst__Escherichia_coli__strainA_test__results.txt"
+(i) MLST results are output in: "strainA_test__mlst__Escherichia_coli__results.txt"
 
+```
 Sample  ST      adk     fumC    gyrB    icd     mdh     purA    recA    mismatches      uncertainty     depth
 
 strainA     152     11      63      7       1       14      7       7                       25.8319955826
+```
 
 Basic usage - Resistance genes
 ====
@@ -96,15 +98,17 @@ Basic usage - Resistance genes
 
 2 - Run gene detection:
 
-srst2 --input_pe strainA_1.fastq.gz strainA_2.fastq.gz --output test --log --gene_db resistance.fasta
+srst2 --input_pe strainA_1.fastq.gz strainA_2.fastq.gz --output strainA_test --log --gene_db resistance.fasta
 
 3 - Check the outputs:
 
-(i) Gene detection results are output in: "genes__resistance__strainA_test__results.txt"
+(i) Gene detection results are output in: "strainA_test__genes__resistance__results.txt"
 
+```
 Sample  aadA    dfrA    sul2    tet(B)
 
 strainA     aadA1-5 dfrA1_1 sul2_2  tet(B)_4
+```
 
 All usage options
 ====
@@ -193,15 +197,19 @@ Input read formats and options
 
 Any number of readsets can be provided using --input_se (for single end reads) and/or --input_pe (for paired end reads). You can provide both types of reads at once. Note however that if you do this, each readset will be typed one by one (in serial). So if it takes 2 minutes to type each read set, and you provide 10 read sets, it will take 20 minutes to get your results. The better way to proces lots of samples quickly is to give each one its own srst2 job (e.g. submitted simultaneously to your job scheduler or server); then compile the results into a single report using "srst2 --prev_output *results.txt --output all". That way each readset's 2 minutes of analysis is occurring in parallel on different nodes, and you'll get your results for all 10 samples in 2 minutes rather than 20.
 
-Read formats - reads can be in any format readable by bowtie2. The format is passed on to the bowtie2 command via the --read_type flag in srst2. The default format is fastq (passed to bowtie 2 as q); other options are qseq=solexa, f=fasta. So to use fasta reads, you would need to tell srst2 this via '--read_type f'.
+### Read formats 
+Reads can be in any format readable by bowtie2. The format is passed on to the bowtie2 command via the --read_type flag in srst2. The default format is fastq (passed to bowtie 2 as q); other options are qseq=solexa, f=fasta. So to use fasta reads, you would need to tell srst2 this via '--read_type f'.
 
 Reads may be gzipped.
 
-Read names - Srst2 can parse Illumina MiSeq reads files; we assume that files with names in the format 'XXX_S1_L001_R1_001.fastq.gz' and 'XXX_S1_L001_R2_001.fastq.gz' are the forward and reverse reads from a sample named 'XXX'. So, you can simply use 'srst2 --input_pe XXX_S1_L001_R1_001.fastq.gz XXX_S1_L001_R2_001.fastq.gz' and srst2 will recognise these as forward and reverse reads of a sample named XXX. If you have single rather than paired MiSeq reads, you would use 'srst2 --input_se XXX_S1_L001_R1_001.fastq.gz'.
+### Read names 
+Srst2 can parse Illumina MiSeq reads files; we assume that files with names in the format 'XXX_S1_L001_R1_001.fastq.gz' and 'XXX_S1_L001_R2_001.fastq.gz' are the forward and reverse reads from a sample named 'XXX'. So, you can simply use 'srst2 --input_pe XXX_S1_L001_R1_001.fastq.gz XXX_S1_L001_R2_001.fastq.gz' and srst2 will recognise these as forward and reverse reads of a sample named XXX. If you have single rather than paired MiSeq reads, you would use 'srst2 --input_se XXX_S1_L001_R1_001.fastq.gz'.
 
-Paired reads - If you have paired reads that are named in some way other than the Illumina MiSeq format, e.g. from the SRA or ENA public databases, you need to tell srst2 how to pass these to bowtie2.
+### Paired reads
+If you have paired reads that are named in some way other than the Illumina MiSeq format, e.g. from the SRA or ENA public databases, you need to tell srst2 how to pass these to bowtie2.
 bowtie2 requires forward and reverse reads to be supplied in separate files, e.g strainA_1.fastq.gz and strainA_2.fastq.gz. srst2 attempts to sort reads supplied via --input_pe into read pairs, based on the suffix (_1, _2 in this example) that occurs before the file extension (.fastq.gz in this example). So if you supplied --input_pe strainA_1.fastq.gz strainB_1.fastq.gz strainA_2.fastq.gz strainB_2.fastq.gz, srst2 would sort these into two pairs (strainA_1.fastq.gz, strainA_2.fastq.gz) and (strainB_1.fastq.gz, strainB_2.fastq.gz) and pass each pair on to bowtie2 for mapping. By default, the suffixes are assumed to be "_1" for forward reads and "_2" for reverse reads, but you can tell srst2 if you have other conventions, via --forward and --reverse. E.g. if your files were named strainA_read1.fastq.gz and strainA_read2.fastq.gz, you would use these commands: --input_pe strainA_read1.fastq.gz strainA_read2.fastq.gz --forward _read1 --reverse _read2. 
 
+### Sample names
 Sample names are taken from the first part of the read file name (before the suffix if you have paired reads). E.g. 'strainA_1.fastq.gz' is assumed to belong to a sample called "strainA"; 'strainB_C_1.fastq.gz" would be assumed to belong to a sample called "strainB_C". These sample names will be used to name all output files, and will appear in the results files.
 
 
@@ -209,7 +217,7 @@ MLST Database format
 ====
 MLST databases are specified by allele sequences, and a profiles table. These can be downloaded from the public databases, ready to use with srst2, using the provided script getmlst.py (see above).
 
-1 - Allele sequences file, fasta format. 
+### Allele sequences file, fasta format. 
 
 --mlst_db alleles.fasta
 
@@ -219,7 +227,7 @@ This should contain ALL allele sequences for the MLST scheme; i.e. if there are 
 
 The names of the alleles (i.e. the fasta headers) are critical for a functioning MLST scheme and therefore for correct calling of STs. There are two key components to every fasta header: the name of the locus (e.g. in E. coli these are adk, fumC, gyrB, icd, mdh, purA, recA) and the number assigned to the allele (1, 2, 3 etc). These are usually separated by a delimiter like '-' or '_'; e.g. in the E. coli scheme, alleles are named adk-1, fumC-10, etc. For ST calling to work properly, srst2 needs to know what the delimiter is. By default, we assume it is '-' as this is the most common; however some schemes use '_' (e.g. in the C. difficile scheme, the first allele is 'adk_1', so you would need to set --mlst_delimiter '_' on the srst2 command line). If you use getmlst.py, it will remind you of this and try to guess for you what the most likely delimiter is.
 
-2 - MLST definitions file, tab delimited format.
+### MLST definitions file, tab delimited format.
 
 --mlst_definitions
 
@@ -234,11 +242,11 @@ If the input database contains different alelles of the same gene, srst2 can rep
 
 To do this properly, srst2 needs to know which of the reference sequences are alleles of the same gene. This is done by adhering to the following format in the naming of the sequences (i.e. the headers in the fasta sequence for the database):
 
->[clusterUniqueIdentifier]__[clusterSymbol]__[alleleSymbol]__[alleleUniqueIdentifier]
+\>[clusterUniqueIdentifier]__[clusterSymbol]__[alleleSymbol]__[alleleUniqueIdentifier]
 
 e.g. in the resistance gene database provided, the first entry is:
 
->344__blaOXA__blaOXA-181__1
+\>344__blaOXA__blaOXA-181__1
 
 Note these are separated by two underscores. The individual components are:
 
@@ -253,14 +261,15 @@ Additional gene annotation can appear on the header line, after a space. This ad
 
 e.g. for the blaOXA sequence above, the full header is actually:
 
->344__blaOXA__blaOXA-181__1 blaOXA-181_1_HM992946; HM992946; betalactamase
+\>344__blaOXA__blaOXA-181__1 blaOXA-181_1_HM992946; HM992946; betalactamase
 
 ------------
+### Formatting your own gene databases
+
 If you want to use your own database of allele sequences, with the reporting behaviour described, you will need to assign your sequences to clusters and use the header format specified above.
 
 To facilitate this, use the scripts provided in the database_clustering directory provided with srst2.
 
-------------
 You can also use unclustered sequences. This is perfectly fine for gene detection applications, where you have one representative allele sequence for each gene, and you simply want to know which samples contain a sequence that is similar to this one (e.g. detecting plasmid replicons, where there is one target sequence per replicon).
 
 However, this won't work well for allele typing. If the sequence database contains multiple allele sequences for the same gene, then all of these that are covered above the length threshold (default 90%) will be reported in the output, which makes for messy reporting. If you do this, you would probably find it most useful to look at the full gene results table rather than looking at the compiled results output.
@@ -268,33 +277,43 @@ However, this won't work well for allele typing. If the sequence database contai
 Output files
 ====
 
-MLST results
+### MLST results
 
 If MLST sequences and profiles were provided, STs will be printed in tab-delim format to a file called "[outputprefix]__mlst__[db]__results.txt", e.g.: "strainArun1__mlst__Escherichia_coli__results.txt".
 
 The format looks like this:
-
+```
 Sample  ST      adk     fumC    gyrB    icd     mdh     purA    recA    mismatches      uncertainty     depth
 
 strainA     1502    6       63      7       1       14      7       7                       12.3771855735
+```
 
-- Each locus has a column in which the best scoring allele number is printed. * indicates the best scoring allele has >=1 mismatche (SNP or indel, according to majority rules consensus of the aligned reads vs the allele sequence). Details of the mismatches are given in the mismatches column. This often means you have a novel allele. ? indicates uncertainty in the result because the best scoring allele has some low-depth bases; either the the first or last 2 bases of the allele had <N reads mapped, or a truncation was called in which neigbhbouring bases were coverd with <N reads, or the average depth across the whole allele was <X. N is set by the parameter --min_edge_depth (default 2), X is set by --min_depth (default 5). The source of the uncertainty is printed to the uncertainty column. If no allele could be assigned, the entry is set to ‘-’. 
+Each locus has a column in which the best scoring allele number is printed. 
 
-- If the combination of these alleles appears in the ST definitions file provided by --mlst_definitions, this ST will be printed in the ST column. "NF" indicates the allele combination was not found; "ND" indicates ST calculations were not done (because no ST definitions were provided). Here, * next to the ST indicates that there were mismatches against at least one of the alleles. This suggests that you have a novel variant of this ST rather than a precise match to this ST. ? indicates that there was uncertainty in at least one of the alleles. In all cases, the ST is calculated using the best scoring alleles, whether or not there are mismatches or uncertainty in those calls.
+\* indicates the best scoring allele has >=1 mismatch (SNP or indel, according to majority rules consensus of the aligned reads vs the allele sequence). Details of the mismatches are given in the mismatches column. This often means you have a novel allele. 
 
-- The 'mismatches' column gives details of any mismatches (defined by majority rules consensus of the aligned reads vs the allele sequence) against the top scoring allele that is reported in the corresponding locus column. Possibilities are: (i) snps, adk-1/1snp indicates there was 1 SNP against the adk-1 allele; (ii) indels, adk-1/2indel indicates there were 1 indels (insertion or deletion calls in the alignment); (iii) holes, adk-1/5holes indicates there were 5 sections of the allele sequence that were not covered in the alignment and pileup (e.g. due to truncation at the start or end of the gene, or large deletions within the gene).
+? indicates uncertainty in the result because the best scoring allele has some low-depth bases; either the the first or last 2 bases of the allele had <N reads mapped, or a truncation was called in which neigbhbouring bases were coverd with <N reads, or the average depth across the whole allele was <X. N is set by the parameter --min_edge_depth (default 2), X is set by --min_depth (default 5). The source of the uncertainty is printed to the uncertainty column. 
 
-- The 'uncertainty' column gives details of parts of the top scoring alleles for which the depth of coverage was too low to give confidence in the result, this may be zero or any number up to the specified cutoff levels set via --min_edge_depth and --min_depth. Possibilities are considered in this order: (i) edge depth, adk-1/edge1.0 indicates that the mean read depth across either the first 2 or last 2 bases of the assigned allele was 1.0; this is monitored particularly because coverage at the ends of the allele sequences is dependent on bowtie2 to properly map reads that overhang the ends of the allele sequences, which is not as confident as when the whole length of a read maps within the gene (reported if this value is below the cutoff specified (default --min_edge_depth 2), low values can be interpreted as indicating uncertainty in the result as we can’t confidently distinguish alleles that differ at these low-covered bases); (ii) truncations, adk-1/del1.0 indicates that a truncation or large deletion was called for which the neighbouring 2 bases were covered to depth 1.0, this can be interpreted as indicating there is only very weak evidence for the deletion, as it is likely just due to random decline in coverage at this point (reported if this value is below the cutoff specified (default --min_edge_depth 2); (iii) average depth, adk-1/depth3.5 indicates that the mean read depth across the length of the assigned allele was 3.5 (reported if this value is below the cutoff specified, which by default is --min_depth 5)
+\- indicates that no allele could be assigned (generally means there were no alleles that were >90% covered by reads) 
 
-- The 'depth' column indicates the mean read depth across the length of all alleles which were assigned a top scoring allele number (i.e. excluding any which are recorded as '-'). So if there are 7 loci with alleles called, this number represents the mean read depth across those 7 loci. If say, 2 of the 7 alleles were not called (recorded as ‘-’), the mean depth is that of the 5 loci that were called.
+If the combination of these alleles appears in the ST definitions file provided by --mlst_definitions, this ST will be printed in the ST column. "NF" indicates the allele combination was not found; "ND" indicates ST calculations were not done (because no ST definitions were provided). Here, * next to the ST indicates that there were mismatches against at least one of the alleles. This suggests that you have a novel variant of this ST rather than a precise match to this ST. ? indicates that there was uncertainty in at least one of the alleles. In all cases, the ST is calculated using the best scoring alleles, whether or not there are mismatches or uncertainty in those calls.
+
+The *mismatches* column gives details of any mismatches (defined by majority rules consensus of the aligned reads vs the allele sequence) against the top scoring allele that is reported in the corresponding locus column. Possibilities are: (i) snps, adk-1/1snp indicates there was 1 SNP against the adk-1 allele; (ii) indels, adk-1/2indel indicates there were 1 indels (insertion or deletion calls in the alignment); (iii) holes, adk-1/5holes indicates there were 5 sections of the allele sequence that were not covered in the alignment and pileup (e.g. due to truncation at the start or end of the gene, or large deletions within the gene).
+
+The *uncertainty* column gives details of parts of the top scoring alleles for which the depth of coverage was too low to give confidence in the result, this may be zero or any number up to the specified cutoff levels set via --min_edge_depth and --min_depth. Possibilities are considered in this order: (i) edge depth, adk-1/edge1.0 indicates that the mean read depth across either the first 2 or last 2 bases of the assigned allele was 1.0; this is monitored particularly because coverage at the ends of the allele sequences is dependent on bowtie2 to properly map reads that overhang the ends of the allele sequences, which is not as confident as when the whole length of a read maps within the gene (reported if this value is below the cutoff specified (default --min_edge_depth 2), low values can be interpreted as indicating uncertainty in the result as we can’t confidently distinguish alleles that differ at these low-covered bases); (ii) truncations, adk-1/del1.0 indicates that a truncation or large deletion was called for which the neighbouring 2 bases were covered to depth 1.0, this can be interpreted as indicating there is only very weak evidence for the deletion, as it is likely just due to random decline in coverage at this point (reported if this value is below the cutoff specified (default --min_edge_depth 2); (iii) average depth, adk-1/depth3.5 indicates that the mean read depth across the length of the assigned allele was 3.5 (reported if this value is below the cutoff specified, which by default is --min_depth 5)
+
+The *depth* column indicates the mean read depth across the length of all alleles which were assigned a top scoring allele number (i.e. excluding any which are recorded as '-'). So if there are 7 loci with alleles called, this number represents the mean read depth across those 7 loci. If say, 2 of the 7 alleles were not called (recorded as ‘-’), the mean depth is that of the 5 loci that were called.
 
 ------------
+### Gene typing
+
 Gene typing results files report the details of sequences provided in fasta files via --genes_db that are detected above the minimum %coverage theshold set by --min_coverage (default 90).
 
 Two output files are produced:
 
-1. A detailed report, [outputprefix]__fullgenes__[db]__results.txt, with one row per gene per sample:
+(1) A detailed report, [outputprefix]__fullgenes__[db]__results.txt, with one row per gene per sample:
 
+```
 Sample  DB      gene    allele  coverage        depth   diffs   uncertainty     cluster seqid   annotation
 
 strainA     resistance      dfrA    dfrA1_1 100.0   6.79368421053           edge1.5 590     137     
@@ -310,37 +329,50 @@ strainA     resistance      tet(A)  tet(A)_4        97.6666666667   83.583120204
 strainB     resistance      strB    strB1   100.0   90.0883054893                   282     1720    
 
 strainB     resistance      strA    strA4   100.0   99.0832298137                   325     1142 
+```
 
-- coverage indicates the % of the gene length that was covered (if clustered DB, then this is the highest coverage of any members of the cluster)
+*coverage* indicates the % of the gene length that was covered (if clustered DB, then this is the highest coverage of any members of the cluster)
 
-- uncertainty is as above
+*uncertainty* is as above
 
-2. A tabulated summary report of samples x genes, [outputprefix]__genes__[db]__results.txt:
+(2) A tabulated summary report of samples x genes, [outputprefix]__genes__[db]__results.txt:
 
+```
 Sample  aadA    blaTEM  dfrA    strA    strB    sul2    tet(A)
 
 strainA     aadA1-5 blaTEM-1_5      dfrA1_1?        -   -   sul2_9  tet(A)_4*?
 
 strainB     -     -      -        strA4   strB1   -  -
+```
 
 The first column indicates the sample name, all other columns report the genes/alleles that were detected in the sample set. If multiple samples were input, or if previous outputs were provided for compiling results, then all the genes detected in ANY of the samples will have their own column in this table.
 
 If you were using a clustered gene database (such as the resistance.fasta database provided), the name of each cluster (i.e. the basic gene symbol) will be printed in the column headers, while specific alleles will be printed in the sample rows.
 
-- * indicates mismatches
+\* indicates mismatches
 
-- ? indicates uncertainty due to low depth in some parts of the gene
+? indicates uncertainty due to low depth in some parts of the gene
 
-- - indicates the gene was not detected (> %coverage threshold, --min_coverage 90)
+\- indicates the gene was not detected (> %coverage threshold, --min_coverage 90)
 
 ------------
-Combined results
+### Combined results
 
 If more then one database is provided for typing (via --mlst_db and/or --gene_db), or if previous results are provided for merging with the current run which contain data from >1 database (via --prev_output), then an additional table summarizing all the database results is produced. This is named "[outputprefix]__compiledResults.txt" and is a combination of the MLST style table plus the tabulated gene summary (file 2 above).
 
+```
 Sample  ST      adk     fumC    gyrB    icd     mdh     purA    recA    mismatches      uncertainty     depth   aadA    blaTEM  dfrA    strA    strB    sul2    tet(A)
 
 sampleA     152*     11      63*      7       1       14      7       7                       21.3139900892   aadA1-5 blaTEM-1_5      dfrA1_1?        strA4   strB1   sul2_9  tet(A)_4*?
+```
+
+------------
+### Mapping results
+
+The bowtie2 alignment of reads to each input database is stored in [outputprefix]__[sample].[db].sorted.bam and the samtools pileup of the alignment is stored in [outputprefix]__[sample].[db].pileup. 
+
+If you used --save_scores, a table of scores for each allele in the database is printed to [outputprefix]__[sample].[db].scores.
+
 
 More basic usage examples
 ====
