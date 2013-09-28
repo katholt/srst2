@@ -270,7 +270,7 @@ Output files
 
 MLST results
 
-If MLST sequences and profiles were provided, STs will be printed in tab-delim format to a file called "[prefix]__mlst__[db]__results.txt", e.g.: "strainA__mlst__Escherichia_coli__results.txt".
+If MLST sequences and profiles were provided, STs will be printed in tab-delim format to a file called "[outputprefix]__mlst__[db]__[sample]__results.txt", e.g.: "run1__mlst__Escherichia_coli__strainA__results.txt".
 
 The format looks like this:
 
@@ -293,7 +293,7 @@ Gene typing results files report the details of sequences provided in fasta file
 
 Two output files are produced:
 
-1. A detailed report, [prefix]__fullgenes__[db]__results.txt, with one row per gene per sample:
+1. A detailed report, [outputprefix]__fullgenes__[db]__[sample]__results.txt, with one row per gene per sample:
 
 Sample  DB      gene    allele  coverage        depth   diffs   uncertainty     cluster seqid   annotation
 
@@ -315,7 +315,7 @@ strainB     resistance      strA    strA4   100.0   99.0832298137               
 
 - uncertainty is as above
 
-2. A tabulated summary report of samples x genes, [prefix]__genes__[db]__results.txt:
+2. A tabulated summary report of samples x genes, [outputprefix]__genes__[db]__[sample]__results.txt:
 
 Sample  aadA    blaTEM  dfrA    strA    strB    sul2    tet(A)
 
@@ -336,7 +336,7 @@ If you were using a clustered gene database (such as the resistance.fasta databa
 ------------
 Combined results
 
-If more then one database is provided for typing (via --mlst_db and/or --gene_db), or if previous results are provided for merging with the current run which contain data from >1 database (via --prev_output), then an additional table summarizing all the database results is produced. This is named "[prefix]__compiledResults.txt" and is a combination of the MLST style table plus the tabulated gene summary (file 2 above).
+If more then one database is provided for typing (via --mlst_db and/or --gene_db), or if previous results are provided for merging with the current run which contain data from >1 database (via --prev_output), then an additional table summarizing all the database results is produced. This is named "[outputprefix]__compiledResults.txt" and is a combination of the MLST style table plus the tabulated gene summary (file 2 above).
 
 Sample  ST      adk     fumC    gyrB    icd     mdh     purA    recA    mismatches      uncertainty     depth   aadA    blaTEM  dfrA    strA    strB    sul2    tet(A)
 
@@ -352,7 +352,6 @@ srst2 --input_pe pool11_tag2_1.fastq.gz pool11_tag2_2.fastq.gz
 	--gene_db /vlsci/VR0082/shared/srst2_sep/resistance.fasta 
 	--mlst_db Escherichia_coli.fasta 
 	--mlst_definitions ecoli.txt
-	--save_scores 
 
 ------------
 
@@ -362,8 +361,7 @@ srst2 --input_pe *.fastq.gz
 	--output Shigella --log
 	--gene_db /vlsci/VR0082/shared/srst2_sep/resistance.fasta 
 	--mlst_db Escherichia_coli.fasta 
-	--mlst_definitions ecoli.txt 
-	--save_scores 
+	--mlst_definitions ecoli.txt
 
 ------------
 
@@ -373,8 +371,7 @@ srst2 --input_pe strainsY-Z*.fastq.gz
 	--output strainsA-Z --log
 	--gene_db /vlsci/VR0082/shared/srst2_sep/resistance.fasta 
 	--mlst_db Escherichia_coli.fasta 
-	--mlst_definitions ecoli.txt 
-	--save_scores
+	--mlst_definitions ecoli.txt
 	--prev_output genes__resistance__strainA_results.txt
 		  mlst__Escherichia_coli__strainA_results.txt
 		  genes__resistance__strainB_results.txt
@@ -390,8 +387,7 @@ srst2 --input_pe strain_R1.fastq.gz strain_R2.fastq.gz
 	--output strainA --log 
 	--gene_db /vlsci/VR0082/shared/srst2_sep/resistance.fasta 
 	--mlst_db Enterococcus_faecium.fasta 
-	--mlst_definitions efaecium.txt 
-	--save_scores
+	--mlst_definitions efaecium.txt
 	
 Compile results from completed runs
 ====
@@ -435,20 +431,23 @@ optional arguments:
                         identifiers)
                         
   --input_se INPUT_SE [INPUT_SE ...]
-                        Input single end reads
+                        Single end read file(s) for analysing (may be gzipped)
                         
   --input_pe INPUT_PE [INPUT_PE ...]
-                        Input paired end reads
+                        Paired end read files for analysing (may be gzipped)
                         
-  --forward FORWARD     Designator for forward reads (e.g default is _1,
-                        expect forward reads sample_1.fastq.gz)
+  --forward FORWARD     Designator for forward reads (only used if NOT in
+                        MiSeq format sample_S1_L001_R1_001.fastq.gz; otherwise
+                        default is _1, i.e. expect forward reads as
+                        sample_1.fastq.gz)
                         
-  --reverse REVERSE     Designator for reverse reads (e.g default is _2,
-                        expect reverse reads sample_2.fastq.gz)
+  --reverse REVERSE     Designator for reverse reads (only used if NOT in
+                        MiSeq format sample_S1_L001_R2_001.fastq.gz; otherwise
+                        default is _2, i.e. expect forward reads as
+                        sample_2.fastq.gz)
                         
   --other_args OTHER_ARGS
-                        string containing all other arguments to pass to
-                        function
+                        string containing all other arguments to pass to srst2
                         
 Known issues
 ====
