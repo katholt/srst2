@@ -39,22 +39,23 @@ def parse_args():
 	# Read inputs
 	parser.add_argument(
 		'--input_se', nargs='+',type=str, required=False,
-		help='Input single end read')
+		help='Single end read file(s) for analysing (may be gzipped)')
 	parser.add_argument(
 		'--input_pe', nargs='+', type=str, required=False,
-		help='Input paired end reads')
+		help='Paired end read files for analysing (may be gzipped)')
 	parser.add_argument(
 		'--forward', type=str, required=False, default="_1", 
-			help='Designator for forward reads (e.g default is _1, expect forward reads sample_1.fastq.gz)')
+			help='Designator for forward reads (only used if NOT in MiSeq format sample_S1_L001_R1_001.fastq.gz; otherwise default is _1, i.e. expect forward reads as sample_1.fastq.gz)')
 	parser.add_argument(
 		'--reverse', type=str, required=False, default="_2", 
-			help='Designator for reverse reads (e.g default is _2, expect reverse reads sample_2.fastq.gz)')
-	
+			help='Designator for reverse reads (only used if NOT in MiSeq format sample_S1_L001_R2_001.fastq.gz; otherwise default is _2, i.e. expect forward reads as sample_2.fastq.gz')
+	parser.add_argument('--read_type', type=str, choices=['q', 'qseq', 'f'], default='q',
+		help='Read file type (for bowtie2; default is q=fastq; other options: qseq=solexa, f=fasta).')
+		
 	# MLST parameters
 	parser.add_argument('--mlst_db', type=str, required=False, nargs=1, help='Fasta file of MLST alleles (optional)')
 	parser.add_argument('--mlst_delimiter', type=str, required=False,
 		help='Character(s) separating gene name from allele number in MLST database (default "-", as in arcc-1)', default="-")
-		
 	parser.add_argument('--mlst_definitions', type=str, required=False,
 		help='ST definitions for MLST scheme (required if mlst_db supplied and you want to calculate STs)')
 		
@@ -69,16 +70,14 @@ def parse_args():
 	parser.add_argument('--prob_err', type=float, default=0.01, help='Probability of sequencing error (default 0.01)')
 
 	# Mapping parameters for bowtie2
-	parser.add_argument('--read_type', type=str, choices=['q', 'qseq', 'f'], default='q',
-		help='Input file type (for bowtie input; default is q=fastq; other options: qseq=solexa, f=fasta).')
-	parser.add_argument('--other', type=str, help='Other options for bowtie2.', required=False) 
+	parser.add_argument('--other', type=str, help='Other arguments to pass to bowtie2.', required=False) 
 
 	# Samtools parameters
-	parser.add_argument('--mapq', type=int, default=1, help='Samtools -q parameter')
-	parser.add_argument('--baseq', type=int, default=20, help='Samtools -Q parameter')
+	parser.add_argument('--mapq', type=int, default=1, help='Samtools -q parameter (default 1)')
+	parser.add_argument('--baseq', type=int, default=20, help='Samtools -Q parameter (default 20)')
 	
 	# Reporting options
-	parser.add_argument('--output', type=str, required=True, help='Output file prefix')
+	parser.add_argument('--output', type=str, required=True, help='Prefix for srst2 output files')
 	parser.add_argument('--log', action="store_true", required=False, help='Switch ON logging to file (otherwise log to stdout)')
 	parser.add_argument('--save_scores', action="store_true", required=False, help='Switch ON verbose reporting of all scores')
 
@@ -90,7 +89,7 @@ def parse_args():
 
 	# Compile previous output files
 	parser.add_argument('--prev_output', nargs='+', type=str, required=False,
-		help='SRST2 output files to compile (any new results from this run will also be incorporated)')
+		help='SRST2 results files to compile (any new results from this run will also be incorporated)')
 
 	return parser.parse_args() 
 
