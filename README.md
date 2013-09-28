@@ -7,6 +7,8 @@ This program is designed to take Illumina sequence data, a MLST database and/or 
 of gene sequences (e.g. resistance genes, virulence genes, etc) and report the presence of
 STs and/or reference genes.
 
+
+
 Dependencies:
 
 python (v2.7.5), scipy
@@ -21,6 +23,7 @@ Authors - Michael Inouye, Harriet Dashnow, Bernie Pope, Kathryn Holt (University
 		
 How to cite - Please check back for news on the paper. In the meantime, please cite "SRST2 - Short Read Sequence Typing for Bacterial Pathogens, http://katholt.github.io/srst/"
 		
+Problems? - Email drkatholt@gmail.com. For updates, join the srst2 google group https://groups.google.com/forum/#!forum/srst2.
 
 
 Installation
@@ -113,16 +116,24 @@ optional arguments:
   --version             show version number and exit 
   
   --input_se INPUT_SE [INPUT_SE ...]
-                        Input single end read
+                        Single end read file(s) for analysing (may be gzipped)
                         
   --input_pe INPUT_PE [INPUT_PE ...]
-                        Input paired end reads
+                        Paired end read files for analysing (may be gzipped)
                         
-  --forward FORWARD     Designator for forward reads (e.g default is _1,
-                        expect forward reads sample_1.fastq.gz)
+  --forward FORWARD     Designator for forward reads (only used if NOT in
+                        MiSeq format sample_S1_L001_R1_001.fastq.gz; otherwise
+                        default is _1, i.e. expect forward reads as
+                        sample_1.fastq.gz)
                         
-  --reverse REVERSE     Designator for reverse reads (e.g default is _2,
-                        expect reverse reads sample_2.fastq.gz)
+  --reverse REVERSE     Designator for reverse reads (only used if NOT in
+                        MiSeq format sample_S1_L001_R2_001.fastq.gz; otherwise
+                        default is _2, i.e. expect forward reads as
+                        sample_2.fastq.gz)
+                        
+  --read_type {q,qseq,f}
+                        Read file type (for bowtie2; default is q=fastq; other
+                        options: qseq=solexa, f=fasta)
                         
   --mlst_db MLST_DB     Fasta file of MLST alleles (optional)
   
@@ -152,16 +163,12 @@ optional arguments:
                         (default 2)
                         
   --prob_err PROB_ERR   Probability of sequencing error (default 0.01)
-  
-  --read_type {q,qseq,f}
-                        Input file type (for bowtie input; default is q=fastq;
-                        other options: qseq=solexa, f=fasta)
                         
-  --other OTHER         Other options for bowtie2
+  --other OTHER         Other arguments to pass to bowtie2
   
-  --mapq MAPQ           Samtools -q parameter
+  --mapq MAPQ           Samtools -q parameter (default 1)
   
-  --baseq BASEQ         Samtools -Q parameter
+  --baseq BASEQ         Samtools -Q parameter (default 20)
   
   --output OUTPUT       Output file prefix
   
@@ -178,7 +185,7 @@ optional arguments:
                         will be generated
                         
   --prev_output PREV_OUTPUT [PREV_OUTPUT ...]
-                        SRST2 output files to compile (any new results from
+                        SRST2 results files to compile (any new results from
                         this run will also be incorporated)
 
 Input read formats and options
@@ -190,11 +197,13 @@ Read formats - reads can be in any format readable by bowtie2. The format is pas
 
 Reads may be gzipped.
 
-Paired reads - bowtie2 requires forward and reverse reads to be supplied in separate files, e.g strainA_1.fastq.gz and strainA_2.fastq.gz. srst2 attempts to sort reads supplied via --input_pe into read pairs, based on the suffix that occurs before the file extension (which in this example would be .fastq.gz). So if you supplied --input_pe strainA_1.fastq.gz strainB_1.fastq.gz strainA_2.fastq.gz strainB_2.fastq.gz, srst2 would sort these into two pairs (strainA_1.fastq.gz, strainA_2.fastq.gz) and (strainB_1.fastq.gz, strainB_2.fastq.gz) and pass each pair to bowtie2 for mapping. By default, the suffixes are assumed to "_1" for forward reads and "_2" for reverse reads, but you can tell srst2 if you have other conventions, via --forward and --reverse. E.g. if your files were named strainA_read1.fastq.gz and strainA_read2.fastq.gz, you would use these commands: --input_pe strainA_read1.fastq.gz strainA_read2.fastq.gz --forward _read1 --reverse _read2. 
+Read names - Srst2 can parse Illumina MiSeq reads files; we assume that files with names in the format 'XXX_S1_L001_R1_001.fastq.gz' and 'XXX_S1_L001_R2_001.fastq.gz' are the forward and reverse reads from a sample named 'XXX'. So, you can simply use 'srst2 --input_pe XXX_S1_L001_R1_001.fastq.gz XXX_S1_L001_R2_001.fastq.gz' and srst2 will recognise these as forward and reverse reads of a sample named XXX. If you have single rather than paired MiSeq reads, you would use 'srst2 --input_se XXX_S1_L001_R1_001.fastq.gz'.
+
+Paired reads - If you have paired reads that are named in some way other than the Illumina MiSeq format, e.g. from the SRA or ENA public databases, you need to tell srst2 how to pass these to bowtie2.
+bowtie2 requires forward and reverse reads to be supplied in separate files, e.g strainA_1.fastq.gz and strainA_2.fastq.gz. srst2 attempts to sort reads supplied via --input_pe into read pairs, based on the suffix (_1, _2 in this example) that occurs before the file extension (.fastq.gz in this example). So if you supplied --input_pe strainA_1.fastq.gz strainB_1.fastq.gz strainA_2.fastq.gz strainB_2.fastq.gz, srst2 would sort these into two pairs (strainA_1.fastq.gz, strainA_2.fastq.gz) and (strainB_1.fastq.gz, strainB_2.fastq.gz) and pass each pair on to bowtie2 for mapping. By default, the suffixes are assumed to be "_1" for forward reads and "_2" for reverse reads, but you can tell srst2 if you have other conventions, via --forward and --reverse. E.g. if your files were named strainA_read1.fastq.gz and strainA_read2.fastq.gz, you would use these commands: --input_pe strainA_read1.fastq.gz strainA_read2.fastq.gz --forward _read1 --reverse _read2. 
 
 Sample names are taken from the first part of the read file name (before the suffix if you have paired reads). E.g. 'strainA_1.fastq.gz' is assumed to belong to a sample called "strainA"; 'strainB_C_1.fastq.gz" would be assumed to belong to a sample called "strainB_C". These sample names will be used to name all output files, and will appear in the results files.
 
-* Illumina MiSeq reads files: The current standard Illumina MiSeq naming conventions are also accomodated. We assume that files with names in the format 'samplename_S1_L001_R1_001.fastq.gz' and 'XXX_S1_L001_R2_001.fastq.gz' are the forward and reverse reads from a sample named 'XXX'. So, you can simply use 'srst2 --input_pe XXX_S1_L001_R1_001.fastq.gz XXX_S1_L001_R2_001.fastq.gz' and srst2 will recognise these as forward and reverse reads of a sample named XXX. If you have single rather than paired MiSeq reads, you would use 'srst2 --input_se XXX_S1_L001_R1_001.fastq.gz'.
 
 MLST Database format
 ====
