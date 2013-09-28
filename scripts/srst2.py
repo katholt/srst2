@@ -1041,7 +1041,7 @@ def process_fasta_db(args, fileSets, run_type, db_reports, db_results_list, fast
 def map_fileSet_to_db(args,sample_name,fastq_inputs,db_name,fasta,size,gene_names,\
 	unique_gene_symbols, unique_allele_symbols,run_type,ST_db,results,gene_list,db_report):
 	
-	mapping_files_pre = args.output + '.' + sample_name + '.' + db_name
+	mapping_files_pre = args.output + '__' + sample_name + '.' + db_name
 	pileup_file = mapping_files_pre + '.pileup'
 	scores_file = mapping_files_pre + '.scores'
 	
