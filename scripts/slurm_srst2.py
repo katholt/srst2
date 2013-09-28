@@ -22,17 +22,17 @@ def parse_args():
 	parser.add_argument(
 		'--output', type=str, required=True, help='identifier for outputs (will be combined with read set identifiers)')
 	parser.add_argument(
-		'--input_se', nargs='+', type=str, required=False, help='Input single end reads')
+		'--input_se', nargs='+', type=str, required=False, help='Single end read file(s) for analysing (may be gzipped)')
 	parser.add_argument(
-		'--input_pe', nargs='+', type=str, required=False, help='Input paired end reads')
+		'--input_pe', nargs='+', type=str, required=False, help='Paired end read files for analysing (may be gzipped)')
 	parser.add_argument(
 		'--forward', type=str, required=False, default="_1", 
-			help='Designator for forward reads (e.g default is _1, expect forward reads sample_1.fastq.gz)')
+			help='Designator for forward reads (only used if NOT in MiSeq format sample_S1_L001_R1_001.fastq.gz; otherwise default is _1, i.e. expect forward reads as sample_1.fastq.gz)')
 	parser.add_argument(
 		'--reverse', type=str, required=False, default="_2", 
-			help='Designator for reverse reads (e.g default is _2, expect reverse reads sample_2.fastq.gz)')
+			help='Designator for reverse reads (only used if NOT in MiSeq format sample_S1_L001_R2_001.fastq.gz; otherwise default is _2, i.e. expect forward reads as sample_2.fastq.gz)')
 	parser.add_argument(
-		'--other_args', type=str, required=False, help='string containing all other arguments to pass to srst2.py')
+		'--other_args', type=str, required=False, help='string containing all other arguments to pass to srst2')
 		
 	return parser.parse_args() 
 
