@@ -150,16 +150,24 @@ STs and/or reference genes.</p>
 <p>--version             show version number and exit </p>
 
 <p>--input_se INPUT_SE [INPUT_SE ...]
-                        Input single end read</p>
+                        Single end read file(s) for analysing (may be gzipped)</p>
 
 <p>--input_pe INPUT_PE [INPUT_PE ...]
-                        Input paired end reads</p>
+                        Paired end read files for analysing (may be gzipped)</p>
 
-<p>--forward FORWARD     Designator for forward reads (e.g default is _1,
-                        expect forward reads sample_1.fastq.gz)</p>
+<p>--forward FORWARD     Designator for forward reads (only used if NOT in
+                        MiSeq format sample_S1_L001_R1_001.fastq.gz; otherwise
+                        default is _1, i.e. expect forward reads as
+                        sample_1.fastq.gz)</p>
 
-<p>--reverse REVERSE     Designator for reverse reads (e.g default is _2,
-                        expect reverse reads sample_2.fastq.gz)</p>
+<p>--reverse REVERSE     Designator for reverse reads (only used if NOT in
+                        MiSeq format sample_S1_L001_R2_001.fastq.gz; otherwise
+                        default is _2, i.e. expect forward reads as
+                        sample_2.fastq.gz)</p>
+                        
+<p>--read_type {q,qseq,f}
+                        Input file type (for bowtie input; default is q=fastq;
+                        other options: qseq=solexa, f=fasta)</p>
 
 <p>--mlst_db MLST_DB     Fasta file of MLST alleles (optional)</p>
 
@@ -190,15 +198,11 @@ STs and/or reference genes.</p>
 
 <p>--prob_err PROB_ERR   Probability of sequencing error (default 0.01)</p>
 
-<p>--read_type {q,qseq,f}
-                        Input file type (for bowtie input; default is q=fastq;
-                        other options: qseq=solexa, f=fasta)</p>
-
 <p>--other OTHER         Other options for bowtie2</p>
 
-<p>--mapq MAPQ           Samtools -q parameter</p>
+<p>--mapq MAPQ           Samtools -q parameter (default 1)</p>
 
-<p>--baseq BASEQ         Samtools -Q parameter</p>
+<p>--baseq BASEQ         Samtools -Q parameter (default 20)</p>
 
 <p>--output OUTPUT       Output file prefix</p>
 
@@ -215,7 +219,7 @@ STs and/or reference genes.</p>
                         will be generated</p>
 
 <p>--prev_output PREV_OUTPUT [PREV_OUTPUT ...]
-                        SRST2 output files to compile (any new results from
+                        SRST2 results files to compile (any new results from
                         this run will also be incorporated)</p>
 
 <h1>
@@ -227,13 +231,15 @@ STs and/or reference genes.</p>
 
 <p>Reads may be gzipped.</p>
 
-<p>Paired reads - bowtie2 requires forward and reverse reads to be supplied in separate files, e.g strainA_1.fastq.gz and strainA_2.fastq.gz. srst2 attempts to sort reads supplied via --input_pe into read pairs, based on the suffix that occurs before the file extension (which in this example would be .fastq.gz). So if you supplied --input_pe strainA_1.fastq.gz strainB_1.fastq.gz strainA_2.fastq.gz strainB_2.fastq.gz, srst2 would sort these into two pairs (strainA_1.fastq.gz, strainA_2.fastq.gz) and (strainB_1.fastq.gz, strainB_2.fastq.gz) and pass each pair to bowtie2 for mapping. By default, the suffixes are assumed to "_1" for forward reads and "_2" for reverse reads, but you can tell srst2 if you have other conventions, via --forward and --reverse. E.g. if your files were named strainA_read1.fastq.gz and strainA_read2.fastq.gz, you would use these commands: --input_pe strainA_read1.fastq.gz strainA_read2.fastq.gz --forward _read1 --reverse _read2. </p>
+
+<p>Read names - Srst2 can parse Illumina MiSeq reads files; we assume that files with names in the format 'XXX_S1_L001_R1_001.fastq.gz' and 'XXX_S1_L001_R2_001.fastq.gz' are the forward and reverse reads from a sample named 'XXX'. So, you can simply use 'srst2 --input_pe XXX_S1_L001_R1_001.fastq.gz XXX_S1_L001_R2_001.fastq.gz' and srst2 will recognise these as forward and reverse reads of a sample named XXX. If you have single rather than paired MiSeq reads, you would use 'srst2 --input_se XXX_S1_L001_R1_001.fastq.gz'.</p>
+
+<p>Paired reads - If you have paired reads that are named in some way other than the Illumina MiSeq format, e.g. from the SRA or ENA public databases, you need to tell srst2 how to pass these to bowtie2.
+bowtie2 requires forward and reverse reads to be supplied in separate files, e.g strainA_1.fastq.gz and strainA_2.fastq.gz. srst2 attempts to sort reads supplied via --input_pe into read pairs, based on the suffix (_1, _2 in this example) that occurs before the file extension (.fastq.gz in this example). So if you supplied --input_pe strainA_1.fastq.gz strainB_1.fastq.gz strainA_2.fastq.gz strainB_2.fastq.gz, srst2 would sort these into two pairs (strainA_1.fastq.gz, strainA_2.fastq.gz) and (strainB_1.fastq.gz, strainB_2.fastq.gz) and pass each pair on to bowtie2 for mapping. By default, the suffixes are assumed to be "_1" for forward reads and "_2" for reverse reads, but you can tell srst2 if you have other conventions, via --forward and --reverse. E.g. if your files were named strainA_read1.fastq.gz and strainA_read2.fastq.gz, you would use these commands: --input_pe strainA_read1.fastq.gz strainA_read2.fastq.gz --forward _read1 --reverse _read2.</p>
 
 <p>Sample names are taken from the first part of the read file name (before the suffix if you have paired reads). E.g. 'strainA_1.fastq.gz' is assumed to belong to a sample called "strainA"; 'strainB_C_1.fastq.gz" would be assumed to belong to a sample called "strainB_C". These sample names will be used to name all output files, and will appear in the results files.</p>
 
-<ul>
-<li>Illumina MiSeq reads files: The current standard Illumina MiSeq naming conventions are also accomodated. We assume that files with names in the format 'samplename_S1_L001_R1_001.fastq.gz' and 'XXX_S1_L001_R2_001.fastq.gz' are the forward and reverse reads from a sample named 'XXX'. So, you can simply use 'srst2 --input_pe XXX_S1_L001_R1_001.fastq.gz XXX_S1_L001_R2_001.fastq.gz' and srst2 will recognise these as forward and reverse reads of a sample named XXX. If you have single rather than paired MiSeq reads, you would use 'srst2 --input_se XXX_S1_L001_R1_001.fastq.gz'.</li>
-</ul><h1>
+<h1>
 <a name="mlst-database-format" class="anchor" href="#mlst-database-format"><span class="octicon octicon-link"></span></a>MLST Database format</h1>
 
 <p>MLST databases are specified by allele sequences, and a profiles table. These can be downloaded from the public databases, ready to use with srst2, using the provided script getmlst.py (see above).</p>
@@ -303,7 +309,7 @@ alleleUniqueIdentifier = 1;  uniquely identifies the sequence</p>
 
 <p>MLST results</p>
 
-<p>If MLST sequences and profiles were provided, STs will be printed in tab-delim format to a file called "[prefix]__mlst__[db]__results.txt", e.g.: "strainA__mlst__Escherichia_coli__results.txt".</p>
+<p>If MLST sequences and profiles were provided, STs will be printed in tab-delim format to a file called "strainArun1__mlst__[db]__results.txt", e.g.: "strainArun1__mlst__Escherichia_coli__results.txt".</p>
 
 <p>The format looks like this:</p>
 
@@ -321,9 +327,9 @@ alleleUniqueIdentifier = 1;  uniquely identifies the sequence</p>
 
 <p>Two output files are produced:</p>
 
-<ol>
-<li>A detailed report, [prefix]__fullgenes__[db]__results.txt, with one row per gene per sample:</li>
-</ol><p>Sample  DB      gene    allele  coverage        depth   diffs   uncertainty     cluster seqid   annotation</p>
+1. A detailed report, [outputprefix]__fullgenes__[db]__results.txt, with one row per gene per sample:
+
+<p>Sample  DB      gene    allele  coverage        depth   diffs   uncertainty     cluster seqid   annotation</p>
 
 <p>strainA     resistance      dfrA    dfrA1_1 100.0   6.79368421053           edge1.5 590     137     </p>
 
@@ -342,9 +348,11 @@ alleleUniqueIdentifier = 1;  uniquely identifies the sequence</p>
 <ul>
 <li><p>coverage indicates the % of the gene length that was covered (if clustered DB, then this is the highest coverage of any members of the cluster)</p></li>
 <li><p>uncertainty is as above</p></li>
-</ul><ol>
-<li>A tabulated summary report of samples x genes, [prefix]__genes__[db]__results.txt:</li>
-</ol><p>Sample  aadA    blaTEM  dfrA    strA    strB    sul2    tet(A)</p>
+</ul>
+
+2. A tabulated summary report of samples x genes, [outputprefix]__genes__[db]__results.txt:
+
+<p>Sample  aadA    blaTEM  dfrA    strA    strB    sul2    tet(A)</p>
 
 <p>strainA     aadA1-5 blaTEM-1_5      dfrA1_1?        -   -   sul2_9  tet(A)_4*?</p>
 
@@ -379,8 +387,7 @@ alleleUniqueIdentifier = 1;  uniquely identifies the sequence</p>
     --output pool11_tag2_Shigella --log 
     --gene_db /vlsci/VR0082/shared/srst2_sep/resistance.fasta 
     --mlst_db Escherichia_coli.fasta 
-    --mlst_definitions ecoli.txt
-    --save_scores </p>
+    --mlst_definitions ecoli.txt </p>
 
 <hr><p>Run against multiple read sets in serial</p>
 
@@ -388,8 +395,7 @@ alleleUniqueIdentifier = 1;  uniquely identifies the sequence</p>
     --output Shigella --log
     --gene_db /vlsci/VR0082/shared/srst2_sep/resistance.fasta 
     --mlst_db Escherichia_coli.fasta 
-    --mlst_definitions ecoli.txt 
-    --save_scores </p>
+    --mlst_definitions ecoli.txt </p>
 
 <hr><p>Run against new read sets, merge with previous reports (individual or compiled)</p>
 
@@ -398,12 +404,11 @@ alleleUniqueIdentifier = 1;  uniquely identifies the sequence</p>
     --gene_db /vlsci/VR0082/shared/srst2_sep/resistance.fasta 
     --mlst_db Escherichia_coli.fasta 
     --mlst_definitions ecoli.txt 
-    --save_scores
     --prev_output genes__resistance__strainA_results.txt
-          mlst__Escherichia_coli__strainA_results.txt
-          genes__resistance__strainB_results.txt
-          mlst__Escherichia_coli__strainB_results.txt
-          strainsC-X__compiledResults.txt</p>
+          Shigella__mlst__Escherichia_coli__strainA_results.txt
+          Shigella__genes__resistance__strainB_results.txt
+          Shigella__mlst__Escherichia_coli__strainB_results.txt
+          Shigella__strainsC-X__compiledResults.txt</p>
 
 <hr><p>Run against Enterococcus reads, where read names are different from the usual _1.fastq and _2.fastq</p>
 
@@ -412,8 +417,7 @@ alleleUniqueIdentifier = 1;  uniquely identifies the sequence</p>
     --output strainA --log 
     --gene_db /vlsci/VR0082/shared/srst2_sep/resistance.fasta 
     --mlst_db Enterococcus_faecium.fasta 
-    --mlst_definitions efaecium.txt 
-    --save_scores</p>
+    --mlst_definitions efaecium.txt </p>
 
 <h1>
 <a name="compile-results-from-completed-runs" class="anchor" href="#compile-results-from-completed-runs"><span class="octicon octicon-link"></span></a>Compile results from completed runs</h1>
@@ -456,20 +460,23 @@ alleleUniqueIdentifier = 1;  uniquely identifies the sequence</p>
                         identifiers)</p>
 
 <p>--input_se INPUT_SE [INPUT_SE ...]
-                        Input single end reads</p>
+                        Single end read file(s) for analysing (may be gzipped)</p>
 
 <p>--input_pe INPUT_PE [INPUT_PE ...]
-                        Input paired end reads</p>
+                        Paired end read files for analysing (may be gzipped)</p>
 
-<p>--forward FORWARD     Designator for forward reads (e.g default is _1,
-                        expect forward reads sample_1.fastq.gz)</p>
+<p>--forward FORWARD     Designator for forward reads (only used if NOT in
+                        MiSeq format sample_S1_L001_R1_001.fastq.gz; otherwise
+                        default is _1, i.e. expect forward reads as
+                        sample_1.fastq.gz)</p>
 
-<p>--reverse REVERSE     Designator for reverse reads (e.g default is _2,
-                        expect reverse reads sample_2.fastq.gz)</p>
+<p>--reverse REVERSE     Designator for reverse reads (only used if NOT in
+                        MiSeq format sample_S1_L001_R2_001.fastq.gz; otherwise
+                        default is _2, i.e. expect forward reads as
+                        sample_2.fastq.gz)</p>
 
 <p>--other_args OTHER_ARGS
-                        string containing all other arguments to pass to
-                        function</p>
+                        string containing all other arguments to pass to srst2</p>
 
 <h1>
 <a name="known-issues" class="anchor" href="#known-issues"><span class="octicon octicon-link"></span></a>Known issues</h1>
@@ -592,7 +599,7 @@ the results from the poor read set for comparison.</li>
     shigella2__genes__resistance__results.txt - resistance results only, tabulated
     shigella2__compiledResults.txt - MLST and resistance genes, tabulated</p>
 
-<p>This time there is a confident ST called, which should look like this:</p>
+<p>This time there is a confident ST called.</p>
 
 <p>There are also lots of resistance genes identified.</p>
 
