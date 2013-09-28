@@ -270,7 +270,7 @@ Output files
 
 MLST results
 
-If MLST sequences and profiles were provided, STs will be printed in tab-delim format to a file called "[outputprefix]__mlst__[db]__[sample]__results.txt", e.g.: "run1__mlst__Escherichia_coli__strainA__results.txt".
+If MLST sequences and profiles were provided, STs will be printed in tab-delim format to a file called "[outputprefix]__mlst__[db]__results.txt", e.g.: "strainArun1__mlst__Escherichia_coli__results.txt".
 
 The format looks like this:
 
@@ -293,7 +293,7 @@ Gene typing results files report the details of sequences provided in fasta file
 
 Two output files are produced:
 
-1. A detailed report, [outputprefix]__fullgenes__[db]__[sample]__results.txt, with one row per gene per sample:
+1. A detailed report, [outputprefix]__fullgenes__[db]__results.txt, with one row per gene per sample:
 
 Sample  DB      gene    allele  coverage        depth   diffs   uncertainty     cluster seqid   annotation
 
@@ -315,7 +315,7 @@ strainB     resistance      strA    strA4   100.0   99.0832298137               
 
 - uncertainty is as above
 
-2. A tabulated summary report of samples x genes, [outputprefix]__genes__[db]__[sample]__results.txt:
+2. A tabulated summary report of samples x genes, [outputprefix]__genes__[db]__results.txt:
 
 Sample  aadA    blaTEM  dfrA    strA    strB    sul2    tet(A)
 
@@ -372,11 +372,11 @@ srst2 --input_pe strainsY-Z*.fastq.gz
 	--gene_db /vlsci/VR0082/shared/srst2_sep/resistance.fasta 
 	--mlst_db Escherichia_coli.fasta 
 	--mlst_definitions ecoli.txt
-	--prev_output genes__resistance__strainA_results.txt
-		  mlst__Escherichia_coli__strainA_results.txt
-		  genes__resistance__strainB_results.txt
-		  mlst__Escherichia_coli__strainB_results.txt
-		  strainsC-X__compiledResults.txt
+	--prev_output ShigellaA__genes__resistance__results.txt
+          ShigellaA__mlst__Escherichia_coli__results.txt
+          ShigellaB__genes__resistance__results.txt
+          ShigellaB__mlst__Escherichia_coli__results.txt
+          ShigellaC-X__compiledResults.txt
 
 ------------
 
