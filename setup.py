@@ -4,9 +4,9 @@ from distutils.core import setup
 
 setup(
     name='srst2',
-    version='0.1.0',
+    version='0.1.2',
     author='Kathryn Holt',
-    author_email='kholt@unimelb.edu.au',
+    author_email='drkatholt@gmail.com',
     packages=['srst2'],
     scripts=['scripts/getmlst.py', 'scripts/scores_vs_expected.py', 'scripts/slurm_srst2.py'],
     entry_points={
@@ -14,7 +14,7 @@ setup(
     },
     package_dir = {'srst2': 'scripts'},
     package_data={'srst2': ['data/resistance.*']},
-    url='https://github.com/katholt/srst',
+    url='http://katholt.github.io/srst2/',
     license='LICENSE.txt',
     description='Short Read Sequence Typing for Bacterial Pathogens',
     long_description=('This program is designed to take Illumina'
