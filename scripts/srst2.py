@@ -646,7 +646,7 @@ def get_allele_name_from_db(allele,unique_allele_symbols,unique_cluster_symbols,
 			annotation = ""
 	
 		if not unique_allele_symbols:	
-			allele_name += "_" + seq_id
+			allele_name += "_" + seqid
 		
 		if not unique_allele_symbols:	
 			gene_name += "_" + cluster_id
