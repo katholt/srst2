@@ -51,13 +51,15 @@ STs and/or reference genes.</p>
 
 <p>Updates in v0.1.3</p>
 
-<ul>Fixed a bug that occurred while trying to type genes from a user-supplied database (see issue #5, thanks to Scott Long)</ul>
+<ul>
+<li>Fixed a bug that occurred while trying to type genes from a user-supplied database (see issue #5, thanks to Scott Long)</li>
 
-<ul>Fixed a bug in gene detection reporting - genes are now correctly reported by cluster, rather than by gene symbol (see issue #7)</ul>
+<li>Fixed a bug in gene detection reporting - genes are now correctly reported by cluster, rather than by gene symbol (see issue #7)</li>
 
-<ul>Added maximum divergence option for reporting (--max_divergence), default is now to report only hits with <10% divergence from the database (see issue #8)</ul>
+<li>Added maximum divergence option for reporting (--max_divergence), default is now to report only hits with <10% divergence from the database (see issue #8)</li>
 
-<ul>Added parameter to pass to bowtie2 parameter '-u N' to stop mapping after the first N reads. Default behaviour remains to map all reads. However, for large read sets (e.g. >100x), extra reads do not help and merely increase the time taken for mapping and scoring, and you may want to limit to the first million reads (100x of a 2 Mbp genome) using '--stop_after 1000000'.</ul>
+<li>Added parameter to pass to bowtie2 parameter '-u N' to stop mapping after the first N reads. Default behaviour remains to map all reads. However, for large read sets (e.g. >100x), extra reads do not help and merely increase the time taken for mapping and scoring, and you may want to limit to the first million reads (100x of a 2 Mbp genome) using '--stop_after 1000000'.</li>
+</ul>
 
 <p>Authors - Michael Inouye, Harriet Dashnow, Bernie Pope, Kathryn Holt (University of Melbourne)</p>
 
