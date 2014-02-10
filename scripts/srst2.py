@@ -65,8 +65,8 @@ def parse_args():
 	parser.add_argument('--no_gene_details', action="store_false", required=False, help='Switch OFF verbose reporting of gene typing')
 
 	# Cutoffs for scoring/heuristics
-	parser.add_argument('--min_coverage', type=float, required=False, help='Minimum %coverage cutoff for gene reporting (default 90)',default=90)
-	parser.add_argument('--max_divergence', type=float, required=False, help='Maximum %divergence cutoff for gene reporting (default 10)',default=10)
+	parser.add_argument('--min_coverage', type=float, required=False, help='Minimum %%coverage cutoff for gene reporting (default 90)',default=90)
+	parser.add_argument('--max_divergence', type=float, required=False, help='Maximum %%divergence cutoff for gene reporting (default 10)',default=10)
 	parser.add_argument('--min_depth', type=float, required=False, help='Minimum mean depth to flag as dubious allele call (default 5)',default=5)
 	parser.add_argument('--min_edge_depth', type=float, required=False, help='Minimum edge depth to flag as dubious allele call (default 2)',default=2)
 	parser.add_argument('--prob_err', type=float, default=0.01, help='Probability of sequencing error (default 0.01)')
