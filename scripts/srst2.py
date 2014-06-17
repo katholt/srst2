@@ -340,8 +340,12 @@ def read_pileup_data(pileup_file, size, prob_err, consensus_file = ""):
 
 			# Determine the consensus sequence if required
 			if consensus_file != "":
+				if consensus_file.split(".")[-2] == "new_consensus_alleles":
+					consensus_type = "variant"
+				elif consensus_file.split(".")[-2] == "all_consensus_alleles":
+					consensus_type = "consensus"
 				with open(consensus_file, "a") as consensus_outfile:
-					consensus_outfile.write(">{0}.consensus\n".format(allele)) #XXX better way to name new alleles?
+					consensus_outfile.write(">{0}.{1}\n".format(allele, consensus_type)) #XXX better way to name new alleles?
 					outstring = consensus_seq + "\n"
 					consensus_outfile.write(outstring)
 
@@ -788,12 +792,12 @@ def parse_scores(run_type,args,scores, hash_edge_depth,
 		if depth_problem == "" and divergence > 0:
 			new_allele = True
 			# Get the consensus for this new allele and write it to file
-			if args.report_new_consensus:
-				new_alleles_filename = args.output + ".consensus_alleles.fasta" 
+			if args.report_new_consensus or args.report_all_consensus:
+				new_alleles_filename = args.output + ".new_consensus_alleles.fasta" 
 				allele_pileup_file = create_allele_pileup(top_allele, pileup_file) # XXX Creates a new pileup file for that allele. Not currently cleaned up
 				read_pileup_data(allele_pileup_file, size_allele, args.prob_err, consensus_file = new_alleles_filename)
 		elif args.report_all_consensus:
-			new_alleles_filename = args.output + ".consensus_alleles.fasta"
+			new_alleles_filename = args.output + ".all_consensus_alleles.fasta"
 			allele_pileup_file = create_allele_pileup(top_allele, pileup_file)
 			read_pileup_data(allele_pileup_file, size_allele, args.prob_err, consensus_file = new_alleles_filename)
 
