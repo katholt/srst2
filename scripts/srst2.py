@@ -83,7 +83,8 @@ def parse_args():
 	parser.add_argument('--output', type=str, required=True, help='Prefix for srst2 output files')
 	parser.add_argument('--log', action="store_true", required=False, help='Switch ON logging to file (otherwise log to stdout)')
 	parser.add_argument('--save_scores', action="store_true", required=False, help='Switch ON verbose reporting of all scores')
-	parser.add_argument('--report_consensus', action="store_true", required=False, help='If a matching alleles is not found, report the consensus allele. Note, only SNP differences are considered, not indels.')
+	parser.add_argument('--report_new_consensus', action="store_true", required=False, help='If a matching alleles is not found, report the consensus allele. Note, only SNP differences are considered, not indels.')
+	parser.add_argument('--report_all_consensus', action="store_true", required=False, help='Report the consensus allele for the most likely allele. Note, only SNP differences are considered, not indels.')
 
 	# Run options
 	parser.add_argument('--use_existing_pileup', action="store_true", required=False,
@@ -339,9 +340,8 @@ def read_pileup_data(pileup_file, size, prob_err, consensus_file = ""):
 
 			# Determine the consensus sequence if required
 			if consensus_file != "":
-#				if allele == "icd-219":
 				with open(consensus_file, "a") as consensus_outfile:
-					consensus_outfile.write(">{0}.variant\n".format(allele)) #XXX better way to name new alleles?
+					consensus_outfile.write(">{0}.consensus\n".format(allele)) #XXX better way to name new alleles?
 					outstring = consensus_seq + "\n"
 					consensus_outfile.write(outstring)
 
@@ -788,10 +788,14 @@ def parse_scores(run_type,args,scores, hash_edge_depth,
 		if depth_problem == "" and divergence > 0:
 			new_allele = True
 			# Get the consensus for this new allele and write it to file
-			if args.report_consensus:
+			if args.report_new_consensus:
 				new_alleles_filename = args.output + ".consensus_alleles.fasta" 
 				allele_pileup_file = create_allele_pileup(top_allele, pileup_file) # XXX Creates a new pileup file for that allele. Not currently cleaned up
 				read_pileup_data(allele_pileup_file, size_allele, args.prob_err, consensus_file = new_alleles_filename)
+		elif args.report_all_consensus:
+			new_alleles_filename = args.output + ".consensus_alleles.fasta"
+			allele_pileup_file = create_allele_pileup(top_allele, pileup_file)
+			read_pileup_data(allele_pileup_file, size_allele, args.prob_err, consensus_file = new_alleles_filename)
 
 	return results # (allele, diffs, depth_problem, divergence)
 					
@@ -1357,7 +1361,7 @@ def main():
 	logging.info('command line: {0}'.format(' '.join(sys.argv)))
 
 	# Delete consensus file if it already exists (so can use append file in funtions)
-	if args.report_consensus:
+	if args.report_new_consensus or args.report_all_consensus:
 		new_alleles_filename = args.output + ".consensus_alleles.fasta" 
 		if os.path.exists(new_alleles_filename):
 			os.remove(new_alleles_filename)
