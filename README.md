@@ -142,7 +142,7 @@ Basic usage - Resistance genes
 
 (i) sequence reads (this example uses paired reads in gzipped fastq format, see below for options)
 
-(ii) a fasta sequence database to match to. For resistance genes, this means a fasta file of all the resistance genes/alleles that you want to screen for, clustered into gene groups. A suitable database, which combines sequences from ResFinder and CARD, is distributed with SRST2 (data/resistance.fasta).
+(ii) a fasta sequence database to match to. For resistance genes, this means a fasta file of all the resistance genes/alleles that you want to screen for, clustered into gene groups. Some suitable databases are distributed with SRST2 (in the /data directory); we recommend using /data/ARGannot.fasta for acquired resistance genes.
 
 2 - Run gene detection:
 
@@ -311,7 +311,7 @@ In addition to MLST, srst2 can do gene/allele detection. This works by mapping r
 
 If the input database contains different alelles of the same gene, srst2 can report just the best matching allele for that gene (much like with MLST we report the best matching allele for each locus in the scheme). This makes the output manageable, as you will get one column per gene/locus (e.g. blaCTX-M) which reports the specific allele that was called in each sample (e.g. blaCTX-M-15 in sample A, blaCTX-M-13 in sample B).
 
-We have provided a preliminary set of resistance genes in the /data directory of srst2, this is based on the ResFinder database and CARD. The fasta file (data/resistance.fasta) is ready for use with srst2.
+We have provided some databases of resistance genes and plasmid genes in /data, ready for use with SRST2. We recommend using /data/ARGannot.fasta for detecting resistance genes, but you can also use /data/ResFinder.fasta (this is the same as /data/resistance.fasta in earlier distributions of srst2).
 
 You can however format any sequence set for screening with srst2. See instructions at the bottom of this page.
 
@@ -529,7 +529,9 @@ optional arguments:
 Known issues
 ====
 
-Reference indexing - srst2 uses bowtie2 for mapping reads to reference sequences. To do this, srst2 must first check the index exists, call bowtie2-build to generate the index if it doesn't already exist, and then call bowtie2 to map the reads to this indexed reference. Occasionallly bowtie2 will return an Error message saying that it doesn't like the index. This seems to be due to the fact that if you submit multiple srst2 jobs to a cluster at the same time, they will all test for the presence of the index and, if index files are present, will proceed with mapping... but this doesn't mean the indexing process is actually finished, and so errors will arise. The simple way out of this is, if you are running lots of srst2 jobs, FIRST index your reference(s) for bowtie2 and samtools (using 'bowtie2-build ref.fasta ref.fasta' and 'samtools faidx ref.fasta'), then submit your srst2 jobs. The slurm_srst2.py script takes care of this by formatting the databases before submitting any srst2 jobs.
+Reference indexing - srst2 uses bowtie2 for mapping reads to reference sequences. To do this, srst2 must first check the index exists, call bowtie2-build to generate the index if it doesn't already exist, and then call bowtie2 to map the reads to this indexed reference. Occasionallly bowtie2 will return an Error message saying that it doesn't like the index. This seems to be due to the fact that if you submit multiple srst2 jobs to a cluster at the same time, they will all test for the presence of the index and, if index files are present, will proceed with mapping... but this doesn't mean the indexing process is actually finished, and so errors will arise. 
+
+The simple way out of this is, if you are running lots of srst2 jobs, FIRST index your reference(s) for bowtie2 and samtools (using 'bowtie2-build ref.fasta ref.fasta' and 'samtools faidx ref.fasta'), then submit your srst2 jobs. The slurm_srst2.py script takes care of this for you by formatting the databases before submitting any srst2 jobs.
 
 Example - Shigella sonnei public data
 ====
