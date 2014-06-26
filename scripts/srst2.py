@@ -874,7 +874,7 @@ def read_results_from_file(infile):
 	results_info = infile.split("__")
 	if len(results_info) > 1:
 	
-		if results_info[-1] == "compiledResults.txt":
+		if re.search("compiledResults",infile)!=None:
 			dbtype = "compiled"
 			dbname = results_info[0] # output identifier
 		else:
@@ -920,12 +920,13 @@ def read_results_from_file(infile):
 								mlst_cols = 2 # first locus column
 								while header[mlst_cols] != "depth":
 									mlst_cols += 1
-								if header[mlst_cols + 1] == "maxMAF":
-									mlst_cols += 1
 								results["Sample"]["mlst"] = "\t".join(line_split[0:(mlst_cols+1)])
+								results["Sample"]["mlst"] += "\tmaxMAF" # add to mlst header even if not encountered in this file, as it may be in others
+								if header[mlst_cols + 1] == "maxMAF":
+									mlst_cols += 1 # record maxMAF column within MLST data, if present
 							else:
 								# no mlst data reported
-								dbtype = "genes"			
+								dbtype = "genes"
 								logging.info("No MLST data in compiled results file " + infile)	
 						else:
 							# no mlst data reported
@@ -1290,7 +1291,7 @@ def compile_results(args,mlst_results,db_results,compiled_output_file):
 						sample_list.append(sample)
 			elif mlst_cols != this_mlst_cols:
 				# don't process this data further
-				logging.info("Problem reconciling MLST data from, first MLST results encountered had " + str(mlst_cols) + " columns, this one has " + str(this_mlst_cols) + " columns?")
+				logging.info("Problem reconciling MLST data from two files, first MLST results encountered had " + str(mlst_cols) + " columns, this one has " + str(this_mlst_cols) + " columns?")
 				if args.mlst_db:
 					logging.info("Compiled report will contain only the MLST data from this run, not previous outputs")
 				else:
