@@ -1016,7 +1016,7 @@ def process_fasta_db(args, fileSets, run_type, db_reports, db_results_list, fast
 	#  gene names read from here are needed for non-MLST dbs
 	fai_file = fasta + '.fai'
 	if not os.path.exists(fai_file):
-		run_command([' ', 'faidx', fasta])
+		run_command(['samtools', 'faidx', fasta])
 	size, gene_names, unique_gene_symbols, unique_allele_symbols, cluster_symbols = \
 		parse_fai(fai_file,run_type,args.mlst_delimiter)
 
