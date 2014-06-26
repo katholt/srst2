@@ -44,6 +44,8 @@ Note that all compiled reports will now include a maxMAF column; if you provide 
 4. Added R code for plotting SRST2 output in R (plotSRST2data.R).
 Instructions will be added to the read me.
 
+5. Added formatted versions of the ARG-Annot resistance gene database, PlasmidFinder database and 18 plasmid replicon sequences to the /data directory. See /data/README.md for details and citations. It is recommended to use ARGannot.fasta for detection of acquired resistance genes.
+ 
 Updates in v0.1.3
 
 - Fixed a bug that occurred while trying to type genes from a user-supplied database (see issue #5, thanks to Scott Long)
@@ -199,10 +201,16 @@ optional arguments:
                         ST definitions for MLST scheme (required if mlst_db
                         supplied and you want to calculate STs)
                         
+  --mlst_max_mismatch MLST_MAX_MISMATCH
+                        Maximum number of mismatches per read for MLST allele calling (default 10)
+                        
   --gene_db GENE_DB [GENE_DB ...]
                         Fasta file/s for gene databases (optional)
                         
   --no_gene_details     Switch OFF verbose reporting of gene typing
+  
+  --gene_max_mismatch GENE_MAX_MISMATCH
+                        Maximum number of mismatches per read for gene allele calling (default 10)
                                                 
   --min_coverage MIN_COVERAGE
                         Minimum %coverage cutoff for gene reporting 
@@ -245,6 +253,10 @@ optional arguments:
   --use_existing_scores
                         Use existing scores files if available, otherwise they
                         will be generated
+  
+  --keep_interim_alignment                      
+                        Keep interim files (sam & unsorted bam), otherwise they 
+                        will be deleted after sorted bam is created
                         
   --prev_output PREV_OUTPUT [PREV_OUTPUT ...]
                         SRST2 results files to compile (any new results from
