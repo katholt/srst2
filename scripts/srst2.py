@@ -93,8 +93,10 @@ def parse_args():
 		help='Use existing pileups if available, otherwise they will be generated') # to facilitate testing of rescoring from pileups
 	parser.add_argument('--use_existing_scores', action="store_true", required=False,
 		help='Use existing scores files if available, otherwise they will be generated') # to facilitate testing of reporting from scores
-	parser.add_argument('--retain_interim_files', action="store_true", required=False, default=False,
+	parser.add_argument('--keep_interim_alignment', action="store_true", required=False, default=False,
 		help='Keep interim files (sam & unsorted bam), otherwise they will be deleted after sorted bam is created') # to facilitate testing of sam processing
+#	parser.add_argument('--keep_final_alignment', action="store_true", required=False, default=False,
+#		help='Keep interim files (sam & unsorted bam), otherwise they will be deleted after sorted bam is created') # to facilitate testing of sam processing
 
 	# Compile previous output files
 	parser.add_argument('--prev_output', nargs='+', type=str, required=False,
@@ -386,7 +388,7 @@ def score_alleles(args, mapping_files_pre, hash_alignment, hash_max_depth, hash_
 	
 	if args.save_scores:
 		scores_output = file(mapping_files_pre + '.scores', 'w')
-		scores_output.write("Allele\tScore\tAvg_depth\tEdge1_depth\tEdge2_depth\tPercent_coverage\tSize\tMismatches\tIndels\tTruncated_bases\tDepthNeighbouringTruncation\tMix_Rate\tLeastConfident_Rate\tLeastConfident_Mismatches\tLeastConfident_Depth\tLeastConfident_Pvalue\n")
+		scores_output.write("Allele\tScore\tAvg_depth\tEdge1_depth\tEdge2_depth\tPercent_coverage\tSize\tMismatches\tIndels\tTruncated_bases\tDepthNeighbouringTruncation\tmaxMAF\tLeastConfident_Rate\tLeastConfident_Mismatches\tLeastConfident_Depth\tLeastConfident_Pvalue\n")
 	
 	scores = {} # key = allele, value = score
 	mix_rates = {} # key = allele, value = highest minor allele frequency, 0 -> 0.5
@@ -483,6 +485,8 @@ def check_command_version(command_list, version_identifier, command_name, requir
 
 def run_bowtie(mapping_files_pre,sample_name,fastqs,args,db_name,db_full_path):
 
+	print "Starting mapping with bowtie2"
+	
 	# check that both bowtie and samtools have the right versions
 	check_command_version(['bowtie2', '--version'],
 				'bowtie2-align version 2.1.0',
@@ -541,7 +545,7 @@ def get_pileup(args,mapping_files_pre,raw_bowtie_sam,bowtie_sam_mod,fasta,pileup
 
 	# Delete interim files (sam, modified sam, unsorted bam) unless otherwise specified.
 	# Note users may also want to delete final sorted bam and pileup on completion to save space.
-	if not args.retain_interim_files:
+	if not args.keep_interim_alignment:
 		logging.info('Deleting sam and bam files that are not longer needed...')
 		del_filenames = [raw_bowtie_sam, bowtie_sam_mod, out_file_bam]
 		for f in del_filenames:
@@ -1187,7 +1191,7 @@ def map_fileSet_to_db(args,sample_name,fastq_inputs,db_name,fasta,size,gene_name
 			# print full score set
 			logging.info("Printing all MLST scores to " + scores_output_file)
 			scores_output = file(scores_output_file, 'w')
-			scores_output.write("Allele\tScore\tAvg_depth\tEdge1_depth\tEdge2_depth\tPercent_coverage\tSize\tMismatches\tIndels\tTruncated_bases\tDepthNeighbouringTruncation\tMix_Rate\n")
+			scores_output.write("Allele\tScore\tAvg_depth\tEdge1_depth\tEdge2_depth\tPercent_coverage\tSize\tMismatches\tIndels\tTruncated_bases\tDepthNeighbouringTruncation\tMmaxMAF\n")
 			for allele in scores.keys():
 				score = scores[allele]
 				scores_output.write('\t'.join([allele, str(score), str(avg_depth_allele[allele]), \
@@ -1202,7 +1206,7 @@ def map_fileSet_to_db(args,sample_name,fastq_inputs,db_name,fasta,size,gene_name
 			full_results = "__".join([args.output,"full"+run_type,db_name,"results.txt"])
 			logging.info("Printing verbose gene detection results to " + full_results)
 			f = file(full_results,"w")
-			f.write("\t".join(["Sample","DB","gene","allele","coverage","depth","diffs","uncertainty","divergence","length","clusterid","seqid","annotation"])+"\n")
+			f.write("\t".join(["Sample","DB","gene","allele","coverage","depth","diffs","uncertainty","divergence","length", "maxMAF","clusterid","seqid","annotation"])+"\n")
 		for gene in allele_scores:
 			(allele,diffs,depth_problem,divergence) = allele_scores[gene] # gene = top scoring alleles for each cluster
 			gene_name, allele_name, cluster_id, seqid = \
@@ -1235,7 +1239,7 @@ def map_fileSet_to_db(args,sample_name,fastq_inputs,db_name,fasta,size,gene_name
 				except:
 					annotation = ""
 						
-				f.write("\t".join([sample_name,db_name,gene_name,allele_name,str(round(coverage_allele[allele],3)),str(avg_depth_allele[allele]),diffs,depth_problem,str(round(divergence*100,3)),str(size_allele[allele]),cluster_id,seqid,annotation])+"\n")
+				f.write("\t".join([sample_name,db_name,gene_name,allele_name,str(round(coverage_allele[allele],3)),str(avg_depth_allele[allele]),diffs,depth_problem,str(round(divergence*100,3)),str(size_allele[allele]),str(mix_rates[allele]),cluster_id,seqid,annotation])+"\n")
 	
 		# log the gene detection result
 		logging.info(" " + str(len(allele_scores)) + " genes identified in " + sample_name)

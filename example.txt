@@ -67,28 +67,22 @@ Outputs are printed to:
 	shigella1__fullgenes__ARGannot__results.txt - resistance results, one line per gene
 	shigella1__genes__ARGannot__results.txt - resistance results only, tabulated
 	shigella1__compiledResults.txt - MLST and resistance genes, tabulated
-	shigella1.ERR024070.Escherichia_coli#1.scores - full score & alignment info for all MLST alleles
-	shigella1.ERR024070.ARGannot.scores - full score & alignment info for resistance genes with >90% coverage
+	shigella1__ERR024070.Escherichia_coli#1.scores - full score & alignment info for all MLST alleles
+	shigella1__ERR024070.ARGannot.scores - full score & alignment info for resistance genes with >90% coverage
 	
 Because we ran with the --save_scores flag, we have also got a scores file for each database, 
 which details the score and mapping information for every allele in that database.
 	
-The ST was not called correctly because depth was too low (average read depth 2.19; this 
+The ST was not called correctly because depth was too low (average read depth 2.7; this 
 is printed in the MLST result table.
 
-Only 1 resistance gene was detected with >90% coverage (the default threshold), which looks 
-like a variant of strB (marked with * to indicate it was not a precise match, and ? to 
-indicate uncertainty because some bases weren't covered). If you look in the scores file 
-(ERR024070.resistance.srst2.pileup.table.scores) you will see that two different alleles of 
-strB were covered >90% (both at 95%) and at low depth (~3.9x). The Truncated_bases column
-shows 41, indicating there were 41 "holes" in the alignment of reads to these alleles. The
-next column, "DepthNeighbouringTruncation" contains 1, which tells us that the depth near
-these holes are 1x, indicating that they are likely to reflect random fluctuation in read
-depth rather than actual deletions.
+2 resistance genes were detected with >90% coverage (the default threshold), which look 
+like variants of ampC and strB (marked with * to indicate they were not precise matches, 
+and ? to indicate uncertainty because some bases weren't covered). 
 
 This shows us that this level of data (which was considered a failed sequencing run) isn't 
-enough to get good results. Luckily this genome was resequenced; let's see what happens
-when we analyse that data set.
+enough to get good results. Luckily this genome was resequenced; see what happens when you analyse 
+that data set.
 
 
 4. Try running MLST and gene detection against a proper read set, and compile together with
@@ -105,6 +99,8 @@ Outputs are printed to:
 	shigella2__compiledResults.txt - MLST and resistance genes, tabulated
 
 This time there is a confident ST called, which should look like this:
+
+
 
 There are also lots of resistance genes identified.
 
