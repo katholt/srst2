@@ -4,7 +4,7 @@ from distutils.core import setup
 
 setup(
     name='srst2',
-    version='0.1.3',
+    version='0.1.4',
     author='Kathryn Holt',
     author_email='drkatholt@gmail.com',
     packages=['srst2'],
