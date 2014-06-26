@@ -115,8 +115,9 @@ def read_scores_file(scores_file):
 	missing_allele = {}
 	size_allele = {}
 	next_to_del_depth_allele = {}
+	mix_rates = {}
 	scores = {}
-	allele_info_strings = {} # for printing out this line info later, key = allele, value = string of columns
+	allele_info_strings = {} ### NOTE THIS LINE DOES NOT APPEAR IN THE srst2.py VERSION OF THE FUNCTION
 				
 	f = file(scores_file,"r")
 	
@@ -125,6 +126,7 @@ def read_scores_file(scores_file):
 		allele = line_split[0]
 		if allele != "Allele": # skip header row
 			scores[allele] = float(line_split[1])
+			mix_rates[allele] = float(line_split[11])
 			avg_depth_allele[allele] = float(line_split[2])
 			hash_edge_depth[allele] = (float(line_split[3]),float(line_split[4]))
 			coverage_allele[allele] = float(line_split[5])
@@ -134,12 +136,12 @@ def read_scores_file(scores_file):
 			missing_allele[allele] = int(line_split[9])
 			next_to_del_depth = line_split[10]
 			next_to_del_depth_allele[allele] = line_split[10]
-			allele_info_strings[allele] = line_split
-
-	return hash_edge_depth, avg_depth_allele, coverage_allele, mismatch_allele, indel_allele, \
-			missing_allele, size_allele, next_to_del_depth_allele, scores, allele_info_strings
+			allele_info_strings[allele] = line_split ### NOTE THIS LINE DOES NOT APPEAR IN THE srst2.py VERSION OF THE FUNCTION
 			
-def parse_scores(args,scores, hash_edge_depth, 
+	return hash_edge_depth, avg_depth_allele, coverage_allele, mismatch_allele, indel_allele, \
+			missing_allele, size_allele, next_to_del_depth_allele, scores, mix_rates, allele_info_strings ### NOTE THE LAST OBJECT IS NOT PASSED IN srst2.py
+									
+def parse_scores(args, scores, hash_edge_depth, 
 					avg_depth_allele, coverage_allele, mismatch_allele, indel_allele,  
 					missing_allele, size_allele, next_to_del_depth_allele):
 					
@@ -147,8 +149,9 @@ def parse_scores(args,scores, hash_edge_depth,
 	scores_by_gene = collections.defaultdict(dict) # key1 = gene, key2 = allele, value = score
 	
 	for allele in scores:
-		allele_info = allele.split(args.mlst_delimiter)
-		scores_by_gene[allele_info[0]][allele] = scores[allele]
+		if coverage_allele[allele] > args.min_coverage:
+			allele_info = allele.split(args.mlst_delimiter)
+			scores_by_gene[allele_info[0]][allele] = scores[allele]
 	
 	# determine best allele for each gene locus/cluster
 	results = {} # key = gene, value = (allele,diffs,depth)
@@ -200,7 +203,7 @@ def parse_scores(args,scores, hash_edge_depth,
 					if (mismatch_allele[next_best_allele] + indel_allele[next_best_allele] + missing_allele[next_best_allele]) == 0:
 						# next best also has no mismatches
 						if (next_best_score - top_score)/top_score < 0.1:
-							# next best has score within 5% of this one
+							# next best has score within 10% of this one
 							truncation_override = True
 			if truncation_override:
 				results[gene] = (next_best_allele, "trun", "") # no diffs but report this call is based on truncation test
@@ -223,7 +226,7 @@ def calculate_ST(allele_scores, ST_db, gene_names, sample_name, mlst_delimiter, 
 			allele_number = allele.split(mlst_delimiter)[-1]
 			depths.append(avg_depth_allele[allele])
 		else:
-			allele_number = "?"
+			allele_number = "-"
 			diffs = ""
 			depth_problem = ""
 		allele_numbers.append(allele_number)
@@ -245,10 +248,11 @@ def calculate_ST(allele_scores, ST_db, gene_names, sample_name, mlst_delimiter, 
 			clean_st = ST_db[allele_string]
 		except KeyError:
 			print "This combination of alleles was not found in the sequence type database:"
-			print sample_name
+			print sample_name,
 			for gene in allele_scores:
 				(allele,diffs,depth_problems) = allele_scores[gene]
-				print allele
+				print allele,
+			print
 			clean_st = "NF"
 	else:
 		clean_st = "ND"
@@ -258,8 +262,12 @@ def calculate_ST(allele_scores, ST_db, gene_names, sample_name, mlst_delimiter, 
 	if len(mismatch_flags) > 0:
 		if mismatch_flags!=["trun"]:
 			st += "*" # trun indicates only that a truncated form had lower score, which isn't a mismatch
+	else:
+		mismatch_flags = ['0'] # record no mismatches
 	if len(uncertainty_flags) > 0:
 		st += "?"
+	else:
+		uncertainty_flags = ['-']
 	
 	# mean depth across loci
 	if len(depths) > 0:
@@ -292,7 +300,7 @@ def main():
 	# prepare output files
 	score_outfile = file(args.output + ".score_summary", "w")
 	st_outfile = file(args.output + ".st_summary", "w")
-	score_outfile.write("Sample\tCluster\tAllele\tScore\tAvg_depth\tEdge1_depth\tEdge2_depth\tPercent_coverage\tSize\tMismatches\tIndels\tTruncated_bases\tDepthNeighbouringTruncation\tLeastConfident_Rate\tLeastConfident_Mismatches\tLeastConfident_Depth\tLeastConfident_Pvalue")
+	score_outfile.write("Sample\tCluster\tAllele\tScore\tAvg_depth\tEdge1_depth\tEdge2_depth\tPercent_coverage\tSize\tMismatches\tIndels\tTruncated_bases\tDepthNeighbouringTruncation\tMixRate\tLeastConfident_Rate\tLeastConfident_Mismatches\tLeastConfident_Depth\tLeastConfident_Pvalue")
 	st_outfile.write("\t".join(["Sample","ST"]+gene_names+["mismatches","uncertainty","depth"]))
 	if known_alleles_provided:
 		score_outfile.write("\tExpected\tMatchExpected\n")
@@ -307,11 +315,11 @@ def main():
 		# read scores
 		hash_edge_depth, avg_depth_allele, coverage_allele, \
 			mismatch_allele, indel_allele, missing_allele, size_allele, \
-			next_to_del_depth_allele, scores, allele_info_strings = \
+			next_to_del_depth_allele, scores, mix_rates, allele_info_strings = \
 				read_scores_file(scores_file)
 	
 		# get top scoring gene for each locus; key = locus, value = (allele, diffs, depth_problem)
-		allele_scores = parse_scores(args,scores, hash_edge_depth, \
+		allele_scores = parse_scores(args, scores, hash_edge_depth, \
 			avg_depth_allele, coverage_allele, mismatch_allele, indel_allele, \
 			missing_allele, size_allele, next_to_del_depth_allele)
 							
@@ -326,7 +334,7 @@ def main():
 				outstring = "\t".join([sample_name,locus] + allele_info_strings[allele])
 			else:
 				allele_number = "?"
-				outstring = "\t".join([sample_name,locus] + ([''] * 15))
+				outstring = "\t".join([sample_name,locus] + ([''] * 16))
 			score_outfile.write(outstring)
 			if known_alleles_provided:
 				if sample_name in known_alleles_db:
