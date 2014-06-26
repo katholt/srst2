@@ -8,7 +8,7 @@ We will also use the resistance genes database provided with srst2, resistance.f
 
 1. Download the files for the E. coli MLST scheme, using the script provided:
 
-getmlst.py --species "Escherichia coli"
+python /vlsci/VR0082/shared/srst2_development/test_install_260614/srst2/scripts/getmlst.py --species "Escherichia coli#1”
 
   For SRST2, remember to check what separator is being used in this allele database
 
@@ -51,7 +51,7 @@ wget ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR024/ERR024619/ERR024619_2.fastq.gz
 
 3. Try running MLST and gene detection against a tiny read set with low coverage (~3x):
 
-srst2 --input_pe ERR024070*.fastq.gz --output shigella1 --log --save_scores --mlst_db Escherichia_coli#1.fasta --mlst_definitions ecoli.txt --gene_db resistance.fasta
+srst2 --input_pe ERR024070*.fastq.gz --output shigella1 --log --save_scores --mlst_db Escherichia_coli#1.fasta --mlst_definitions ecoli.txt --gene_db ARGannot.fasta
 
 Note that, as the databases have not been indexed for bowtie2 yet, that srst2 has to run
 bowtie2-build which spits out a lot of messages to stdout. This is not a problem!
@@ -64,11 +64,11 @@ Check the log file (shigella1.log) to see what happened.
 
 Outputs are printed to:
 	shigella1__mlst__Escherichia_coli#1__results.txt - mlst results only
-	shigella1__fullgenes__resistance__results.txt - resistance results, one line per gene
-	shigella1__genes__resistance__results.txt - resistance results only, tabulated
+	shigella1__fullgenes__ARGannot__results.txt - resistance results, one line per gene
+	shigella1__genes__ARGannot__results.txt - resistance results only, tabulated
 	shigella1__compiledResults.txt - MLST and resistance genes, tabulated
 	shigella1.ERR024070.Escherichia_coli#1.scores - full score & alignment info for all MLST alleles
-	shigella1.ERR024070.resistance.scores - full score & alignment info for resistance genes with >90% coverage
+	shigella1.ERR024070.ARGannot.scores - full score & alignment info for resistance genes with >90% coverage
 	
 Because we ran with the --save_scores flag, we have also got a scores file for each database, 
 which details the score and mapping information for every allele in that database.
@@ -94,14 +94,14 @@ when we analyse that data set.
 4. Try running MLST and gene detection against a proper read set, and compile together with
 the results from the poor read set for comparison.
 
-srst2 --input_pe ERR028678*.fastq.gz --output shigella2 --log --mlst_db Escherichia_coli#1.fasta --mlst_definitions ecoli.txt --gene_db srst/resistance.fasta --prev_output shigella1__compiledResults.txt
+srst2 --input_pe ERR028678*.fastq.gz --output shigella2 --log --mlst_db Escherichia_coli#1.fasta --mlst_definitions ecoli.txt --gene_db ARGannot.fasta --prev_output shigella1__compiledResults.txt
 
 Check the log file to see what happened.
 
 Outputs are printed to:
 	shigella2__mlst__Escherichia_coli#1__results.txt - mlst results only
-	shigella2__fullgenes__resistance__results.txt - resistance results, one line per gene
-	shigella2__genes__resistance__results.txt - resistance results only, tabulated
+	shigella2__fullgenes__ARGannot__results.txt - resistance results, one line per gene
+	shigella2__genes__ARGannot__results.txt - resistance results only, tabulated
 	shigella2__compiledResults.txt - MLST and resistance genes, tabulated
 
 This time there is a confident ST called, which should look like this:
@@ -114,7 +114,7 @@ results as well as the old results.
 
 5. Now try running on the other three read sets:
 
-srst2 --input_pe ERR024082*.fastq.gz ERR028690*.fastq.gz ERR024619*.fastq.gz --output shigella3 --log --mlst_db Escherichia_coli#1.fasta --mlst_definitions ecoli.txt --gene_db srst/resistance.fasta
+srst2 --input_pe ERR024082*.fastq.gz ERR028690*.fastq.gz ERR024619*.fastq.gz --output shigella3 --log --mlst_db Escherichia_coli#1.fasta --mlst_definitions ecoli.txt --gene_db ARGannot.fasta
 
 
 6. Now compile the results from all 5 read sets:
