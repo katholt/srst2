@@ -900,8 +900,17 @@ def read_results_from_file(infile):
 		elif dbtype == "mlst":	
 			results = {} # key = sample, value = MLST string
 			with open(infile) as f:
+				header = 0
 				for line in f:
-					results[line.split("\t")[0]] = line.rstrip() # store header line too (index "Sample")
+					if header > 0:
+						results[line.split("\t")[0]] = line.rstrip()
+						if "maxMAF" not in header:
+							results[line.split("\t")[0]] += "\tNC" # empty column for maxMAF
+					else:
+						header = line.rstrip()
+						results[line.split("\t")[0]] = line.rstrip() # store header line too (index "Sample")
+						if "maxMAF" not in header:
+							results[line.split("\t")[0]] += "\tmaxMAF" # add column for maxMAF
 				
 		elif dbtype == "compiled":
 			results = collections.defaultdict(dict) # key1 = sample, key2 = gene, value = allele
@@ -922,7 +931,7 @@ def read_results_from_file(infile):
 									mlst_cols += 1
 								results["Sample"]["mlst"] = "\t".join(line_split[0:(mlst_cols+1)])
 								results["Sample"]["mlst"] += "\tmaxMAF" # add to mlst header even if not encountered in this file, as it may be in others
-								if header[mlst_cols + 1] == "maxMAF":
+								if header[mlst_cols+1] == "maxMAF":
 									mlst_cols += 1 # record maxMAF column within MLST data, if present
 							else:
 								# no mlst data reported
