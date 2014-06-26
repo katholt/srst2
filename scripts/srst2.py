@@ -937,6 +937,8 @@ def read_results_from_file(infile):
 						sample = line_split[0]
 						if mlst_cols > 0:
 							results[sample]["mlst"] = "\t".join(line_split[0:(mlst_cols+1)])
+							if "maxMAF" not in header:
+								results[sample]["mlst"] += "\t" # add to mlst section even if not encountered in this file, as it may be in others
 						if n_cols > mlst_cols:
 							# read genes component
 							for i in range(mlst_cols+1,n_cols):
