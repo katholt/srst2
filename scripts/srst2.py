@@ -184,7 +184,10 @@ def parse_fai(fai_file,db_type,delimiter):
 					if gene_cluster in gene_cluster_symbols:
 						if gene_cluster_symbols[gene_cluster] != cluster_symbol:
 							unique_gene_symbols = False # already seen this cluster symbol
+<<<<<<< HEAD
 							logging.info( "Non-unique:" +  gene_cluster + ", " + cluster_symbol)
+=======
+>>>>>>> efa2dc7da4a800898c05acef576c15e0c70950f1
 					else:
 						gene_cluster_symbols[gene_cluster] = cluster_symbol
 				else:
@@ -215,7 +218,11 @@ def parse_fai(fai_file,db_type,delimiter):
 		print "Warning! MLST delimiter is " + delimiter + " but these genes may violate the pattern and cause problems:"
 		print ",".join(delimiter_check)
 	
+<<<<<<< HEAD
 	return size, gene_clusters, unique_gene_symbols, unique_allele_symbols, gene_cluster_symbols
+=======
+	return size, gene_clusters, unique_gene_symbols, unique_allele_symbols
+>>>>>>> efa2dc7da4a800898c05acef576c15e0c70950f1
 
 
 def read_pileup_data(pileup_file, size, prob_err):
@@ -682,6 +689,12 @@ def get_allele_name_from_db(allele,unique_allele_symbols,unique_cluster_symbols,
 	
 		if not unique_allele_symbols:	
 			allele_name += "_" + seqid
+<<<<<<< HEAD
+=======
+		
+		if not unique_cluster_symbols:
+			gene_name += "_" + cluster_id
+>>>>>>> efa2dc7da4a800898c05acef576c15e0c70950f1
 			
 	else:
 		gene_name = allele.split(args.mlst_delimiter)
@@ -707,7 +720,12 @@ def parse_scores(run_type,args,scores, hash_edge_depth,
 	else:
 		for allele in scores:
 			if coverage_allele[allele] > args.min_coverage:
+<<<<<<< HEAD
 				gene_name = get_allele_name_from_db(allele,unique_allele_symbols,unique_cluster_symbols,run_type,args)[2] # cluster ID
+=======
+				#gene_name = get_allele_name_from_db(allele,unique_allele_symbols,unique_cluster_symbols,run_type,args)[0]
+				gene_name = get_allele_name_from_db(allele,unique_allele_symbols,unique_cluster_symbols,run_type,args)[2]
+>>>>>>> efa2dc7da4a800898c05acef576c15e0c70950f1
 				scores_by_gene[gene_name][allele] = scores[allele]
 	
 	# determine best allele for each gene locus/cluster
@@ -746,12 +764,20 @@ def parse_scores(run_type,args,scores, hash_edge_depth,
 			differences += str(indel_allele[top_allele])+"indel"
 		if missing_allele[top_allele] > 0:
 			differences += str(missing_allele[top_allele])+"holes"
+<<<<<<< HEAD
 		
 		divergence = float(mismatch_allele[top_allele]) / float( size_allele[top_allele] - missing_allele[top_allele] )
 	
 		# check for truncated
 		if differences != "" or not adequate_depth:
 			# if there are SNPs or not enough depth to trust the result, no need to screen next best match
+=======
+			
+		divergence = float(mismatch_allele[top_allele]) / float( size_allele[top_allele] - missing_allele[top_allele] )
+		
+		if differences != "" or not adequate_depth:
+			# if no SNPs or not enough depth to trust the result, no need to screen next best match
+>>>>>>> efa2dc7da4a800898c05acef576c15e0c70950f1
 			results[gene] = (top_allele, differences, depth_problem, divergence)
 		else:
 			# looks good but this could be a truncated version of the real allele; check for longer versions
@@ -939,11 +965,14 @@ def read_results_from_file(infile):
 									results[sample][gene] = line_split[i]
 								else:
 									results[sample][gene] = "-"
+<<<<<<< HEAD
 		else:
 			results = False
 			dbtype = False
 			dbname = False
 			logging.info("Couldn't decide what to do with file results file provided: " + infile)
+=======
+>>>>>>> efa2dc7da4a800898c05acef576c15e0c70950f1
 							
 	else:
 		results = False
@@ -1204,12 +1233,18 @@ def map_fileSet_to_db(args,sample_name,fastq_inputs,db_name,fasta,size,gene_name
 			f = file(full_results,"w")
 			f.write("\t".join(["Sample","DB","gene","allele","coverage","depth","diffs","uncertainty","divergence","length","clusterid","seqid","annotation"])+"\n")
 		for gene in allele_scores:
+<<<<<<< HEAD
 			(allele,diffs,depth_problem,divergence) = allele_scores[gene] # gene = top scoring alleles for each cluster
 			gene_name, allele_name, cluster_id, seqid = \
+=======
+			(allele,diffs,depth_problem,divergence) = allele_scores[gene]
+			gene_name, allele_name, cluster_id, annotation, seqid = \
+>>>>>>> efa2dc7da4a800898c05acef576c15e0c70950f1
 				get_allele_name_from_db(allele,unique_allele_symbols,unique_gene_symbols,run_type,args)
 				
 			# store for gene result table only if divergence passes minimum threshold:
 			if divergence*100 <= float(args.max_divergence):
+<<<<<<< HEAD
 				column_header = cluster_symbols[cluster_id]
 				results[sample_name][column_header] = allele_name
 				if diffs != "":
@@ -1218,6 +1253,15 @@ def map_fileSet_to_db(args,sample_name,fastq_inputs,db_name,fasta,size,gene_name
 					results[sample_name][column_header] += "?"					
 				if gene not in gene_list:
 					gene_list.append(column_header)				
+=======
+				results[sample_name][gene_name] = allele_name
+				if diffs != "":
+					results[sample_name][gene_name] += "*"
+				if depth_problem != "":
+					results[sample_name][gene_name] += "?"					
+				if gene not in gene_list:
+					gene_list.append(gene_name)				
+>>>>>>> efa2dc7da4a800898c05acef576c15e0c70950f1
 				
 			# write details to full genes report
 			if args.no_gene_details:

@@ -154,6 +154,7 @@ tip.label.order<-tl$tip.label[tip.order]
 # prepare heatmap matrix
 if (!is.null(matrixFile)) {
 if (is.matrix(matrixFile)) {
+<<<<<<< HEAD
 x = data.frame(matrixFile,check.names=F)
 }
 else if (is.data.frame(matrixFile,check.names=F)) {
@@ -165,6 +166,19 @@ x<-read.csv(matrixFile,row.names=1,check.names=F)
 y.ordered<-x[tip.label.order,]
 if (cluster) {
 h<-hclust(dist(t(na.omit(y.ordered))),"ward")
+=======
+x = data.frame(matrixFile)
+}
+else if (is.data.frame(matrixFile)) {
+x = matrixFile
+}
+else {
+x<-read.csv(matrixFile,row.names=1)
+}
+y.ordered<-x[tip.label.order,]
+if (cluster) {
+h<-hclust(dist(t(na.omit(y.ordered))))
+>>>>>>> efa2dc7da4a800898c05acef576c15e0c70950f1
 y.ordered<-y.ordered[,h$order]
 }
 }

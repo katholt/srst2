@@ -9,6 +9,9 @@ STs and/or reference genes.
 
 
 
+Current release - v0.1.3 - Feb 6, 2014
+
+
 Dependencies:
 
 python (v2.7.5), scipy
@@ -18,10 +21,21 @@ bowtie2 v2.1.0     http://bowtie-bio.sourceforge.net/bowtie2/index.shtml
 SAMtools v0.1.18   https://sourceforge.net/projects/samtools/files/samtools/0.1.18/ (NOTE 0.1.19 DOES NOT WORK)
 
 
+Updates in v0.1.3
+
+- Fixed a bug that occurred while trying to type genes from a user-supplied database (see issue #5, thanks to Scott Long)
+
+- Fixed a bug in gene detection reporting - genes are now correctly reported by cluster, rather than by gene symbol (see issue #7)
+
+- Added maximum divergence option for reporting (--max_divergence), default is now to report only hits with <10% divergence from the database (see issue #8)
+
+- added parameter to pass to bowtie2 parameter '-u N' to stop mapping after the first N reads. Default behaviour remains to map all reads. However, for large read sets (e.g. >100x), extra reads do not help and merely increase the time taken for mapping and scoring, and you may want to limit to the first million reads (100x of a 2 Mbp genome) using '--stop_after 1000000'.
+
+
 
 Authors - Michael Inouye, Harriet Dashnow, Bernie Pope, Kathryn Holt (University of Melbourne)
 		
-How to cite - Please check back for news on the paper. In the meantime, please cite "SRST2 - Short Read Sequence Typing for Bacterial Pathogens, http://katholt.github.io/srst/"
+How to cite - Please check back for news on the paper. In the meantime, please cite "SRST2 - Short Read Sequence Typing for Bacterial Pathogens, http://katholt.github.io/srst2/"
 		
 Problems? - Email drkatholt@gmail.com. For updates, join the srst2 google group https://groups.google.com/forum/#!forum/srst2.
 
@@ -30,19 +44,36 @@ Installation
 ====
 1 - Install dependencies first
 
-2 - Download the zip or tarball at the top left of this page and unpack it
+2 - Get and install the code
 
-3 - Install using pip (http://www.pip-installer.org/) or easy_install
+Option 1:
 
-You may need to use sudo to install centrally:
+Download the zip or tarball at the top left of this page and unpack it
+
+Then install using pip (http://www.pip-installer.org/) or easy_install. 
+You may need to use sudo to install centrally.
 
     pip install srst2-0.1.0-beta/
 
-OR
+or
 
     easy_install srst2-0.1.0-beta/
 
-4 - Test that the programs are installed properly
+Option 2:
+
+Clone the git repository:
+
+    git clone https://github.com/katholt/srst2
+    
+and then install with pip:
+
+    pip install srst2/
+    
+OR do both at once:
+
+    sudo pip install git+https://github.com/katholt/srst2
+
+3 - Test that the programs are installed properly
 
     srst2 --version
 
@@ -159,8 +190,12 @@ optional arguments:
   --no_gene_details     Switch OFF verbose reporting of gene typing
                                                 
   --min_coverage MIN_COVERAGE
-                        Percent coverage cutoff for gene reporting (default
-                        90)
+                        Minimum %coverage cutoff for gene reporting 
+                        (default 90)
+                        
+  --max_divergence MAX_DIVERGENCE
+                        Maximum %divergence cutoff for gene reporting 
+                        (default 10)
                         
   --min_depth MIN_DEPTH
                         Minimum mean depth to flag as dubious allele call
@@ -171,6 +206,10 @@ optional arguments:
                         (default 2)
                         
   --prob_err PROB_ERR   Probability of sequencing error (default 0.01)
+  
+  --stop_after STOP_AFTER
+                        Stop mapping after this number of reads have been 
+                        mapped (otherwise map all)
                         
   --other OTHER         Other arguments to pass to bowtie2
   
