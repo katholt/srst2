@@ -920,6 +920,8 @@ def read_results_from_file(infile):
 								mlst_cols = 2 # first locus column
 								while header[mlst_cols] != "depth":
 									mlst_cols += 1
+								if header[mlst_cols + 1] == "maxMAF":
+									mlst_cols += 1
 								results["Sample"]["mlst"] = "\t".join(line_split[0:(mlst_cols+1)])
 							else:
 								# no mlst data reported
@@ -1197,7 +1199,7 @@ def map_fileSet_to_db(args,sample_name,fastq_inputs,db_name,fasta,size,gene_name
 				scores_output.write('\t'.join([allele, str(score), str(avg_depth_allele[allele]), \
 					str(hash_edge_depth[allele][0]), str(hash_edge_depth[allele][1]), \
 					str(coverage_allele[allele]), str(size_allele[allele]), str(mismatch_allele[allele]), \
-					str(indel_allele[allele]), str(missing_allele[allele]), str(next_to_del_depth_allele[allele]), str(mix_rates[allele])]) + '\n')				
+					str(indel_allele[allele]), str(missing_allele[allele]), str(next_to_del_depth_allele[allele]), str(round(mix_rates[allele],3))]) + '\n')				
 			scores_output.close()
 	
 	# Record gene results for later processing and optionally print detailed gene results to __fullgenes__ file
@@ -1239,7 +1241,7 @@ def map_fileSet_to_db(args,sample_name,fastq_inputs,db_name,fasta,size,gene_name
 				except:
 					annotation = ""
 						
-				f.write("\t".join([sample_name,db_name,gene_name,allele_name,str(round(coverage_allele[allele],3)),str(avg_depth_allele[allele]),diffs,depth_problem,str(round(divergence*100,3)),str(size_allele[allele]),str(mix_rates[allele]),cluster_id,seqid,annotation])+"\n")
+				f.write("\t".join([sample_name,db_name,gene_name,allele_name,str(round(coverage_allele[allele],3)),str(avg_depth_allele[allele]),diffs,depth_problem,str(round(divergence*100,3)),str(size_allele[allele]),str(round(mix_rates[allele],3)),cluster_id,seqid,annotation])+"\n")
 	
 		# log the gene detection result
 		logging.info(" " + str(len(allele_scores)) + " genes identified in " + sample_name)
