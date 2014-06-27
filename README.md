@@ -15,11 +15,11 @@ Problems? - Email drkatholt@gmail.com. For updates, join the srst2 google group 
 
 Contents
 ----
-[Current release](https://github.com/katholt/srst2#current-release)
+1. [Current release](https://github.com/katholt/srst2#current-release)
 
-[Installation](https://github.com/katholt/srst2#installation)
+2. [Installation](https://github.com/katholt/srst2#installation)
 
-[Basic usage - MLST](https://github.com/katholt/srst2#basic-usage---mlst)
+3. [Basic usage - MLST](https://github.com/katholt/srst2#basic-usage---mlst)
 
 [Basic usage - Resistance genes](https://github.com/katholt/srst2#basic-usage---resistance-genes)
 
@@ -40,6 +40,20 @@ Contents
 * [Combined results](https://github.com/katholt/srst2#combined-results)
 
 * [Mapping results](https://github.com/katholt/srst2#mapping-results)
+
+[More basic usage examples](https://github.com/katholt/srst2#more-basic-usage-examples)
+
+[Compile results from completed runs](https://github.com/katholt/srst2#compile-results-from-completed-runs)
+
+[Running lots of jobs and compiling results](https://github.com/katholt/srst2#running-lots-of-jobs-and-compiling-results)
+
+[Known issues](https://github.com/katholt/srst2#known-issues)
+
+[Example - Shigella sonnei public data](https://github.com/katholt/srst2#example---shigella-sonnei-public-data)
+
+[Generating SRST2-compatible clustered database from raw sequences](https://github.com/katholt/srst2#generating-srst2-compatible-clustered-database-from-raw-sequences)
+
+* [Using the VFBD Virulence Factor Database with SRST2](https://github.com/katholt/srst2#using-the-vfbd-virulence-factor-database-with-srst2)
 
 Current release - v0.1.4 - June 16, 2014
 -----
