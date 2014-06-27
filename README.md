@@ -15,11 +15,11 @@ Problems? - Email drkatholt@gmail.com. For updates, join the srst2 google group 
 
 Contents
 ----
-1. [Current release](https://github.com/katholt/srst2#current-release)
+[Current release](https://github.com/katholt/srst2#current-release)
 
-2. [Installation](https://github.com/katholt/srst2#installation)
+[Installation](https://github.com/katholt/srst2#installation)
 
-3. [Basic usage - MLST](https://github.com/katholt/srst2#basic-usage---mlst)
+[Basic usage - MLST](https://github.com/katholt/srst2#basic-usage---mlst)
 
 [Basic usage - Resistance genes](https://github.com/katholt/srst2#basic-usage---resistance-genes)
 
