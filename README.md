@@ -70,11 +70,11 @@ Download the zip or tarball at the top left of this page and unpack it
 Then install using pip (http://www.pip-installer.org/) or easy_install. 
 You may need to use sudo to install centrally.
 
-    pip install srst2-0.1.0-beta/
+    pip install srst2-0.1.4/
 
 or
 
-    easy_install srst2-0.1.0-beta/
+    easy_install srst2-0.1.4/
 
 Option 2:
 
