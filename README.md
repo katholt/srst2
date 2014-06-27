@@ -9,7 +9,7 @@ STs and/or reference genes.
 
 Authors - Michael Inouye, Harriet Dashnow, Bernie Pope, Kathryn Holt (University of Melbourne)
 		
-How to cite - The pre-print of the paper will soon be in BioRxiv. In the meantime, please cite "SRST2 - Short Read Sequence Typing for Bacterial Pathogens, http://katholt.github.io/srst2/"
+How to cite - The pre-print of the paper is now in BioRxiv: http://biorxiv.org/content/early/2014/06/26/006627.
 		
 Problems? - Email drkatholt@gmail.com. For updates, join the srst2 google group https://groups.google.com/forum/#!forum/srst2.
 
