@@ -14,6 +14,30 @@ How to cite - The pre-print of the paper is now in BioRxiv: http://biorxiv.org/c
 Problems? - Email drkatholt@gmail.com. For updates, join the srst2 google group https://groups.google.com/forum/#!forum/srst2.
 
 
+[Installation](https://github.com/katholt/srst2#installation)
+
+[Basic usage - MLST](https://github.com/katholt/srst2#basic-usage---mlst)
+
+[Basic usage - Resistance genes](https://github.com/katholt/srst2#basic-usage---resistance-genes)
+
+[All usage options](https://github.com/katholt/srst2#all-usage-options)
+
+[Input read formats and options](https://github.com/katholt/srst2#input-read-formats-and-options)
+
+[MLST Database format](https://github.com/katholt/srst2#mlst-database-format)
+
+[Gene databases](https://github.com/katholt/srst2#gene-databases)
+
+[Output files](https://github.com/katholt/srst2#output-files)
+
+	[MLST results](https://github.com/katholt/srst2#mlst-results)
+
+	[Gene typing](https://github.com/katholt/srst2#gene-typing)
+
+	[Combined results](https://github.com/katholt/srst2#combined-results)
+
+	[Mapping results](https://github.com/katholt/srst2#mapping-results)
+
 Current release - v0.1.4 - June 16, 2014
 -----
 
