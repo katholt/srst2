@@ -13,6 +13,9 @@ How to cite - The pre-print of the paper is now in BioRxiv: http://biorxiv.org/c
 		
 Problems? - Email drkatholt@gmail.com. For updates, join the srst2 google group https://groups.google.com/forum/#!forum/srst2.
 
+Contents
+----
+[Current release](https://github.com/katholt/srst2#current-release)
 
 [Installation](https://github.com/katholt/srst2#installation)
 
@@ -30,13 +33,13 @@ Problems? - Email drkatholt@gmail.com. For updates, join the srst2 google group 
 
 [Output files](https://github.com/katholt/srst2#output-files)
 
-	[MLST results](https://github.com/katholt/srst2#mlst-results)
+* [MLST results](https://github.com/katholt/srst2#mlst-results)
 
-	[Gene typing](https://github.com/katholt/srst2#gene-typing)
+* [Gene typing](https://github.com/katholt/srst2#gene-typing)
 
-	[Combined results](https://github.com/katholt/srst2#combined-results)
+* [Combined results](https://github.com/katholt/srst2#combined-results)
 
-	[Mapping results](https://github.com/katholt/srst2#mapping-results)
+* [Mapping results](https://github.com/katholt/srst2#mapping-results)
 
 Current release - v0.1.4 - June 16, 2014
 -----
