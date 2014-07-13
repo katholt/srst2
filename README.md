@@ -60,11 +60,13 @@ Current release - v0.1.4 - June 16, 2014
 
 Dependencies:
 
-python (v2.7.5), scipy
+- python (v2.7.5)
 
-bowtie2 v2.1.0     http://bowtie-bio.sourceforge.net/bowtie2/index.shtml
+- scipy		http://www.scipy.org/install.html
 
-SAMtools v0.1.18   https://sourceforge.net/projects/samtools/files/samtools/0.1.18/ (NOTE 0.1.19 DOES NOT WORK)
+- bowtie2 v2.1.0     http://bowtie-bio.sourceforge.net/bowtie2/index.shtml
+
+- SAMtools v0.1.18   https://sourceforge.net/projects/samtools/files/samtools/0.1.18/ (NOTE 0.1.19 DOES NOT WORK)
 
 
 Updates in v0.1.4
@@ -100,7 +102,16 @@ Updates in v0.1.3
 
 Installation
 ====
-1 - Install dependencies first
+1 - Install dependencies first:
+
+- python (v2.7.5)
+
+- scipy http://www.scipy.org/install.html
+
+- bowtie2 v2.1.0 http://bowtie-bio.sourceforge.net/bowtie2/index.shtml
+
+- SAMtools v0.1.18 https://sourceforge.net/projects/samtools/files/samtools/0.1.18/ (NOTE 0.1.19 DOES NOT WORK)
+
 
 2 - Get and install the code
 
