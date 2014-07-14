@@ -74,6 +74,9 @@ Dependencies:
 Updates (available in repository, will be in release v0.1.5)
 
 1. Optionally switch on reporting of pileups and consensus sequences (fasta) for novel alleles (--report_new_consensus) or for all alleles (--report_all_consensus). See [Printing consensus sequences](https://github.com/katholt/srst2#printing-consensus-sequences)
+2. 
+
+-----------
 
 Updates in v0.1.4
 
@@ -94,6 +97,8 @@ Note that all compiled reports will now include a maxMAF column; if you provide 
 Instructions will be added to the read me.
 
 5. Added formatted versions of the ARG-Annot resistance gene database, PlasmidFinder database and 18 plasmid replicon sequences to the /data directory. See /data/README.md for details and citations. It is recommended to use ARGannot.fasta for detection of acquired resistance genes.
+
+-----------
  
 Updates in v0.1.3
 
@@ -293,6 +298,15 @@ optional arguments:
   
   --save_scores         Switch ON verbose reporting of all scores
   
+  --report_new_consensus
+                        If a matching alleles is not found, report the
+                        consensus allele. Note, only SNP differences are
+                        considered, not indels.
+  --report_all_consensus
+                        Report the consensus allele for the most likely
+                        allele. Note, only SNP differences are considered, not
+                        indels.
+
   --use_existing_pileup
                         Use existing pileups if available, otherwise they will
                         be generated
@@ -465,7 +479,7 @@ If you used --save_scores, a table of scores for each allele in the database is 
 Printing consensus sequences
 ====
 
-SRST2 can optionally report consensus sequences & pileups for novel alleles, or for all alleles.
+SRST2 can optionally report consensus sequences & pileups for novel alleles, or for all alleles. Note that only SNPs are included in the consensus fasta sequence as these can be reliably extracted from the read alignments; if there are indels (reported in the output tables) these will not be included in the consensus fasta file and we suggest you assembly the mapped reads (these are in the bam file).
 
 By default, no allele sequences are generated, the results are simply tabulated.
 
