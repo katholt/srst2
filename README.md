@@ -465,8 +465,6 @@ SRST2 can optionally report consensus sequences & pileups for novel alleles, or 
 
 By default, no allele sequences are generated, the results are simply tabulated.
 
-------------
-
 ### Report consensus sequences for novel alleles 
 
 	--report_new_consensus
@@ -479,8 +477,6 @@ For all samples and loci where the top scoring allele contains SNPs:
 - the consensus sequence will be printed to a fasta file with the name "[output].new_consensus_alleles.fasta"
 
 - fasta headers will be in the format ">[allele].variant [sample]"
-
-------------
 
 ### Report consensus sequences for all alleles
 
