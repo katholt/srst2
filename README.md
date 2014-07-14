@@ -71,6 +71,10 @@ Dependencies:
 - SAMtools v0.1.18   https://sourceforge.net/projects/samtools/files/samtools/0.1.18/ (NOTE 0.1.19 DOES NOT WORK)
 
 
+Updates (available in repository, will be in release v0.1.5)
+
+1. Optionally switch on reporting of pileups and consensus sequences (fasta) for novel alleles (--report_new_consensus) or for all alleles (--report_all_consensus). See [Printing consensus sequences](https://github.com/katholt/srst2#printing-consensus-sequences)
+
 Updates in v0.1.4
 
 1. No longer store sam and unsorted bam (can be retained via the --keep_interim_alignment flag)
