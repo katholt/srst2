@@ -41,6 +41,8 @@ Contents
 
 * [Mapping results](https://github.com/katholt/srst2#mapping-results)
 
+[Printing consensus sequences](https://github.com/katholt/srst2#printing-consensus-sequences)
+
 [More basic usage examples](https://github.com/katholt/srst2#more-basic-usage-examples)
 
 [Compile results from completed runs](https://github.com/katholt/srst2#compile-results-from-completed-runs)
@@ -454,6 +456,43 @@ sampleA     152*     11      63*      7       1       14      7       7         
 The bowtie2 alignment of reads to each input database is stored in [outputprefix]__[sample].[db].sorted.bam and the samtools pileup of the alignment is stored in [outputprefix]__[sample].[db].pileup. 
 
 If you used --save_scores, a table of scores for each allele in the database is printed to [outputprefix]__[sample].[db].scores.
+
+
+Printing consensus sequences
+====
+
+SRST2 can optionally report consensus sequences & pileups for novel alleles, or for all alleles.
+
+By default, no allele sequences are generated, the results are simply tabulated.
+
+------------
+
+### Report consensus sequences for novel alleles 
+
+	--report_new_consensus
+
+For all samples and loci where the top scoring allele contains SNPs:
+
+- a pileup file will be generated for the top scoring allele, with the name
+"[allele].[output]__[readset].[database].pileup"
+
+- the consensus sequence will be printed to a fasta file with the name "[output].new_consensus_alleles.fasta"
+
+- fasta headers will be in the format ">[allele].variant [sample]"
+
+------------
+
+### Report consensus sequences for all alleles
+
+	--report_all_consensus
+
+IN ADDITION TO THE NOVEL ALLELES FILE OUTLINED ABOVE, the following will ALSO occur:
+
+- a pileup file will be generated for the top scoring allele for each sample at each locus, with the name "[allele].[output]__[readset].[database].pileup"
+
+- the consensus sequence for the top scoring allele for each sample at each locus will be printed to a fasta file with the name "[output].all_consensus_alleles.fasta"
+
+- fasta headers will be in the format ">[allele].variant [sample]"
 
 
 More basic usage examples
