@@ -11,6 +11,13 @@
 # Dependencies:
 #	bowtie2	   http://bowtie-bio.sourceforge.net/bowtie2/index.shtml version 2.1.0
 #	SAMtools   http://samtools.sourceforge.net Version: 0.1.18 (Version: 0.1.19 DOES NOT WORK - loss of edge coverage)
+#	SciPy		http://www.scipy.org/install.html
+#
+# Git repository: https://github.com/katholt/srst2/
+# README: https://github.com/katholt/srst2/blob/master/README.md
+# Questions or feature requests: https://github.com/katholt/srst2/issues
+# Manuscript: http://biorxiv.org/content/early/2014/06/26/006627
+
 
 from argparse import (ArgumentParser, FileType)
 import logging
@@ -30,7 +37,7 @@ edge_a = edge_z = 2
 
 
 def parse_args():
-	"Parse the input arguments, use '-h' for help"
+	"Parse the input arguments, use '-h' for help."
 
 	parser = ArgumentParser(description='SRST2 - Short Read Sequence Typer (v2)')
 
@@ -87,6 +94,8 @@ def parse_args():
 	parser.add_argument('--output', type=str, required=True, help='Prefix for srst2 output files')
 	parser.add_argument('--log', action="store_true", required=False, help='Switch ON logging to file (otherwise log to stdout)')
 	parser.add_argument('--save_scores', action="store_true", required=False, help='Switch ON verbose reporting of all scores')
+	parser.add_argument('--report_new_consensus', action="store_true", required=False, help='If a matching alleles is not found, report the consensus allele. Note, only SNP differences are considered, not indels.')
+	parser.add_argument('--report_all_consensus', action="store_true", required=False, help='Report the consensus allele for the most likely allele. Note, only SNP differences are considered, not indels.')
 
 	# Run options
 	parser.add_argument('--use_existing_pileup', action="store_true", required=False,
@@ -220,7 +229,7 @@ def parse_fai(fai_file,db_type,delimiter):
 	return size, gene_clusters, unique_gene_symbols, unique_allele_symbols, gene_cluster_symbols
 
 
-def read_pileup_data(pileup_file, size, prob_err):
+def read_pileup_data(pileup_file, size, prob_err, consensus_file = ""):
 	with open(pileup_file) as pileup:
 		prob_success = 1 - prob_err	# Set by user, default is prob_err = 0.01
 		hash_alignment = {}
@@ -253,6 +262,7 @@ def read_pileup_data(pileup_file, size, prob_err):
 			ins_poscount = 0
 			del_poscount = 0
 			next_to_del_depth = 99999
+			consensus_seq = ""
 
 			for fields in lines:
 				# Parse this line and store details required for scoring
@@ -289,6 +299,7 @@ def read_pileup_data(pileup_file, size, prob_err):
 				num_match = 0
 				ins_readcount = 0
 				del_readcount = 0
+				nuc_counts = {}
 
 				i = 0
 				while i < len(aligned_bases):
@@ -316,8 +327,23 @@ def read_pileup_data(pileup_file, size, prob_err):
 						num_match += 1
 						i += 1
 						continue
+
+					elif aligned_bases[i].upper() in "ATCG": 
+						this_nuc = aligned_bases[i].upper()
+						if this_nuc not in nuc_counts:
+							nuc_counts[this_nuc] = 0
+						nuc_counts[this_nuc] += 1
 					
 					i += 1
+					
+				# Save the most common nucleotide at this position
+				consensus_nuc = nuc # by default use reference nucleotide
+				max_freq = num_match # Number of bases matching the reference
+				for nucleotide in nuc_counts:
+					if nuc_counts[nucleotide] > max_freq:
+						consensus_nuc = nucleotide
+						max_freq = nuc_counts[nucleotide]
+				consensus_seq += (consensus_nuc)
 
 				# Calculate details of this position for scoring and reporting
 				
@@ -334,7 +360,17 @@ def read_pileup_data(pileup_file, size, prob_err):
 				hash_alignment[allele].append((num_match, num_mismatch, prob_success)) # snp or deletion
 				if ins_readcount > 0:
 					hash_alignment[allele].append((nuc_depth - ins_readcount, ins_readcount, prob_success)) # penalize for any insertion calls at this position
-				
+
+			# Determine the consensus sequence if required
+			if consensus_file != "":
+				if consensus_file.split(".")[-2] == "new_consensus_alleles":
+					consensus_type = "variant"
+				elif consensus_file.split(".")[-2] == "all_consensus_alleles":
+					consensus_type = "consensus"
+				with open(consensus_file, "a") as consensus_outfile:
+					consensus_outfile.write(">{0}.{1} {2}\n".format(allele, consensus_type, pileup_file.split(".")[1].split("__")[1]))
+					outstring = consensus_seq + "\n"
+					consensus_outfile.write(outstring)
 
 			# Finished reading pileup for this allele
 			
@@ -695,10 +731,19 @@ def get_allele_name_from_db(allele,unique_allele_symbols,unique_cluster_symbols,
 		
 	return gene_name, allele_name, cluster_id, seqid
 
+def create_allele_pileup(allele_name, all_pileup_file):
+	outpileup = allele_name + "." + all_pileup_file
+	with open(outpileup, 'w') as allele_pileup:
+		with open(all_pileup_file) as all_pileup:
+			for line in all_pileup:
+				if line.split()[0] == allele_name:
+					allele_pileup.write(line)
+	return outpileup
+
 def parse_scores(run_type,args,scores, hash_edge_depth, 
 					avg_depth_allele, coverage_allele, mismatch_allele, indel_allele,  
 					missing_allele, size_allele, next_to_del_depth_allele,
-					unique_cluster_symbols,unique_allele_symbols):
+					unique_cluster_symbols,unique_allele_symbols, pileup_file):
 					
 	# sort into hash for each gene locus
 	scores_by_gene = collections.defaultdict(dict) # key1 = gene, key2 = allele, value = score
@@ -773,6 +818,21 @@ def parse_scores(run_type,args,scores, hash_edge_depth,
 				results[gene] = (next_best_allele, "trun", "", divergence) # no diffs but report this call is based on truncation test
 			else:
 				results[gene] = (top_allele, "", "",divergence) # no caveats to report
+
+		# Check if there are any potential new alleles
+		#depth_problem = results[gene][2]
+		#divergence = results[gene][3]
+		if depth_problem == "" and divergence > 0:
+			new_allele = True
+			# Get the consensus for this new allele and write it to file
+			if args.report_new_consensus or args.report_all_consensus:
+				new_alleles_filename = args.output + ".new_consensus_alleles.fasta" 
+				allele_pileup_file = create_allele_pileup(top_allele, pileup_file) # XXX Creates a new pileup file for that allele. Not currently cleaned up
+				read_pileup_data(allele_pileup_file, size_allele, args.prob_err, consensus_file = new_alleles_filename)
+		if args.report_all_consensus:
+			new_alleles_filename = args.output + ".all_consensus_alleles.fasta"
+			allele_pileup_file = create_allele_pileup(top_allele, pileup_file)
+			read_pileup_data(allele_pileup_file, size_allele, args.prob_err, consensus_file = new_alleles_filename)
 
 	return results # (allele, diffs, depth_problem, divergence)
 					
@@ -1182,7 +1242,7 @@ def map_fileSet_to_db(args,sample_name,fastq_inputs,db_name,fasta,size,gene_name
 	allele_scores = parse_scores(run_type, args, scores, \
 			hash_edge_depth, avg_depth_allele, coverage_allele, mismatch_allele,  \
 			indel_allele, missing_allele, size_allele, next_to_del_depth_allele,
-			unique_gene_symbols, unique_allele_symbols)
+			unique_gene_symbols, unique_allele_symbols, pileup_file)
 			
 	# REPORT/RECORD RESULTS
 	
@@ -1397,6 +1457,12 @@ def main():
 		datefmt='%m/%d/%Y %H:%M:%S')
 	logging.info('program started')
 	logging.info('command line: {0}'.format(' '.join(sys.argv)))
+
+	# Delete consensus file if it already exists (so can use append file in funtions)
+	if args.report_new_consensus or args.report_all_consensus:
+		new_alleles_filename = args.output + ".consensus_alleles.fasta" 
+		if os.path.exists(new_alleles_filename):
+			os.remove(new_alleles_filename)
 
 	# vars to store results
 	mlst_results_hashes = [] # dict (sample->MLST result string) for each MLST output files created/read
