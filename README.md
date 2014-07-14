@@ -115,20 +115,7 @@ Installation
 
 2 - Get and install the code
 
-Option 1:
-
-Download the zip or tarball at the top left of this page and unpack it
-
-Then install using pip (http://www.pip-installer.org/) or easy_install. 
-You may need to use sudo to install centrally.
-
-    pip install srst2-0.1.4/
-
-or
-
-    easy_install srst2-0.1.4/
-
-Option 2:
+Make sure you have installed git (https://help.github.com/articles/set-up-git) and pip (http://www.pip-installer.org/).
 
 Clone the git repository:
 
@@ -152,13 +139,15 @@ OR do both at once:
 
     slurm_srst2.py -h
 
+
 The downloaded directory also contains things that might be useful for srst2 users:
 
-data/resistance.fasta contains a preliminary resistance sequence database that can be used for identifying resistance genes
+data/ contains a databases for resistance genes and plasmids
 
-database_clustering/ contains scripts and instructions for formatting of gene databases for use with srst2
+database_clustering/ contains scripts and instructions for formatting of other gene databases for use with srst2
 
-example.txt contains a tutorial/example on running srst2 using public data
+[example.txt](example.txt) contains a tutorial/example on running srst2 using public data 
+
 
 
 Basic usage - MLST
