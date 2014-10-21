@@ -38,6 +38,11 @@ def parse_args():
 						metavar = 'NAME',
 						required = True,
 						help = 'The name of the species that you want to download (e.g. "Escherichia coli")')
+						
+	parser.add_argument('--force_scheme_name',
+						action="store_true",
+						help = 'Flage to force downloading of specific scheme name (e.g. "Clostridium difficile")')
+						
 	return parser.parse_args()
 
 # test if a node is an Element and that it has a specific tag name
@@ -72,9 +77,16 @@ class LocusInfo(object):
 		self.name = None
 
 # retrieve the interesting information for a given sample element
-def getSpeciesInfo(species_node, species):
+def getSpeciesInfo(species_node, species, exact):
 	this_name = getText(species_node)
-	if this_name.startswith(species):
+	store = False
+	if exact:
+		if this_name == species:
+			store = True
+	else:
+		if this_name.startswith(species):
+			store = True
+	if store:
 		info = SpeciesInfo()
 		info.name = this_name
 		for mlst_node in species_node.getElementsByTagName('mlst'):
@@ -96,7 +108,6 @@ def getSpeciesInfo(species_node, species):
 							for locus_url in locus_node.getElementsByTagName('url'):
 								locus_info.url = getText(locus_url)
 							info.loci.append(locus_info)
-
 		return info
 	else:
 		return None
@@ -109,7 +120,7 @@ def main():
 	root = doc.childNodes[0]
 	found_species = []
 	for species_node in root.getElementsByTagName('species'):
-		info = getSpeciesInfo(species_node, args.species)
+		info = getSpeciesInfo(species_node, args.species, args.scheme_name)
 		if info != None:
 			found_species.append(info)
 	if len(found_species) == 0:
@@ -120,6 +131,7 @@ def main():
 		for info in found_species:
 			print(info.name)
 		exit(2)
+			
 	# output information for the single matching species
 	assert len(found_species) == 1
 	species_info = found_species[0]
