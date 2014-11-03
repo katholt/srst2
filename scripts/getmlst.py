@@ -41,6 +41,7 @@ def parse_args():
 						
 	parser.add_argument('--force_scheme_name',
 						action="store_true",
+						default = False,
 						help = 'Flage to force downloading of specific scheme name (e.g. "Clostridium difficile")')
 						
 	return parser.parse_args()
@@ -120,7 +121,7 @@ def main():
 	root = doc.childNodes[0]
 	found_species = []
 	for species_node in root.getElementsByTagName('species'):
-		info = getSpeciesInfo(species_node, args.species, args.scheme_name)
+		info = getSpeciesInfo(species_node, args.species, args.force_scheme_name)
 		if info != None:
 			found_species.append(info)
 	if len(found_species) == 0:
