@@ -74,7 +74,7 @@ Dependencies:
 Updates (available in repository, will be in release v0.1.5)
 
 1. Optionally switch on reporting of pileups and consensus sequences (fasta) for novel alleles (--report_new_consensus) or for all alleles (--report_all_consensus). See [Printing consensus sequences](https://github.com/katholt/srst2#printing-consensus-sequences)
-2. 
+2. Post-process consensus sequences from a set of strains, to generate one file per locus containing all/new consensus sequences. See [Collate consensus sequences](https://github.com/katholt/srst2/blob/master/README.md#collate-consensus-sequences-output-by-srst2-run-on-multiple-strains--loci-into-one-file-per-locus)
 
 -----------
 
@@ -179,7 +179,7 @@ srst2 --input_pe strainA_1.fastq.gz strainA_2.fastq.gz --output strainA_test --l
 
 3 - Check the outputs:
 
-(i) MLST results are output in: "strainA_test__mlst__Escherichia_coli__results.txt"
+(i) MLST results are output in: "strainA\_test\_\_mlst\_\_Escherichia\_coli\_\_results.txt"
 
 ```
 Sample  ST      adk     fumC    gyrB    icd     mdh     purA    recA    mismatches      uncertainty     depth
@@ -374,14 +374,14 @@ If the input database contains different alelles of the same gene, srst2 can rep
 
 We have provided some databases of resistance genes and plasmid genes in /data, ready for use with SRST2. We recommend using /data/ARGannot.fasta for detecting resistance genes, but you can also use /data/ResFinder.fasta (this is the same as /data/resistance.fasta in earlier distributions of srst2).
 
-You can however format any sequence set for screening with srst2. See instructions at the bottom of this page.
+You can however format any sequence set for screening with srst2. [See instructions below](https://github.com/katholt/srst2#generating-srst2-compatible-clustered-database-from-raw-sequences).
 
 Output files
 ====
 
 ### MLST results
 
-If MLST sequences and profiles were provided, STs will be printed in tab-delim format to a file called "[outputprefix]__mlst__[db]__results.txt", e.g.: "strainArun1__mlst__Escherichia_coli__results.txt".
+If MLST sequences and profiles were provided, STs will be printed in tab-delim format to a file called "[outputprefix]\_\_mlst\_\_[db]\_\_results.txt", e.g.: "strainArun1\_\_mlst\_\_Escherichia\_coli\_\_results.txt".
 
 The format looks like this:
 ```
@@ -406,6 +406,8 @@ The *uncertainty* column gives details of parts of the top scoring alleles for w
 
 The *depth* column indicates the mean read depth across the length of all alleles which were assigned a top scoring allele number (i.e. excluding any which are recorded as '-'). So if there are 7 loci with alleles called, this number represents the mean read depth across those 7 loci. If say, 2 of the 7 alleles were not called (recorded as ‘-’), the mean depth is that of the 5 loci that were called.
 
+The *maxMAF* column reports the highest minor allele frequency (MAF) of variants encountered across the MLST locus alignments. This value is in the range 0 -> 0.5; with e.g. 0 indicating no variation between reads at any aligned base (i.e. at all positions in the alignment, all aligned reads agree on the same base call; although this agreed base may be different from the reference); and 0.25 indicating there is at least one position in the alignment at which all reads do not agree, and the least common variant (either match or mismatch to the reference) is present in 25% of reads. This value is printed, for all alleles, to the scores file; in the MLST file, the value reported is the highest MAF encountered across the MLST loci.
+
 ------------
 ### Gene typing
 
@@ -413,7 +415,7 @@ Gene typing results files report the details of sequences provided in fasta file
 
 Two output files are produced:
 
-1 - A detailed report, [outputprefix]__fullgenes__[db]__results.txt, with one row per gene per sample:
+1 - A detailed report, [outputprefix]\_\_fullgenes\_\_[db]\_\_results.txt, with one row per gene per sample:
 
 ```
 Sample  DB      gene    allele  coverage        depth   diffs   uncertainty     cluster seqid   annotation
@@ -437,7 +439,7 @@ strainB     resistance      strA    strA4   100.0   99.0832298137               
 
 *uncertainty* is as above
 
-2 - A tabulated summary report of samples x genes, [outputprefix]__genes__[db]__results.txt:
+2 - A tabulated summary report of samples x genes, [outputprefix]\_\_genes\_\_[db]\_\_results.txt:
 
 ```
 Sample  aadA    blaTEM  dfrA    strA    strB    sul2    tet(A)
@@ -460,20 +462,20 @@ If you were using a clustered gene database (such as the resistance.fasta databa
 ------------
 ### Combined results
 
-If more then one database is provided for typing (via --mlst_db and/or --gene_db), or if previous results are provided for merging with the current run which contain data from >1 database (via --prev_output), then an additional table summarizing all the database results is produced. This is named "[outputprefix]__compiledResults.txt" and is a combination of the MLST style table plus the tabulated gene summary (file 2 above).
+If more then one database is provided for typing (via --mlst_db and/or --gene_db), or if previous results are provided for merging with the current run which contain data from >1 database (via --prev_output), then an additional table summarizing all the database results is produced. This is named "[outputprefix]\_\_compiledResults.txt" and is a combination of the MLST style table plus the tabulated gene summary (file 2 above).
 
 ```
-Sample  ST      adk     fumC    gyrB    icd     mdh     purA    recA    mismatches      uncertainty     depth   aadA    blaTEM  dfrA    strA    strB    sul2    tet(A)
+Sample  ST      adk     fumC    gyrB    icd     mdh     purA    recA    mismatches      uncertainty     depth maxMAF   aadA    blaTEM  dfrA    strA    strB    sul2    tet(A)
 
-sampleA     152*     11      63*      7       1       14      7       7                       21.3139900892   aadA1-5 blaTEM-1_5      dfrA1_1?        strA4   strB1   sul2_9  tet(A)_4*?
+sampleA     152*     11      63*      7       1       14      7       7                       21.3	0.05   aadA1-5 blaTEM-1_5      dfrA1_1?        strA4   strB1   sul2_9  tet(A)_4*?
 ```
 
 ------------
 ### Mapping results
 
-The bowtie2 alignment of reads to each input database is stored in [outputprefix]__[sample].[db].sorted.bam and the samtools pileup of the alignment is stored in [outputprefix]__[sample].[db].pileup. 
+The bowtie2 alignment of reads to each input database is stored in [outputprefix]\_\_[sample].[db].sorted.bam and the samtools pileup of the alignment is stored in [outputprefix]\_\_[sample].[db].pileup. 
 
-If you used --save_scores, a table of scores for each allele in the database is printed to [outputprefix]__[sample].[db].scores.
+If you used --save\_scores, a table of scores for each allele in the database is printed to [outputprefix]\_\_[sample].[db].scores.
 
 
 Printing consensus sequences
@@ -485,98 +487,111 @@ By default, no allele sequences are generated, the results are simply tabulated.
 
 ### Report consensus sequences for novel alleles 
 
-	--report_new_consensus
+	--report\_new_consensus
 
 For all samples and loci where the top scoring allele contains SNPs:
 
 - a pileup file will be generated for the top scoring allele, with the name
-"[allele].[output]__[readset].[database].pileup"
+"[allele].[output]\_\_[readset].[database].pileup"
 
 - the consensus sequence will be printed to a fasta file with the name "[output].new_consensus_alleles.fasta"
 
 - fasta headers will be in the format ">[allele].variant [sample]"
 
-### Report consensus sequences for all alleles
-
-	--report_all_consensus
 
 IN ADDITION TO THE NOVEL ALLELES FILE OUTLINED ABOVE, the following will ALSO occur:
 
-- a pileup file will be generated for the top scoring allele for each sample at each locus, with the name "[allele].[output]__[readset].[database].pileup"
+- a pileup file will be generated for the top scoring allele for each sample at each locus, with the name "[allele].[output]\_\_[readset].[database].pileup"
 
 - the consensus sequence for the top scoring allele for each sample at each locus will be printed to a fasta file with the name "[output].all_consensus_alleles.fasta"
 
 - fasta headers will be in the format ">[allele].variant [sample]"
 
 
+### Report consensus sequences for all alleles
+
+	--report_all_consensus
+	
+### Collate consensus sequences output by SRST2 run on multiple strains & loci, into one file per locus
+
+For genes:
+
+	python srst2/scripts/consensus_alignment.py --in *.all_consensus_alleles.fasta --pre test --type gene
+
+For mlst:
+
+	python srst2/scripts/consensus_alignment.py --in *.all_consensus_alleles.fasta --pre test --type mlst --mlst_delimiter _
+
 More basic usage examples
 ====
 
 Run single read sets against MLST database and resistance database
 
-srst2 --input_pe pool11_tag2_1.fastq.gz pool11_tag2_2.fastq.gz 
-	--output pool11_tag2_Shigella --log 
-	--gene_db /vlsci/VR0082/shared/srst2_sep/resistance.fasta 
-	--mlst_db Escherichia_coli.fasta 
-	--mlst_definitions ecoli.txt
+	srst2 --input_pe pool11_tag2_1.fastq.gz pool11_tag2_2.fastq.gz 
+		--output pool11_tag2_Shigella --log 
+		--gene_db /vlsci/VR0082/shared/srst2_sep/resistance.fasta 
+		--mlst_db Escherichia_coli.fasta 
+		--mlst_definitions ecoli.txt
 
 ------------
 
 Run against multiple read sets in serial
 
-srst2 --input_pe *.fastq.gz
-	--output Shigella --log
-	--gene_db /vlsci/VR0082/shared/srst2_sep/resistance.fasta 
-	--mlst_db Escherichia_coli.fasta 
-	--mlst_definitions ecoli.txt
+	srst2 --input_pe *.fastq.gz
+		--output Shigella --log
+		--gene_db /vlsci/VR0082/shared/srst2_sep/resistance.fasta 
+		--mlst_db Escherichia_coli.fasta 
+		--mlst_definitions ecoli.txt
 
 ------------
 
 Run against new read sets, merge with previous reports (individual or compiled)
 
-srst2 --input_pe strainsY-Z*.fastq.gz
-	--output strainsA-Z --log
-	--gene_db /vlsci/VR0082/shared/srst2_sep/resistance.fasta 
-	--mlst_db Escherichia_coli.fasta 
-	--mlst_definitions ecoli.txt
-	--prev_output ShigellaA__genes__resistance__results.txt
-          ShigellaA__mlst__Escherichia_coli__results.txt
-          ShigellaB__genes__resistance__results.txt
-          ShigellaB__mlst__Escherichia_coli__results.txt
-          ShigellaC-X__compiledResults.txt
+	srst2 --input_pe strainsY-Z*.fastq.gz
+		--output strainsA-Z --log
+		--gene_db /vlsci/VR0082/shared/srst2_sep/resistance.fasta 
+		--mlst_db Escherichia_coli.fasta 
+		--mlst_definitions ecoli.txt
+		--prev_output ShigellaA__genes__resistance__results.txt
+        	 ShigellaA__mlst__Escherichia_coli__results.txt
+        	 ShigellaB__genes__resistance__results.txt
+        	 ShigellaB__mlst__Escherichia_coli__results.txt
+        	 ShigellaC-X__compiledResults.txt
 
 ------------
 
 Run against Enterococcus reads, where read names are different from the usual _1.fastq and _2.fastq
 
-srst2 --input_pe strain_R1.fastq.gz strain_R2.fastq.gz 
-	--forward _R1 --reverse _R2 
-	--output strainA --log 
-	--gene_db /vlsci/VR0082/shared/srst2_sep/resistance.fasta 
-	--mlst_db Enterococcus_faecium.fasta 
-	--mlst_definitions efaecium.txt
+	srst2 --input_pe strain_R1.fastq.gz strain_R2.fastq.gz 
+		--forward _R1 --reverse _R2 
+		--output strainA --log 
+		--gene_db /vlsci/VR0082/shared/srst2_sep/resistance.fasta 
+		--mlst_db Enterococcus_faecium.fasta 
+		--mlst_definitions efaecium.txt
 	
 Compile results from completed runs
 ====
 
-srst2 --prev_output *compiledResults.txt --output Shigella_report
+	srst2 --prev_output *compiledResults.txt --output Shigella_report
  
 Running lots of jobs and compiling results
 ====
 
 Run against multiple read sets: submitting 1 job per readset to SLURM queueing system.
 
-The results from all the separate runs can be compiled together using the above command.
+	slurm_srst2.py --script srst2 
+		--output test 
+		--input_pe *.fastq.gz 
+		--other_args '--gene_db resistance.fasta 
+		--mlst_db Escherichia_coli.fasta 
+		--mlst_definitions ecoli.txt 
+		--save_scores' 
+		--walltime 0-1:0 
+			> job_sub_list.txt
+		
+The results from all the separate runs can then be compiled together using:		
 
-slurm_srst2.py --script srst2 
-	--output test 
-	--input_pe *.fastq.gz 
-	--other_args '--gene_db resistance.fasta 
-	--mlst_db Escherichia_coli.fasta 
-	--mlst_definitions ecoli.txt 
-	--save_scores' 
-	--walltime 0-1:0 
-		> job_sub_list.txt
+	srst2 --prev_output *compiledResults.txt --output Shigella_report
 
 ------------
 
