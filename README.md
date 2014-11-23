@@ -637,11 +637,11 @@ If the input database contains different alelles of the same gene, srst2 can rep
 
 To do this properly, srst2 needs to know which of the reference sequences are alleles of the same gene. This is done by adhering to the following format in the naming of the sequences (i.e. the headers in the fasta sequence for the database):
 
-\>[clusterUniqueIdentifier]__[clusterSymbol]__[alleleSymbol]__[alleleUniqueIdentifier]
+	\>[clusterUniqueIdentifier]__[clusterSymbol]__[alleleSymbol]__[alleleUniqueIdentifier]
 
 e.g. in the resistance gene database provided, the first entry is:
 
-\>344__blaOXA__blaOXA-181__1
+	\>344__blaOXA__blaOXA-181__1
 
 Note these are separated by two underscores. The individual components are:
 
@@ -656,7 +656,7 @@ Additional gene annotation can appear on the header line, after a space. This ad
 
 e.g. for the blaOXA sequence above, the full header is actually:
 
-\>344__blaOXA__blaOXA-181__1 blaOXA-181_1_HM992946; HM992946; betalactamase
+	\>344__blaOXA__blaOXA-181__1 blaOXA-181_1_HM992946; HM992946; betalactamase
 
 
 ### Sourcing suitable gene databases
