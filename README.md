@@ -9,7 +9,7 @@ STs and/or reference genes.
 
 Authors - Michael Inouye, Harriet Dashnow, Bernie Pope, Kathryn Holt (University of Melbourne)
 		
-How to cite - The pre-print of the paper is now in BioRxiv: http://biorxiv.org/content/early/2014/06/26/006627.
+How to cite - The peer-reviewed open-access paper is available in Genome Medicine: http://genomemedicine.com/content/6/11/90
 		
 Problems? - Email drkatholt@gmail.com. For updates, join the srst2 google group https://groups.google.com/forum/#!forum/srst2.
 
@@ -704,7 +704,7 @@ The input table should be comma-separated (csv, unix newline characters) and hav
 
 seqID,clusterid,gene,allele,(DNAseq),other....
 
-which will be used to make headers of the required form [clusterID]__[gene]__[allele]__[seqID] [other stuff]
+which will be used to make headers of the required form [clusterID]\_\_[gene]\_\_[allele]\_\_[seqID] [other stuff]
 
 If you have the sequences as a column in the table, specify which column they are in using -s:
 csv_to_gene_db.py -t genes.csv -o genes.fasta -s 5
