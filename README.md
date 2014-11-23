@@ -779,7 +779,7 @@ or, to get all availabel genera in separate files:
 
     python VFDB_cdhit_to_csv.py --cluster_file Clostridium_cdhit90.clstr --infile Clostridium.fsa --outfile Clostridium_cdhit90.csv
 
-4 - Convert the resulting csv table to a SRST2-comptaible sequence database using:
+4 - Convert the resulting csv table to a SRST2-compatible sequence database using:
 
     python csv_to_gene_db.py -t Clostridium_cdhit90.csv -o Clostridium_VF_clustered.fasta -s 5
     
