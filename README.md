@@ -10,6 +10,8 @@ STs and/or reference genes.
 Authors - Michael Inouye, Harriet Dashnow, Bernie Pope, Kathryn Holt (University of Melbourne)
 		
 How to cite - The peer-reviewed open-access paper is available in Genome Medicine: http://genomemedicine.com/content/6/11/90
+
+Story-behind-the-paper is here: http://bacpathgenomics.wordpress.com/
 		
 Problems? - Email drkatholt@gmail.com. For updates, join the srst2 google group https://groups.google.com/forum/#!forum/srst2.
 
