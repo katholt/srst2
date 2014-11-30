@@ -17,12 +17,12 @@
     <div class="wrapper">
       <header>
         <h1 class="header">SRST2</h1>
-        <p class="header">Short Read Sequence Typing for Bacterial Pathogens (v0.1.4)</p>
+        <p class="header">Short Read Sequence Typing for Bacterial Pathogens</p>
 
         <ul>
+          <li><a class="buttons github" href="https://github.com/katholt/srst2">View On GitHub</a></li>
           <li class="download"><a class="buttons" href="https://github.com/katholt/srst2/archive/v0.1.4.zip">Download ZIP</a></li>
           <li class="download"><a class="buttons" href="https://github.com/katholt/srst2/archive/v0.1.4.tar.gz">Download TAR</a></li>
-          <li><a class="buttons github" href="https://github.com/katholt/srst2">View On GitHub</a></li>
         </ul>
 
         <p class="header">This project is maintained by <a class="header name" href="mailto:drkatholt@gmail.com">katholt</a></p>
@@ -33,18 +33,16 @@
         <h1>
 <a name="srst2" class="anchor" href="#srst2"><span class="octicon octicon-link"></span></a>SRST2</h1>
 
-<p>Short Read Sequence Typing for Bacterial Pathogens</p>
+<h2>Short Read Sequence Typing for Bacterial Pathogens</h2>
 
 <p>This program is designed to take Illumina sequence data, a MLST database and/or a database
 of gene sequences (e.g. resistance genes, virulence genes, etc) and report the presence of
 STs and/or reference genes.</p>
 
-<p>Current release - v0.1.4 - June 26, 2014</p>
-
-<p>Dependencies:</p>
+<h3>Dependencies:</h3>
 
 <ul>
-<li>python (v2.7.5), scipy</li>
+<li>python (v2.7.5), scipy, numpy</li>
 
 <li>bowtie2 v2.1.0     <a href="http://bowtie-bio.sourceforge.net/bowtie2/index.shtml">http://bowtie-bio.sourceforge.net/bowtie2/index.shtml</a></li>
 
@@ -52,12 +50,18 @@ STs and/or reference genes.</p>
 </ul>
 
 <P>
-<B>Manuscript is now available: <a href="http://genomemedicine.com/content/6/11/90">Inouye et al, Genome Medicine, 2014</a></B>
+<h3>Manuscript: <a href="http://genomemedicine.com/content/6/11/90">Inouye et al, Genome Medicine, 2014</a></h3>
+Abstract: Rapid molecular typing of bacterial pathogens is critical for public health epidemiology, surveillance and infection control, yet routine use of whole genome sequencing (WGS) for these purposes poses significant challenges. Here we present SRST2, a read mapping-based tool for fast and accurate detection of genes, alleles and multi-locus sequence types (MLST) from WGS data. Using >900 genomes from common pathogens, we show SRST2 is highly accurate and outperforms assembly-based methods in terms of both gene detection and allele assignment. We include validation of SRST2 within a public health laboratory, and demonstrate its use for microbial genome surveillance in the hospital setting. In the face of rising threats of antimicrobial resistance and emerging virulence among bacterial pathogens, SRST2 represents a powerful tool for rapidly extracting clinically useful information from raw WGS data.
 </P>
 
-<P><a href="https://github.com/katholt/srst2/blob/master/README.md">See readme for installation and documentation</a></P>
+<h3>Start with <a href="https://github.com/katholt/srst2/blob/master/README.md">installation and documentation</a> and <a href="https://github.com/katholt/srst2/blob/master/example.txt">example/tutorial</a></h3>
 
-<p>Updates in v0.1.4</p>
+<h3>Bugs and feature requests? <a href="https://github.com/katholt/srst2/issues">Please use github issue tracking</a></h3>
+
+<h3>Want to hear about updates? <a href="https://groups.google.com/forum/#!forum/srst2">Subscribe to the SRST2 google group</a></h3>
+
+<hr>
+<h4>Updates in v0.1.4 (June 26, 2014)</h4>
 
 <ul>
 <li>No longer store sam and unsorted bam (can be retained via the --keep_interim_alignment flag)</li>
