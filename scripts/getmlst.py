@@ -137,6 +137,7 @@ def main():
 	assert len(found_species) == 1
 	species_info = found_species[0]
 	species_name_underscores = species_info.name.replace(' ', '_')
+	species_name_underscores = species_name_underscores.replace('/', '_')
 	species_all_fasta_filename = species_name_underscores + '.fasta'
 	species_all_fasta_file = open(species_all_fasta_filename, 'w')
 	log_filename = "mlst_data_download_{}_{}.log".format(species_name_underscores, species_info.retrieved)
@@ -178,6 +179,13 @@ def main():
 		print "  " + head + "  --> -->  ",
 		print m
 	print 
+	print "  Suggested srst2 command for use with this MLST database:"
+	print
+	print "    srst2 --output test --input_pe *.fastq.gz --mlst_db " + species_name_underscores + '.fasta',
+	print "--mlst_definitions " + format(profile_filename),
+	print "--mlst_delimiter '" + m[1] + "'"
+	print
+	
 
 if __name__ == '__main__':
 	main()
