@@ -8,7 +8,7 @@ We will also use the resistance genes database provided with srst2, resistance.f
 
 1. Download the files for the E. coli MLST scheme, using the script provided:
 
-python getmlst.py --species "Escherichia coli#1"
+getmlst.py --species "Escherichia coli#1"
 
   For SRST2, remember to check what separator is being used in this allele database
 
