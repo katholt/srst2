@@ -51,6 +51,7 @@ def parse_args():
 	parser.add_argument(
 		'--input_pe', nargs='+', type=str, required=False,
 		help='Paired end read files for analysing (may be gzipped)')
+	parser.add_argument('--merge_paired', action="store_true", required=False, help='Switch on if all the input read sets belong to a single sample, and you want to merge their data to get a single result')
 	parser.add_argument(
 		'--forward', type=str, required=False, default="_1", 
 			help='Designator for forward reads (only used if NOT in MiSeq format sample_S1_L001_R1_001.fastq.gz; otherwise default is _1, i.e. expect forward reads as sample_1.fastq.gz)')
@@ -1474,6 +1475,17 @@ def main():
 
 	# parse list of file sets to analyse
 	fileSets = read_file_sets(args) # get list of files to process
+	
+	if args.merge_paired:
+		mate1 = [] # list of forward read files
+		mate2 = [] # list of reverse read files
+		for prefix in fileSets:
+			reads = fileSets[prefix] # forward, reverse as list
+			mate1.append(reads[0])
+			mate2.append(reads[1])
+		fileSets.clear() # remove all individual read sets
+		fileSets["combined"] = [",".join(mate1),",".join(mate2)] # all input reads belong to same strain, ie single file set
+		logging.info('Assuming all reads belong to single strain. A single combined result will be returned.')
 	
 	# run MLST scoring
 	if fileSets and args.mlst_db:
