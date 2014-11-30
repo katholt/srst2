@@ -103,9 +103,14 @@ Outputs are printed to:
 	shigella2__genes__ARGannot__results.txt - resistance results only, tabulated
 	shigella2__compiledResults.txt - MLST and resistance genes, tabulated
 
-This time there is a confident ST called, which should look like this:
+This time there is an ST called, which should look like this:
 
+Sample  ST      adk     fumC    gyrB    icd     mdh     purA    recA    mismatches      uncertainty     depth   maxMAF
+ERR028678  152?    11?     63      7?      1       14      7       7       0       adk-11/edge2.0;gyrB-7/edge2.0   13.9595714286   0.125
 
+Note that the ST has a question mark (?) after it, indicating that we have some uncertainty about the call. 
+The table shows this uncertainty comes from two loci, adk and gyrB, which are themselves labelled with question marks.
+The 'uncertainty' column indicates that the problem is a drop-off in depth at the edge of these loci, down to 2x, which is the default minimum to report a potential uncertainty (--min_edge_depth 2).
 
 There are also lots of resistance genes identified.
 
