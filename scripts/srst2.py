@@ -11,12 +11,12 @@
 # Dependencies:
 #	bowtie2	   http://bowtie-bio.sourceforge.net/bowtie2/index.shtml version 2.1.0
 #	SAMtools   http://samtools.sourceforge.net Version: 0.1.18 (Version: 0.1.19 DOES NOT WORK - loss of edge coverage)
-#	SciPy		http://www.scipy.org/install.html
+#	SciPy	http://www.scipy.org/install.html
 #
 # Git repository: https://github.com/katholt/srst2/
 # README: https://github.com/katholt/srst2/blob/master/README.md
 # Questions or feature requests: https://github.com/katholt/srst2/issues
-# Manuscript: http://biorxiv.org/content/early/2014/06/26/006627
+# Paper: http://genomemedicine.com/content/6/11/90
 
 
 from argparse import (ArgumentParser, FileType)
@@ -1133,8 +1133,9 @@ def process_fasta_db(args, fileSets, run_type, db_reports, db_results_list, fast
 			gene_list, results = \
 				map_fileSet_to_db(args,sample_name,fastq_inputs,db_name,fasta,size,gene_names,\
 				unique_gene_symbols, unique_allele_symbols,run_type,ST_db,results,gene_list,db_report,cluster_symbols,max_mismatch)
-		# if we get an error from one of the commands we called
-		# log the error message and continue onto the next fasta db
+
+				# if we get an error from one of the commands we called
+				# log the error message and continue onto the next fasta db
             	except CommandError as e:
                 	logging.error(e.message)
                 	# record results as unknown, so we know that we did attempt to analyse this readset
@@ -1277,10 +1278,13 @@ def map_fileSet_to_db(args,sample_name,fastq_inputs,db_name,fasta,size,gene_name
 	# Record gene results for later processing and optionally print detailed gene results to __fullgenes__ file
 	elif run_type == "genes" and len(allele_scores) > 0:
 		if args.no_gene_details:
-			full_results = "__".join([args.output,"full"+run_type,db_name,"results.txt"])
+			full_results = "__".join([args.output,"fullgenes",db_name,"results.txt"])
 			logging.info("Printing verbose gene detection results to " + full_results)
-			f = file(full_results,"w")
-			f.write("\t".join(["Sample","DB","gene","allele","coverage","depth","diffs","uncertainty","divergence","length", "maxMAF","clusterid","seqid","annotation"])+"\n")
+			if os.path.exists(full_results):
+				f = file(full_results,"a")
+			else:
+				f = file(full_results,"w") # create and write header
+				f.write("\t".join(["Sample","DB","gene","allele","coverage","depth","diffs","uncertainty","divergence","length", "maxMAF","clusterid","seqid","annotation"])+"\n")
 		for gene in allele_scores:
 			(allele,diffs,depth_problem,divergence) = allele_scores[gene] # gene = top scoring alleles for each cluster
 			gene_name, allele_name, cluster_id, seqid = \
