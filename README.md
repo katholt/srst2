@@ -68,7 +68,7 @@ Dependencies:
 
 - python (v2.7.5)
 
-- scipy		http://www.scipy.org/install.html
+- scipy, numpy		http://www.scipy.org/install.html
 
 - bowtie2 v2.1.0     http://bowtie-bio.sourceforge.net/bowtie2/index.shtml
 
@@ -79,6 +79,8 @@ Updates (available in repository, will be in release v0.1.5)
 
 1. Optionally switch on reporting of pileups and consensus sequences (fasta) for novel alleles (--report_new_consensus) or for all alleles (--report_all_consensus). See [Printing consensus sequences](https://github.com/katholt/srst2#printing-consensus-sequences)
 2. Post-process consensus sequences from a set of strains, to generate one file per locus containing all/new consensus sequences. See [Collate consensus sequences](https://github.com/katholt/srst2/blob/master/README.md#collate-consensus-sequences-output-by-srst2-run-on-multiple-strains--loci-into-one-file-per-locus)
+3. Some enhancements to getmlst.py script to handle some more unusual scheme names (force download of specific schemes that have non-unique  names, handle forward slashes in names).
+4. Fixed an issue where, if multiple readsets analysed in serial in a srst2 run, the fullgenes report would only contain the results for the last readset. Fullgenes report now contains gene output for all readsets.
 
 -----------
 
