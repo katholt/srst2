@@ -13,7 +13,9 @@ How to cite - The peer-reviewed open-access paper is available in Genome Medicin
 
 Story-behind-the-paper is here: http://bacpathgenomics.wordpress.com/
 		
-Problems? - Email drkatholt@gmail.com. For updates, join the srst2 google group https://groups.google.com/forum/#!forum/srst2.
+Problems? Please post an issue here in github: https://github.com/katholt/srst2/issues.
+
+To be notifed of updates, join the srst2 google group at https://groups.google.com/forum/#!forum/srst2.
 
 Contents
 ----
