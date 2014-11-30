@@ -16,14 +16,19 @@ python getmlst.py --species "Escherichia coli#1"
 
   >adk-1  --> -->   ('adk', '-', '1')
   
+  Suggested srst2 command for use with this MLST database:
+
+    srst2 --output test --input_pe *.fastq.gz --mlst_db Escherichia_coli#1.fasta --mlst_definitions ecoli.txt --mlst_delimiter '-'
+  
+
 Note, this is correctly guessing that we should use the default --mlst_delimiter '-' with
 this database. The log file will tell you exactly what files were downloaded.
 
 Check that the allele sequences have been downloaded and compiled into a single fasta file:
-Escherichia_coli#1.fasta
+  Escherichia_coli#1.fasta
 
 Check that the ST definitions have been downloaded:
-ecoli.txt
+  ecoli.txt
 
 
 2. Download Illumina paired end read sets from the ENA. Note if you have limited download
