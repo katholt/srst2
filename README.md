@@ -767,7 +767,7 @@ An easy way to add sequences to this database would be to add new rows to the ta
 
     csv_to_gene_db.py -t rawseqs_clustered.csv -o seqs_clustered.fasta -s rawseqs.fasta -c 5
 
-### Using the VFBD Virulence Factor Database with SRST2
+### Using the VFDB Virulence Factor Database with SRST2
 
 The VFDB houses sets of virulence genes for a range of bacterial genera, see http://www.mgc.ac.cn/VFs/.
 
