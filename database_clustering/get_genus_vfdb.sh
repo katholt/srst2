@@ -1,6 +1,8 @@
 #!/bin/bash
-#this is a utility bash script that automates generation of all the VFDB gene databases for use with srst2.py
+#this is a utility bash script that automates generation of a VFDB gene database for a specified genus for use with srst2.py
 #script assumes you already have python, and cd-hit installed somewhere on the $PATH
+#example usage:
+#/srst2/database_clustering/get_genus_vfdb.sh ./CP_VFs.ffn Bacillus ./VFDB
 
 VFDBFILE=$(readlink -e $1)
 GENUS=$2
