@@ -28,7 +28,7 @@ for FSAFILE in *.fsa; do
   echo Generating virulence gene database for ${GENUS}
 
   #Run CD-HIT to cluster the sequences for this genus, at 90% nucleotide identity
-  cd-hit -i ${FILENAME} -o ${GENUS}/${GENUS}_cdhit90 -c 0.9 > ${GENUS}/${GENUS}_cdhit90.csv
+  cd-hit -i ${FILENAME} -o ${GENUS}/${GENUS}_cdhit90 -c 0.9 > ${GENUS}/${GENUS}_cdhit90.stdout
 
   #Parse the cluster output and tabulate the results using the specific Virulence gene DB compatible script:
   python ${DBCLUSTERINGSCRIPTFOLDER}/VFDB_cdhit_to_csv.py --cluster_file ${GENUS}/${GENUS}_cdhit90.clstr --infile ${FILENAME} --outfile ${GENUS}/${GENUS}_cdhit90.csv
