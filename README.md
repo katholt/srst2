@@ -61,7 +61,7 @@ Contents
 
 [Example - Shigella sonnei public data](example.txt)
 
-Current release - v0.1.4 - June 16, 2014
+Current release - v0.1.5 - December 29, 2014
 -----
 
 Dependencies:
@@ -70,18 +70,21 @@ Dependencies:
 
 - scipy, numpy		http://www.scipy.org/install.html
 
-- bowtie2 v2.1.0     http://bowtie-bio.sourceforge.net/bowtie2/index.shtml
+- bowtie2 v2.1.0, 2.2.3 or 2.2.4     http://bowtie-bio.sourceforge.net/bowtie2/index.shtml
 
-- SAMtools v0.1.18   https://sourceforge.net/projects/samtools/files/samtools/0.1.18/ (NOTE 0.1.19 DOES NOT WORK)
+- SAMtools v0.1.18   https://sourceforge.net/projects/samtools/files/samtools/0.1.18/ (NOTE later versions DO NOT WORK)
 
 
-Updates (available in master branch, will be in release v0.1.5)
+-----------
+
+Updates in v0.1.5
 
 1. Optionally switch on reporting of pileups and consensus sequences (fasta) for novel alleles (--report_new_consensus) or for all alleles (--report_all_consensus). See [Printing consensus sequences](https://github.com/katholt/srst2#printing-consensus-sequences)
 2. Post-process consensus sequences from a set of strains, to generate one file per locus containing all/new consensus sequences. See [Collate consensus sequences](https://github.com/katholt/srst2/blob/master/README.md#collate-consensus-sequences-output-by-srst2-run-on-multiple-strains--loci-into-one-file-per-locus)
 3. Some enhancements to getmlst.py script to handle some more unusual scheme names (force download of specific schemes that have non-unique  names, handle forward slashes in names).
 4. Fixed an issue where, if multiple readsets analysed in serial in a srst2 run, the fullgenes report would only contain the results for the last readset. Fullgenes report now contains gene output for all readsets.
 5. Added option (--merge_paired) to accommodate cases where users have multiple read sets for the same sample. If this flag is used, SRST2 will assume that all the input reads belong to the same sample, and outputs will be named as [prefix]\_\_combined.xxx, where srst2 was run using "-output [prefix]". If the flag is not used, SRST2 will operate as usual and assume that each read pair is a new sample, with output files named as [prefix]\_\_[sample].xxx, where [sample] is taken from the base name of the reads fastq files. Note that if you have lots of multi-run read sets to analyse, the ease of job submission will depend heavily on how your files are named and you will need to figure out your own approach to manage this (ie there is no way to submit multiple sets of multiple reads).
+6. The original validation of SRST2 (see [paper](http://genomemedicine.com/content/6/11/90)) was performed with bowtie2 version 2.1.0. SRST2 has now been tested on the tutorial example using the latest versions of bowtie2, 2.2.3 and 2.2.4, which gave identical results to those obtained with bowtie2 v2.1.0. Therefore, the SRST2 code will now run if any of these versions of bowtie2 are available: 2.1.0, 2.2.3 or 2.2.4. (Note however that there are still incompatibilities with the recent release of samtools, so you will need to stick to [samtools v0.1.18](https://sourceforge.net/projects/samtools/files/samtools/0.1.18/) unless you want to modify the SRST2 code to allow later versions, and are happy with a dramatic loss in accuracy!)
 
 -----------
 
