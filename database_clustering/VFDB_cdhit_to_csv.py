@@ -56,7 +56,8 @@ def main():
 			allele = id_bits[1]+"_"+id_bits[2] # fliL_VP2243
 		else:
 			allele = id_bits[1]
-		clusterid = seq2cluster[seqID]
+		if seqID in seq2cluster:
+			clusterid = seq2cluster[seqID]
 		outstring = ",".join([seqID, clusterid, gene, allele, str(record.seq), re.sub(",","",record.description)]) + "\n"
 		outfile.write(outstring)
 	outfile.close()
