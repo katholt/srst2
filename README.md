@@ -72,8 +72,16 @@ Dependencies:
 
 - bowtie2 v2.1.0, 2.2.3 or 2.2.4     http://bowtie-bio.sourceforge.net/bowtie2/index.shtml
 
-- SAMtools v0.1.18   https://sourceforge.net/projects/samtools/files/samtools/0.1.18/ (NOTE later versions DO NOT WORK)
+- SAMtools v0.1.18   https://sourceforge.net/projects/samtools/files/samtools/0.1.18/ (NOTE later versions can be used, but better results are obtained with v0.1.18 especially at low read depths (<20x))
 
+
+-----------
+
+Updates to current code (will be in v0.1.6 release)
+
+The original validation of SRST2 (see [paper](http://genomemedicine.com/content/6/11/90)) was performed with bowtie2 version 2.1.0 and samtools v0.1.18.
+- SRST2 has now been tested on the tutorial example and other test data sets using the latest versions of bowtie2, 2.2.3 and 2.2.4, which gave identical results to those obtained with bowtie2 v2.1.0. Therefore, the SRST2 code will now run if any of these versions of bowtie2 are available: 2.1.0, 2.2.3 or 2.2.4. 
+- SRST2 has now been tested on the Staph & Salmonella test data sets used in the paper, and will work with versions (tested up to v1.1). Note however that SRST2 still works best with [samtools v0.1.18](https://sourceforge.net/projects/samtools/files/samtools/0.1.18/), due to small changes in the mapping algorithms in later versions that result in some loss of reads at the ends of alleles. This has most impact at low read depths, however we do recommend using v0.1.18 for optimum results.
 
 -----------
 
