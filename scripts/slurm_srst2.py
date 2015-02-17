@@ -160,14 +160,39 @@ def check_command_version(command_list, version_identifier, command_name, requir
 		print "{} version {} is required by SRST2.".format(command_name, required_version)
 		exit(-1)
 
+# allow multiple specific versions that have been specifically tested
+def check_command_versions(command_list, version_identifiers, command_name, required_versions):
+	try:
+		command_stdout = check_output(command_list, stderr=STDOUT)
+	except OSError as e:
+		logging.error("Failed command: {}".format(' '.join(command_list)))
+		logging.error(str(e))
+		logging.error("Could not determine the version of {}.".format(command_name))
+		logging.error("Do you have {} installed in your PATH?".format(command_name))
+		exit(-1)
+	except CalledProcessError as e:
+		# some programs such as samtools return a non-zero exit status
+		# when you ask for the version (sigh). We ignore it here.
+		command_stdout = e.output
+
+	version_ok = False
+	for v in version_identifiers:
+		if v in command_stdout:
+			version_ok = True
+			
+	if not version_ok:
+		logging.error("Incorrect version of {} installed.".format(command_name))
+		logging.error("{} versions compatible with SRST2 are ".format(command_name) + ", ".join(required_versions))
+		exit(-1)
+
 def bowtie_index(fasta_files):
 	'Build a bowtie2 index from the given input fasta(s)'
 
-	# check that both bowtie has the right versions
-	check_command_version(['bowtie2', '--version'],
-				'bowtie2-align version 2.1.0',
+	# check that bowtie has the right versions
+	check_command_versions(['bowtie2', '--version'],
+				['bowtie2-align version 2.1.0','bowtie2-align-s version 2.2.3','bowtie2-align-s version 2.2.4'],
 				'bowtie',
-				'2.1.0')
+				['2.1.0','2.2.3','2.2.4'])
 
 	for fasta in fasta_files:
 		built_index = fasta + '.1.bt2'
@@ -180,11 +205,11 @@ def bowtie_index(fasta_files):
 def samtools_index(fasta_files):
 	'Build a samtools faidx index from the given input fasta(s)'
 
-	# check that both samtools has the right versions
-	check_command_version(['samtools'],
-				'Version: 0.1.18',
+	# check that samtools has the right versions
+	check_command_versions(['samtools'],
+				['Version: 0.1.18','Version: 0.1.19','Version: 1.0','Version: 1.1'],
 				'samtools',
-				'0.1.18')
+				['0.1.18','0.1.19','1.0','1.1','(0.1.18 is recommended)'])
 
 	for fasta in fasta_files:
 		built_index = fasta + '.fai'

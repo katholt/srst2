@@ -9,8 +9,8 @@
 # see LICENSE.txt for the license
 #
 # Dependencies:
-#	bowtie2	   http://bowtie-bio.sourceforge.net/bowtie2/index.shtml version 2.1.0
-#	SAMtools   http://samtools.sourceforge.net Version: 0.1.18 (Version: 0.1.19 DOES NOT WORK - loss of edge coverage)
+#	bowtie2	   http://bowtie-bio.sourceforge.net/bowtie2/index.shtml version 2.1.0 or greater
+#	SAMtools   http://samtools.sourceforge.net Version: 0.1.18 or greater (note optimal results are obtained with 0.1.18 rather than later versions)
 #	SciPy	http://www.scipy.org/install.html
 #
 # Git repository: https://github.com/katholt/srst2/
@@ -558,10 +558,10 @@ def run_bowtie(mapping_files_pre,sample_name,fastqs,args,db_name,db_full_path):
 				['2.1.0','2.2.3','2.2.4'])
 
 
-	check_command_version(['samtools'],
-				'Version: 0.1.18',
+	check_command_versions(['samtools'],
+				['Version: 0.1.18','Version: 0.1.19','Version: 1.0','Version: 1.1'],
 				'samtools',
-				'0.1.18')
+				['0.1.18','0.1.19','1.0','1.1','(0.1.18 is recommended)'])
 
 	command = ['bowtie2']
 
@@ -620,7 +620,7 @@ def get_pileup(args,mapping_files_pre,raw_bowtie_sam,bowtie_sam_mod,fasta,pileup
 	logging.info('Generate pileup...')
 	with open(pileup_file, 'w') as sam_pileup:
 		run_command(['samtools', 'mpileup', '-L', '1000', '-f', fasta,
-					 '-Q', str(args.baseq), '-q', str(args.mapq), out_file_bam_sorted + '.bam'],
+					 '-Q', str(args.baseq), '-q', str(args.mapq), '-B', out_file_bam_sorted + '.bam'],
 					 stdout=sam_pileup)
 
 def calculate_ST(allele_scores, ST_db, gene_names, sample_name, mlst_delimiter, avg_depth_allele, mix_rates):
@@ -1105,10 +1105,10 @@ def run_srst2(args, fileSets, dbs, run_type):
 
 def process_fasta_db(args, fileSets, run_type, db_reports, db_results_list, fasta):
 
-	check_command_version(['samtools'],
-				'Version: 0.1.18',
+	check_command_versions(['samtools'],
+				['Version: 0.1.18','Version: 0.1.19','Version: 1.0','Version: 1.1'],
 				'samtools',
-				'0.1.18')
+				['0.1.18','0.1.19','1.0','1.1','(0.1.18 is recommended)'])
 
 	logging.info('Processing database ' + fasta)
 
