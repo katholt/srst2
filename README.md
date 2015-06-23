@@ -508,7 +508,7 @@ By default, no allele sequences are generated, the results are simply tabulated.
 
 ### Report consensus sequences for novel alleles 
 
-	--report\_new_consensus
+	--report_new_consensus
 
 For all samples and loci where the top scoring allele contains SNPs:
 
