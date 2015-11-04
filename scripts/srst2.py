@@ -762,6 +762,7 @@ def get_allele_name_from_db(allele,unique_allele_symbols,unique_cluster_symbols,
 
 def create_allele_pileup(allele_name, all_pileup_file):
 	outpileup = allele_name + "." + all_pileup_file
+	outpileup = outpileup.replace("/", "_")
 	with open(outpileup, 'w') as allele_pileup:
 		with open(all_pileup_file) as all_pileup:
 			for line in all_pileup:
