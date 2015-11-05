@@ -816,11 +816,11 @@ O types are represented by the presence of two loci (either wzy and wzy, or wzm 
 
 H types are represented by alleles of fliC or flnA flagellin genes (one allele per H type). Note that it is possible to carry both a fliC allele and a flnA allele, such strains should be considered phase variable for flagellin).
 
-# Basic Usage – Serotyping E. coli
+#### Basic Usage – Serotyping E. coli
 
     srst2 --input_pe strainA_1.fastq.gz strainA_2.fastq.gz --output strainA_serotypes --log --gene_db EcOH.fasta
 
-# Example output
+#### Example output
 
 Results will be output in: "[prefix]__genes__EcOH__results.txt"
 
@@ -832,7 +832,7 @@ strain A	fliC-H7_64	-	-	-	wzx-O55_283	wzy-O55_506
 strain B	fliC-H33_34	-	wzm-O101_86	wzt-O101_99	-	-
 ```
 
-# Interpretation
+#### Interpretation
 
 Strain A has matching wzx and wzy hits for O55, and fliC allele H7, thus the predicted serotype is O55:H7. 
 
