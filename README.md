@@ -824,9 +824,20 @@ H types are represented by alleles of fliC or flnA flagellin genes (one allele p
 
 Results will be output in: "[prefix]__genes__EcOH__results.txt"
 
-E.g. from the above, output would be in the file named: "strainA_serotypes__genes__EcOH__results.txt"
+Output from the above example would appear in: "strainA_serotypes__genes__EcOH__results.txt"
 
 ```
-Sample    fliC    flnA    wzm    wzt    wzx    wzy
-strainA    fliC-H18_17    -    -    -    wzx-O44_269    wzy-O77_531
+Sample	fliC	flnA	wzm	wzt	wzx	wzy
+strain A	fliC-H7_64	-	-	-	wzx-O55_283	wzy-O55_506
+strain B	fliC-H33_34	-	wzm-O101_86	wzt-O101_99	-	-
 ```
+
+# Interpretation
+
+Strain A has matching wzx and wzy hits for O55, and fliC allele H7, thus the predicted serotype is O55:H7. 
+
+Strain B has matching wzm and wzt hits for O101 and fliC allele H33, thus the predicted serotype is O101:H33. 
+
+Note that each O antigen type is associated with loci containing EITHER wzx and wzy, OR wzm and wzt genes.
+
+No alleles for flnA were detected in these strains, indicating they are not phase variable for flagellin.
