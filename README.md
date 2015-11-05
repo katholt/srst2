@@ -59,6 +59,8 @@ Contents
 
 * [Using the VFBD Virulence Factor Database with SRST2](https://github.com/katholt/srst2#using-the-vfbd-virulence-factor-database-with-srst2)
 
+* [Using the EcOH database for serotyping E. coli with SRST2](https://github.com/katholt/srst2#using-the-ecoh-database-for-serotyping-e-coli-with-srst2)
+
 [Example - Shigella sonnei public data](example.txt)
 
 Current release - v0.1.5 - December 29, 2014
@@ -393,7 +395,7 @@ In addition to MLST, srst2 can do gene/allele detection. This works by mapping r
 
 If the input database contains different alelles of the same gene, srst2 can report just the best matching allele for that gene (much like with MLST we report the best matching allele for each locus in the scheme). This makes the output manageable, as you will get one column per gene/locus (e.g. blaCTX-M) which reports the specific allele that was called in each sample (e.g. blaCTX-M-15 in sample A, blaCTX-M-13 in sample B).
 
-We have provided some databases of resistance genes and plasmid genes in /data, ready for use with SRST2. We recommend using /data/ARGannot.fasta for detecting resistance genes, but you can also use /data/ResFinder.fasta (this is the same as /data/resistance.fasta in earlier distributions of srst2).
+We have provided some databases of resistance genes, plasmid genes and E. coli serotyping loci in /data, ready for use with SRST2. We recommend using /data/ARGannot.r1.fasta for detecting resistance genes, but you can also use /data/ResFinder.fasta (this is the same as /data/resistance.fasta in earlier distributions of srst2).
 
 You can however format any sequence set for screening with srst2. [See instructions below](https://github.com/katholt/srst2#generating-srst2-compatible-clustered-database-from-raw-sequences).
 
@@ -508,7 +510,7 @@ By default, no allele sequences are generated, the results are simply tabulated.
 
 ### Report consensus sequences for novel alleles 
 
-	--report\_new_consensus
+	--report_new_consensus
 
 For all samples and loci where the top scoring allele contains SNPs:
 
@@ -805,3 +807,26 @@ or, to get all availabel genera in separate files:
     python csv_to_gene_db.py -t Clostridium_cdhit90.csv -o Clostridium_VF_clustered.fasta -s 5
     
 The output file, Clostridium_VF_clustered.fasta, should now be ready to use with srst2 (--gene_db Clostridium_VF_clustered.fasta).
+
+### Using the EcOH database for serotyping E. coli with SRST2
+
+The EcOH database includes genes for identifying O and H types in E. coli, see /data/EcOH.fasta
+
+O types are represented by the presence of two loci (either wzy and wzy, or wzm and wzt). Note that allelic variation is possible but does not impact serotype in a predictable way, so typing calls should be made based on the presence of genes rather than allele assignments (i.e. it is generally safe to ignore *? characters)
+
+H types are represented by alleles of fliC or flnA flagellin genes (one allele per H type). Note that it is possible to carry both a fliC allele and a flnA allele, such strains should be considered phase variable for flagellin).
+
+# Basic Usage – Serotyping E. coli
+
+    srst2 --input_pe strainA_1.fastq.gz strainA_2.fastq.gz --output strainA_serotypes --log --gene_db EcOH.fasta
+
+# Example output
+
+Results will be output in: "[prefix]__genes__EcOH__results.txt"
+
+E.g. from the above, output would be in the file named: "strainA_serotypes__genes__EcOH__results.txt"
+
+```
+Sample    fliC    flnA    wzm    wzt    wzx    wzy
+strainA    fliC-H18_17    -    -    -    wzx-O44_269    wzy-O77_531
+```
