@@ -254,84 +254,66 @@ SRST2 - Short Read Sequence Typer (v2)
 
 optional arguments:
   -h, --help            show this help message and exit
-
-  --version             show version number and exit 
-  
+  --version             show program's version number and exit
   --input_se INPUT_SE [INPUT_SE ...]
                         Single end read file(s) for analysing (may be gzipped)
-                        
   --input_pe INPUT_PE [INPUT_PE ...]
                         Paired end read files for analysing (may be gzipped)
-                        
+  --merge_paired        Switch on if all the input read sets belong to a
+                        single sample, and you want to merge their data to get
+                        a single result
   --forward FORWARD     Designator for forward reads (only used if NOT in
                         MiSeq format sample_S1_L001_R1_001.fastq.gz; otherwise
                         default is _1, i.e. expect forward reads as
                         sample_1.fastq.gz)
-                        
   --reverse REVERSE     Designator for reverse reads (only used if NOT in
                         MiSeq format sample_S1_L001_R2_001.fastq.gz; otherwise
                         default is _2, i.e. expect forward reads as
-                        sample_2.fastq.gz)
-                        
+                        sample_2.fastq.gz
   --read_type {q,qseq,f}
                         Read file type (for bowtie2; default is q=fastq; other
-                        options: qseq=solexa, f=fasta)
-                        
+                        options: qseq=solexa, f=fasta).
   --mlst_db MLST_DB     Fasta file of MLST alleles (optional)
-  
   --mlst_delimiter MLST_DELIMITER
                         Character(s) separating gene name from allele number
                         in MLST database (default "-", as in arcc-1)
-                        
   --mlst_definitions MLST_DEFINITIONS
                         ST definitions for MLST scheme (required if mlst_db
                         supplied and you want to calculate STs)
-                        
   --mlst_max_mismatch MLST_MAX_MISMATCH
-                        Maximum number of mismatches per read for MLST allele calling (default 10)
-                        
+                        Maximum number of mismatches per read for MLST allele
+                        calling (default 10)
   --gene_db GENE_DB [GENE_DB ...]
                         Fasta file/s for gene databases (optional)
-                        
   --no_gene_details     Switch OFF verbose reporting of gene typing
-  
   --gene_max_mismatch GENE_MAX_MISMATCH
-                        Maximum number of mismatches per read for gene allele calling (default 10)
-                                                
+                        Maximum number of mismatches per read for gene
+                        detection and allele calling (default 10)
   --min_coverage MIN_COVERAGE
-                        Minimum %coverage cutoff for gene reporting 
-                        (default 90)
-                        
+                        Minimum %coverage cutoff for gene reporting (default
+                        90)
   --max_divergence MAX_DIVERGENCE
-                        Maximum %divergence cutoff for gene reporting 
-                        (default 10)
-                        
+                        Maximum %divergence cutoff for gene reporting (default
+                        10)
   --min_depth MIN_DEPTH
                         Minimum mean depth to flag as dubious allele call
                         (default 5)
-                        
   --min_edge_depth MIN_EDGE_DEPTH
                         Minimum edge depth to flag as dubious allele call
                         (default 2)
-                        
   --prob_err PROB_ERR   Probability of sequencing error (default 0.01)
-  
   --stop_after STOP_AFTER
-                        Stop mapping after this number of reads have been 
+                        Stop mapping after this number of reads have been
                         mapped (otherwise map all)
-                        
-  --other OTHER         Other arguments to pass to bowtie2
-  
+  --other OTHER         Other arguments to pass to bowtie2.
   --mapq MAPQ           Samtools -q parameter (default 1)
-  
   --baseq BASEQ         Samtools -Q parameter (default 20)
-  
-  --output OUTPUT       Output file prefix
-  
-  --log            	Switch ON logging to file (otherwise log to stdout)
-  
+  --samtools_args SAMTOOLS_ARGS
+                        Other arguments to pass to samtools mpileup (e.g.
+                        "\-A").
+  --output OUTPUT       Prefix for srst2 output files
+  --log                 Switch ON logging to file (otherwise log to stdout)
   --save_scores         Switch ON verbose reporting of all scores
-  
   --report_new_consensus
                         If a matching alleles is not found, report the
                         consensus allele. Note, only SNP differences are
@@ -340,19 +322,15 @@ optional arguments:
                         Report the consensus allele for the most likely
                         allele. Note, only SNP differences are considered, not
                         indels.
-
   --use_existing_pileup
                         Use existing pileups if available, otherwise they will
                         be generated
-                        
   --use_existing_scores
                         Use existing scores files if available, otherwise they
                         will be generated
-  
-  --keep_interim_alignment                      
-                        Keep interim files (sam & unsorted bam), otherwise they 
-                        will be deleted after sorted bam is created
-                        
+  --keep_interim_alignment
+                        Keep interim files (sam & unsorted bam), otherwise
+                        they will be deleted after sorted bam is created
   --prev_output PREV_OUTPUT [PREV_OUTPUT ...]
                         SRST2 results files to compile (any new results from
                         this run will also be incorporated)
@@ -409,7 +387,7 @@ In addition to MLST, srst2 can do gene/allele detection. This works by mapping r
 
 If the input database contains different alelles of the same gene, srst2 can report just the best matching allele for that gene (much like with MLST we report the best matching allele for each locus in the scheme). This makes the output manageable, as you will get one column per gene/locus (e.g. blaCTX-M) which reports the specific allele that was called in each sample (e.g. blaCTX-M-15 in sample A, blaCTX-M-13 in sample B).
 
-We have provided some databases of resistance genes, plasmid genes and E. coli serotyping loci in /data, ready for use with SRST2. We recommend using /data/ARGannot.r1.fasta for detecting resistance genes, but you can also use /data/ResFinder.fasta (this is the same as /data/resistance.fasta in earlier distributions of srst2).
+We have provided some databases of resistance genes, plasmid genes and [E. coli serotyping loci](https://github.com/katholt/srst2#using-the-ecoh-database-for-serotyping-e-coli-with-srst2) in /data, ready for use with SRST2. We recommend using /data/ARGannot.r1.fasta for detecting resistance genes, but you can also use /data/ResFinder.fasta (this is the same as /data/resistance.fasta in earlier distributions of srst2).
 
 You can however format any sequence set for screening with srst2. [See instructions below](https://github.com/katholt/srst2#generating-srst2-compatible-clustered-database-from-raw-sequences).
 
