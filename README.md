@@ -65,7 +65,7 @@ Contents
 
 [Example - Shigella sonnei public data](example.txt)
 
-Current release - v0.1.5 - December 29, 2014
+Current release - v0.1.6 - November 20, 2015
 -----
 
 Dependencies:
@@ -81,7 +81,7 @@ Dependencies:
 
 -----------
 
-Updates to current code (will be in v0.1.6 release; last updated Nov 20, 2015)
+Updates in v0.1.6
 
 1. The original validation of SRST2 (see [paper](http://genomemedicine.com/content/6/11/90)) was performed with bowtie2 version 2.1.0 and samtools v0.1.18.
 - bowtie2: SRST2 has now been tested on the tutorial example and other test data sets using the latest versions of bowtie2, 2.2.3 and 2.2.4, which gave identical results to those obtained with bowtie2 v2.1.0. Therefore, the SRST2 code will now run if any of these versions of bowtie2 are available: 2.1.0, 2.2.3 or 2.2.4. 
