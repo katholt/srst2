@@ -81,9 +81,16 @@ Dependencies:
 
 Updates to current code (will be in v0.1.6 release)
 
-The original validation of SRST2 (see [paper](http://genomemedicine.com/content/6/11/90)) was performed with bowtie2 version 2.1.0 and samtools v0.1.18.
-- SRST2 has now been tested on the tutorial example and other test data sets using the latest versions of bowtie2, 2.2.3 and 2.2.4, which gave identical results to those obtained with bowtie2 v2.1.0. Therefore, the SRST2 code will now run if any of these versions of bowtie2 are available: 2.1.0, 2.2.3 or 2.2.4. 
-- SRST2 has now been tested on the Staph & Salmonella test data sets used in the paper, and will work with versions (tested up to v1.1). Note however that SRST2 still works best with [samtools v0.1.18](https://sourceforge.net/projects/samtools/files/samtools/0.1.18/), due to small changes in the mapping algorithms in later versions that result in some loss of reads at the ends of alleles. This has most impact at low read depths, however we do recommend using v0.1.18 for optimum results.
+1. The original validation of SRST2 (see [paper](http://genomemedicine.com/content/6/11/90)) was performed with bowtie2 version 2.1.0 and samtools v0.1.18.
+- bowtie2: SRST2 has now been tested on the tutorial example and other test data sets using the latest versions of bowtie2, 2.2.3 and 2.2.4, which gave identical results to those obtained with bowtie2 v2.1.0. Therefore, the SRST2 code will now run if any of these versions of bowtie2 are available: 2.1.0, 2.2.3 or 2.2.4. 
+- samtools: SRST2 has now been tested on the Staph & Salmonella test data sets used in the paper, and will work with newer samtools versions (tested up to v1.1). Note however that SRST2 still works best with [samtools v0.1.18](https://sourceforge.net/projects/samtools/files/samtools/0.1.18/), due to small changes in the mapping algorithms in later versions that result in some loss of reads at the ends of alleles. This has most impact at low read depths, however we do recommend using v0.1.18 for optimum results.
+2. Minor fixes to the ARG-Annot database of resistance genes, including removal of duplicate sequences and fixes to gene names (thanks to Wan Yu for this). Old version remains unchanged for backwards compatibility, but we recommend using the revised version (located in data/ARGannot.r1.fasta).
+3. Added EcOH database for serotyping E. coli (thanks to Danielle Ingle for this). See [Using the EcOH database for serotyping E. coli with SRST2](https://github.com/katholt/srst2#using-the-ecoh-database-for-serotyping-e-coli-with-srst2).
+4. Fixed a problem where, when analysing multiple read sets in one SRST2 call against a gene database in which cluster ids don't match gene symbols, individual gene clusters appear multiple times in the output. The compile function was unaffected and remains unchanged.
+5. Fixes contributed by ppcherng (thanks!): 
+- Fixed KeyErrors that occured when a given seqID was not found in the seq2cluster dictionary, which tended to happen if the FASTA file (gene database) contained empty entries that only have a header and no sequence.
+- Replace slashes with underscores in pileup filename
+- Note v0.1.5 included addition of ppcherng's utility scripts to help automate creation of SRST2-compatible gene databases from VFDB.
 
 -----------
 
@@ -95,6 +102,7 @@ Updates in v0.1.5
 4. Fixed an issue where, if multiple readsets analysed in serial in a srst2 run, the fullgenes report would only contain the results for the last readset. Fullgenes report now contains gene output for all readsets.
 5. Added option (--merge_paired) to accommodate cases where users have multiple read sets for the same sample. If this flag is used, SRST2 will assume that all the input reads belong to the same sample, and outputs will be named as [prefix]\_\_combined.xxx, where srst2 was run using "-output [prefix]". If the flag is not used, SRST2 will operate as usual and assume that each read pair is a new sample, with output files named as [prefix]\_\_[sample].xxx, where [sample] is taken from the base name of the reads fastq files. Note that if you have lots of multi-run read sets to analyse, the ease of job submission will depend heavily on how your files are named and you will need to figure out your own approach to manage this (ie there is no way to submit multiple sets of multiple reads).
 6. The original validation of SRST2 (see [paper](http://genomemedicine.com/content/6/11/90)) was performed with bowtie2 version 2.1.0. SRST2 has now been tested on the tutorial example using the latest versions of bowtie2, 2.2.3 and 2.2.4, which gave identical results to those obtained with bowtie2 v2.1.0. Therefore, the SRST2 code will now run if any of these versions of bowtie2 are available: 2.1.0, 2.2.3 or 2.2.4. (Note however that there are still incompatibilities with the recent release of samtools, so you will need to stick to [samtools v0.1.18](https://sourceforge.net/projects/samtools/files/samtools/0.1.18/) unless you want to modify the SRST2 code to allow later versions, and are happy with a dramatic loss in accuracy!)
+7. Thanks to ppcherng for adding utility scripts to help automate creation of SRST2-compatible gene databases from VFDB.
 
 -----------
 
@@ -116,7 +124,7 @@ Note that all compiled reports will now include a maxMAF column; if you provide 
 4. Added R code for plotting SRST2 output in R (plotSRST2data.R).
 Instructions will be added to the read me.
 
-5. Added formatted versions of the ARG-Annot resistance gene database, PlasmidFinder database and 18 plasmid replicon sequences to the /data directory. See /data/README.md for details and citations. It is recommended to use ARGannot.fasta for detection of acquired resistance genes.
+5. Added formatted versions of the ARG-Annot resistance gene database, PlasmidFinder database and 18 plasmid replicon sequences to the /data directory. See /data/README.md for details and citations. It is recommended to use ARGannot.r1.fasta for detection of acquired resistance genes.
 
 -----------
  
@@ -214,7 +222,7 @@ Basic usage - Resistance genes
 
 (i) sequence reads (this example uses paired reads in gzipped fastq format, see below for options)
 
-(ii) a fasta sequence database to match to. For resistance genes, this means a fasta file of all the resistance genes/alleles that you want to screen for, clustered into gene groups. Some suitable databases are distributed with SRST2 (in the /data directory); we recommend using /data/ARGannot.fasta for acquired resistance genes.
+(ii) a fasta sequence database to match to. For resistance genes, this means a fasta file of all the resistance genes/alleles that you want to screen for, clustered into gene groups. Some suitable databases are distributed with SRST2 (in the /data directory); we recommend using /data/ARGannot.r1.fasta for acquired resistance genes.
 
 2 - Run gene detection:
 
