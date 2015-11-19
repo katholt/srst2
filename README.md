@@ -820,23 +820,34 @@ H types are represented by alleles of fliC or flnA flagellin genes (one allele p
 
     srst2 --input_pe strainA_1.fastq.gz strainA_2.fastq.gz --output strainA_serotypes --log --gene_db EcOH.fasta
 
-#### Example output
+#### Example
+
+Note these reads sets are each ~100 MB each, so you need to download 400 MB of test data to run this example
+
+```
+wget ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR178/ERR178148/ERR178148_1.fastq.gz
+wget ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR178/ERR178148/ERR178148_2.fastq.gz
+wget ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR178/ERR178156/ERR178156_1.fastq.gz
+wget ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR178/ERR178156/ERR178156_2.fastq.gz
+
+srst2 --input_pe ERR178156*.fastq.gz ERR124656*.fastq.gz --output serotypes --log --gene_db EcOH.fasta
+```
 
 Results will be output in: "[prefix]__genes__EcOH__results.txt"
 
-Output from the above example would appear in: "strainA_serotypes__genes__EcOH__results.txt"
+Output from the above example would appear in: "serotypes__genes__EcOH__results.txt"
 
 ```
-Sample	fliC	flnA	wzm	wzt	wzx	wzy
-strain A	fliC-H7_64	-	-	-	wzx-O55_283	wzy-O55_506
-strain B	fliC-H33_34	-	wzm-O101_86	wzt-O101_99	-	-
+Sample  	fliC    	wzm     	wzt		wzx     	wzy
+ERR178148       fliC-H31_32*    -       	-       	wzx-O131_165*   wzy-O131_386
+ERR178156       fliC-H33_34     wzm-O9_93*      wzt-O9_107*     -       	-
 ```
 
 #### Interpretation
 
-Strain A has matching wzx and wzy hits for O55, and fliC allele H7, thus the predicted serotype is O55:H7. 
+ERR178148 has matching wzx and wzy hits for O131, and fliC allele H31, thus the predicted serotype is O131:H31. 
 
-Strain B has matching wzm and wzt hits for O101 and fliC allele H33, thus the predicted serotype is O101:H33. 
+ERR178156 has matching wzm and wzt hits for O9 and fliC allele H33, thus the predicted serotype is O9:H33. 
 
 Note that each O antigen type is associated with loci containing EITHER wzx and wzy, OR wzm and wzt genes.
 
