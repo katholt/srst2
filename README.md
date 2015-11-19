@@ -61,7 +61,7 @@ Contents
 
 * [Using the EcOH database for serotyping E. coli with SRST2](https://github.com/katholt/srst2#using-the-ecoh-database-for-serotyping-e-coli-with-srst2)
 
-[Plotting output in R](https://github.com/katholt/srst2#plotting-outut-in-r)
+[Plotting output in R](https://github.com/katholt/srst2#plotting-output-in-r)
 
 [Example - Shigella sonnei public data](example.txt)
 
@@ -81,7 +81,7 @@ Dependencies:
 
 -----------
 
-Updates to current code (will be in v0.1.6 release)
+Updates to current code (will be in v0.1.6 release; last updated Nov 20, 2015)
 
 1. The original validation of SRST2 (see [paper](http://genomemedicine.com/content/6/11/90)) was performed with bowtie2 version 2.1.0 and samtools v0.1.18.
 - bowtie2: SRST2 has now been tested on the tutorial example and other test data sets using the latest versions of bowtie2, 2.2.3 and 2.2.4, which gave identical results to those obtained with bowtie2 v2.1.0. Therefore, the SRST2 code will now run if any of these versions of bowtie2 are available: 2.1.0, 2.2.3 or 2.2.4. 
@@ -96,7 +96,7 @@ Updates to current code (will be in v0.1.6 release)
 - Note v0.1.5 included addition of ppcherng's utility scripts to help automate creation of SRST2-compatible gene databases from VFDB.
 8. Added new parameter '--samtools_args' to pass additional options to samtools mpileup (e.g. SionBayliss requested this in order to use '-A' option in samtools mpileup to include anomalous reads).
 9. Fixed problem with consensus sequence reporting of truncated alleles (issue #39).
-10. Added basic instructions for the R scripts provided for plotting output. See [Plotting output in R](https://github.com/katholt/srst2#plotting-outut-in-r)
+10. Added basic instructions for the R scripts provided for plotting output. See [Plotting output in R](https://github.com/katholt/srst2#plotting-output-in-r)
 
 -----------
 
@@ -860,7 +860,7 @@ source("srst2/scripts/plotSRST2data.R")
 1. EXAMPLE FROM FIGURE 8A (http://www.genomemedicine.com/content/6/11/90/figure/F8): viewing resistance genes in individual strains that have been analysed for MLST + resistance genes
 
 # read in a compiled MLST + genes table output by SRST2
-Ef_JAMA<-read.delim("srst2/EfaeciumJAMA__compiledResults.txt", stringsAsFactors = F)
+Ef_JAMA<-read.delim("srst2/data/EfaeciumJAMA__compiledResults.txt", stringsAsFactors = F)
 
 # Check column names. Sample names are in column 1 (strain_names=1 in the function call below), MLST data is in columns 2 to 9 (mlst_columns = 2:9), while gene presence/absence information is recorded in columns 13 to 31 (gene_columns = 13:31). 
 
@@ -880,7 +880,7 @@ geneContentPlot(m=Ef_JAMA, mlst_columns = 2:9, gene_columns = 13:31, strain_name
 2. EXAMPLE FROM FIGURE 7C (http://www.genomemedicine.com/content/6/11/90/figure/F7): viewing summaries of resistance genes by ST, in a set of isolates that have been analysed for MLST + resistance genes
 
 # read in a compiled MLST + genes table output by SRST2
-Ef_Howden<-read.delim("srst2/EfaeciumHowden__compiledResults.txt", stringsAsFactors = F)
+Ef_Howden<-read.delim("srst2/data/EfaeciumHowden__compiledResults.txt", stringsAsFactors = F)
 
 # Make a tree of STs based on the MLST alleles and plot this; Group isolates by ST and calculate the number of strains in each ST that contain each resistance gene;  plot these counts as a heatmap. Note that barplots of the number of strains in each ST are also plotted to the right.
 geneSTplot(d,mlst_columns=8:15,gene_columns=17:59,plot_type="count",cluster=T)
