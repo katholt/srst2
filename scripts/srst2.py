@@ -85,11 +85,12 @@ def parse_args():
 
 	# Mapping parameters for bowtie2
 	parser.add_argument('--stop_after', type=str, required=False, help='Stop mapping after this number of reads have been mapped (otherwise map all)') 
-	parser.add_argument('--other', type=str, help='Other arguments to pass to bowtie2.', required=False) 
+	parser.add_argument('--other', type=str, help='Other arguments to pass to bowtie2 (must be escaped, e.g. "\--no-mixed".', required=False) 
 
 	# Samtools parameters
 	parser.add_argument('--mapq', type=int, default=1, help='Samtools -q parameter (default 1)')
 	parser.add_argument('--baseq', type=int, default=20, help='Samtools -Q parameter (default 20)')
+	parser.add_argument('--samtools_args', type=str, help='Other arguments to pass to samtools mpileup (must be escaped, e.g. "\-A").', required=False) 
 	
 	# Reporting options
 	parser.add_argument('--output', type=str, required=True, help='Prefix for srst2 output files')
@@ -202,7 +203,8 @@ def parse_fai(fai_file,db_type,delimiter):
 						gene_cluster_symbols[gene_cluster] = cluster_symbol
 				else:
 					# treat as unclustered database, use whole header
-					gene_cluster = cluster_symbol = name
+					gene_cluster = cluster_symbol = name.split()[0] # no spaces allowed
+					gene_cluster_symbols[gene_cluster] = cluster_symbol
 			else:
 				gene_cluster = name.split(delimiter)[0] # accept gene clusters raw for mlst
 				# check if the delimiter makes sense
@@ -590,7 +592,9 @@ def run_bowtie(mapping_files_pre,sample_name,fastqs,args,db_name,db_full_path):
 			print "WARNING. You asked to stop after mapping '" + args.stop_after + "' reads. I don't understand this, and will map all reads. Please speficy an integer with --stop_after or leave this as default to map 1 million reads."
 
 	if args.other:
-		command += args.other.split()
+		x = args.other
+		x = x.replace('\\','')
+		command += x.split()
 
 	logging.info('Aligning reads to index {} using bowtie2...'.format(db_full_path))
 	
@@ -619,9 +623,13 @@ def get_pileup(args,mapping_files_pre,raw_bowtie_sam,bowtie_sam_mod,fasta,pileup
 		
 	logging.info('Generate pileup...')
 	with open(pileup_file, 'w') as sam_pileup:
-		run_command(['samtools', 'mpileup', '-L', '1000', '-f', fasta,
-					 '-Q', str(args.baseq), '-q', str(args.mapq), '-B', out_file_bam_sorted + '.bam'],
-					 stdout=sam_pileup)
+		mpileup_command = ['samtools', 'mpileup', '-L', '1000', '-f', fasta,
+					 '-Q', str(args.baseq), '-q', str(args.mapq), '-B', out_file_bam_sorted + '.bam']
+		if args.samtools_args:
+			x = args.samtools_args
+			x = x.replace('\\','')
+			mpileup_command += x.split()
+		run_command(mpileup_command, stdout=sam_pileup)
 
 def calculate_ST(allele_scores, ST_db, gene_names, sample_name, mlst_delimiter, avg_depth_allele, mix_rates):
 	allele_numbers = [] # clean allele calls for determing ST. order is taken from gene names, as in ST definitions file
@@ -741,13 +749,13 @@ def get_allele_name_from_db(allele,unique_allele_symbols,unique_cluster_symbols,
 		allele_detail = allele_parts.pop(0)
 		allele_info = allele_detail.split("__")
 
-		if len(allele_info)>2:
+		if len(allele_info)>3:
 			cluster_id = allele_info[0] # ID number for the cluster
 			gene_name = allele_info[1] # gene name/symbol for the cluster
 			allele_name = allele_info[2] # specific allele name
 			seqid = allele_info[3] # unique identifier for this seq
 		else:
-			cluster_id = gene_name = allele_name = seqid = allele_parts[0]
+			cluster_id = gene_name = allele_name = seqid = allele
 	
 		if not unique_allele_symbols:	
 			allele_name += "_" + seqid
@@ -761,8 +769,9 @@ def get_allele_name_from_db(allele,unique_allele_symbols,unique_cluster_symbols,
 	return gene_name, allele_name, cluster_id, seqid
 
 def create_allele_pileup(allele_name, all_pileup_file):
-	outpileup = allele_name + "." + all_pileup_file
-	outpileup = outpileup.replace("/", "_")
+	all_pileup_file_name = os.path.basename(all_pileup_file)
+	all_pileup_file_dir = os.path.dirname(all_pileup_file)
+	outpileup = all_pileup_file_dir + '/' + allele_name + "." + all_pileup_file_name
 	with open(outpileup, 'w') as allele_pileup:
 		with open(all_pileup_file) as all_pileup:
 			for line in all_pileup:
@@ -846,6 +855,7 @@ def parse_scores(run_type,args,scores, hash_edge_depth,
 							truncation_override = True
 			if truncation_override:
 				results[gene] = (next_best_allele, "trun", "", divergence) # no diffs but report this call is based on truncation test
+				final_allele_reported = next_best_allele
 			else:
 				results[gene] = (top_allele, "", "",divergence) # no caveats to report
 
@@ -857,11 +867,11 @@ def parse_scores(run_type,args,scores, hash_edge_depth,
 			# Get the consensus for this new allele and write it to file
 			if args.report_new_consensus or args.report_all_consensus:
 				new_alleles_filename = args.output + ".new_consensus_alleles.fasta" 
-				allele_pileup_file = create_allele_pileup(top_allele, pileup_file) # XXX Creates a new pileup file for that allele. Not currently cleaned up
+				allele_pileup_file = create_allele_pileup(results[gene][0], pileup_file)
 				read_pileup_data(allele_pileup_file, size_allele, args.prob_err, consensus_file = new_alleles_filename)
 		if args.report_all_consensus:
 			new_alleles_filename = args.output + ".all_consensus_alleles.fasta"
-			allele_pileup_file = create_allele_pileup(top_allele, pileup_file)
+			allele_pileup_file = create_allele_pileup(results[gene][0], pileup_file)
 			read_pileup_data(allele_pileup_file, size_allele, args.prob_err, consensus_file = new_alleles_filename)
 
 	return results # (allele, diffs, depth_problem, divergence)
@@ -1327,9 +1337,9 @@ def map_fileSet_to_db(args,sample_name,fastq_inputs,db_name,fasta,size,gene_name
 				if diffs != "":
 					results[sample_name][column_header] += "*"
 				if depth_problem != "":
-					results[sample_name][column_header] += "?"					
-				if gene not in gene_list:
-					gene_list.append(column_header)				
+					results[sample_name][column_header] += "?"	
+				if column_header not in gene_list:
+					gene_list.append(column_header)
 				
 			# write details to full genes report
 			if args.no_gene_details:
@@ -1436,8 +1446,13 @@ def compile_results(args,mlst_results,db_results,compiled_output_file):
 		# print mlst if provided, otherwise just print sample name
 		if len(mlst_results_master) > 0:
 			if sample in mlst_results_master:
-				sample_info.append(mlst_results_master[sample])
-				this_st = mlst_results_master[sample].split("\t")[1]
+				st_data_split = mlst_results_master[sample].split("\t")
+				if len(st_data_split) > 1:
+					this_st = st_data_split[1]
+					sample_info.append(mlst_results_master[sample])
+				else:
+					sample_info.append(sample+blank_mlst_section)
+					this_st = "unknown" # something wrong with the string
 			else:
 				sample_info.append(sample+blank_mlst_section)
 				this_st = "unknown"
@@ -1479,6 +1494,18 @@ def compile_results(args,mlst_results,db_results,compiled_output_file):
 
 def main():
 	args = parse_args()
+
+	# Check output directory
+	output_components = args.output.split("/")	
+	if len(output_components) > 1:
+		output_dir = "/".join(output_components[:-1])
+		if not os.path.exists(output_dir):
+			try:
+				os.makedirs(output_dir)
+				print "Created directory " + output_dir + " for output"
+			except:
+				print "Error. Specified output as " + args.output + " however the directory " + output_dir + " does not exist and our attempt to create one failed."
+
 	if args.log is True:
 		logfile = args.output + ".log"
 	else:
@@ -1492,7 +1519,7 @@ def main():
 	logging.info('program started')
 	logging.info('command line: {0}'.format(' '.join(sys.argv)))
 
-	# Delete consensus file if it already exists (so can use append file in funtions)
+	# Delete consensus file if it already exists (so can use append file in functions)
 	if args.report_new_consensus or args.report_all_consensus:
 		new_alleles_filename = args.output + ".consensus_alleles.fasta" 
 		if os.path.exists(new_alleles_filename):
