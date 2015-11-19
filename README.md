@@ -87,7 +87,7 @@ Updates in v0.1.6
 - bowtie2: SRST2 has now been tested on the tutorial example and other test data sets using the latest versions of bowtie2, 2.2.3 and 2.2.4, which gave identical results to those obtained with bowtie2 v2.1.0. Therefore, the SRST2 code will now run if any of these versions of bowtie2 are available: 2.1.0, 2.2.3 or 2.2.4. 
 - samtools: SRST2 has now been tested on the Staph & Salmonella test data sets used in the paper, and will work with newer samtools versions (tested up to v1.1). Note however that SRST2 still works best with [samtools v0.1.18](https://sourceforge.net/projects/samtools/files/samtools/0.1.18/), due to small changes in the mapping algorithms in later versions that result in some loss of reads at the ends of alleles. This has most impact at low read depths, however we do recommend using v0.1.18 for optimum results.
 2. Minor fixes to the ARG-Annot database of resistance genes, including removal of duplicate sequences and fixes to gene names (thanks to Wan Yu for this). Old version remains unchanged for backwards compatibility, but we recommend using the revised version (located in data/ARGannot.r1.fasta).
-3. Added EcOH database for serotyping E. coli (thanks to Danielle Ingle for this). See [Using the EcOH database for serotyping E. coli with SRST2](https://github.com/katholt/srst2#using-the-ecoh-database-for-serotyping-e-coli-with-srst2).
+3. Added EcOH database for serotyping E. coli (thanks to Danielle Ingle for this). See [Using the EcOH database for serotyping E. coli with SRST2](https://github.com/katholt/srst2#using-the-ecoh-database-for-serotyping-e-coli-with-srst2) and [this BioRxiv paper](http://biorxiv.org/content/early/2015/11/18/032151).
 4. Fixed a problem where, when analysing multiple read sets in one SRST2 call against a gene database in which cluster ids don't match gene symbols, individual gene clusters appear multiple times in the output. The compile function was unaffected and remains unchanged.
 5. Fixed behaviour so that including directory paths in --output parameter works (thanks to nyunyun for contributing most of this fix). E.g. --output test_dir/test will create output files prefixed with 'test', located in test_dir/, and all SRST2 functions should work correctly including consensus allele calling. If test_dir/ doesn't exist, we attempt to create it; if this is not possible the user is alerted and SRST2 stops.
 6. Fixed problem when using a gene database with a simple fasta header (ie not clustered for SRST2; note best results are achieved by pre-clusering your sequence database beforehand) (thanks to cglambert for this one).
@@ -801,6 +801,8 @@ or, to get all availabel genera in separate files:
 The output file, Clostridium_VF_clustered.fasta, should now be ready to use with srst2 (--gene_db Clostridium_VF_clustered.fasta).
 
 ### Using the EcOH database for serotyping E. coli with SRST2
+
+Details can be found in [this BioRxiv paper](http://biorxiv.org/content/early/2015/11/18/032151).
 
 The EcOH database includes genes for identifying O and H types in E. coli, see /data/EcOH.fasta
 
