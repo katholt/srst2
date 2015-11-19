@@ -61,6 +61,8 @@ Contents
 
 * [Using the EcOH database for serotyping E. coli with SRST2](https://github.com/katholt/srst2#using-the-ecoh-database-for-serotyping-e-coli-with-srst2)
 
+[Plotting output in R](https://github.com/katholt/srst2#plotting-outut-in-r)
+
 [Example - Shigella sonnei public data](example.txt)
 
 Current release - v0.1.5 - December 29, 2014
@@ -87,10 +89,14 @@ Updates to current code (will be in v0.1.6 release)
 2. Minor fixes to the ARG-Annot database of resistance genes, including removal of duplicate sequences and fixes to gene names (thanks to Wan Yu for this). Old version remains unchanged for backwards compatibility, but we recommend using the revised version (located in data/ARGannot.r1.fasta).
 3. Added EcOH database for serotyping E. coli (thanks to Danielle Ingle for this). See [Using the EcOH database for serotyping E. coli with SRST2](https://github.com/katholt/srst2#using-the-ecoh-database-for-serotyping-e-coli-with-srst2).
 4. Fixed a problem where, when analysing multiple read sets in one SRST2 call against a gene database in which cluster ids don't match gene symbols, individual gene clusters appear multiple times in the output. The compile function was unaffected and remains unchanged.
-5. Fixes contributed by ppcherng (thanks!): 
+5. Fixed behaviour so that including directory paths in --output parameter works (thanks to nyunyun for contributing most of this fix). E.g. --output test_dir/test will create output files prefixed with 'test', located in test_dir/, and all SRST2 functions should work correctly including consensus allele calling. If test_dir/ doesn't exist, we attempt to create it; if this is not possible the user is alerted and SRST2 stops.
+6. Fixed problem when using a gene database with a simple fasta header (ie not clustered for SRST2; note best results are achieved by pre-clusering your sequence database beforehand) (thanks to cglambert for this one).
+7. Fixes contributed by ppcherng (thanks!): 
 - Fixed KeyErrors that occured when a given seqID was not found in the seq2cluster dictionary, which tended to happen if the FASTA file (gene database) contained empty entries that only have a header and no sequence.
-- Replace slashes with underscores in pileup filename
 - Note v0.1.5 included addition of ppcherng's utility scripts to help automate creation of SRST2-compatible gene databases from VFDB.
+8. Added new parameter '--samtools_args' to pass additional options to samtools mpileup (e.g. SionBayliss requested this in order to use '-A' option in samtools mpileup to include anomalous reads).
+9. Fixed problem with consensus sequence reporting of truncated alleles (issue #39).
+10. Added basic instructions for the R scripts provided for plotting output. See [Plotting output in R](https://github.com/katholt/srst2#plotting-outut-in-r)
 
 -----------
 
@@ -860,3 +866,53 @@ ERR178156 has matching wzm and wzt hits for O9 and fliC allele H33, thus the pre
 Note that each O antigen type is associated with loci containing EITHER wzx and wzy, OR wzm and wzt genes.
 
 No alleles for flnA were detected in these strains, indicating they are not phase variable for flagellin.
+
+### Plotting output in R
+
+Some R functions are provided in scripts/plotSRST2data.R for plotting SRST2 output to produce images like those in the paper (e.g. Figure 8: http://www.genomemedicine.com/content/6/11/90/figure/F8)
+
+These functions require the 'ape' package to be installed.
+
+Example usage:
+
+```
+# load the functions in R
+source("srst2/scripts/plotSRST2data.R")
+
+1. EXAMPLE FROM FIGURE 8A (http://www.genomemedicine.com/content/6/11/90/figure/F8): viewing resistance genes in individual strains that have been analysed for MLST + resistance genes
+
+# read in a compiled MLST + genes table output by SRST2
+Ef_JAMA<-read.delim("srst2/EfaeciumJAMA__compiledResults.txt", stringsAsFactors = F)
+
+# Check column names. Sample names are in column 1 (strain_names=1 in the function call below), MLST data is in columns 2 to 9 (mlst_columns = 2:9), while gene presence/absence information is recorded in columns 13 to 31 (gene_columns = 13:31). 
+
+colnames(Ef_JAMA)
+ [1] "Sample"         "ST"             "AtpA"           "Ddl"            "Gdh"            "PurK"          
+ [7] "Gyd"            "PstS"           "Adk"            "mismatches"     "uncertainty"    "depth"         
+[13] "Aac6.Aph2_AGly" "Aac6.Ii_AGly"   "Ant6.Ia_AGly"   "Aph3.III_AGly"  "Dfr_Tmt"        "ErmB_MLS"      
+[19] "ErmC_MLS"       "MsrC_MLS"       "Sat4A_AGly"     "TetL_Tet"       "TetM_Tet"       "TetU_Tet"      
+[25] "VanA_Gly"       "VanH.Pt_Gly"    "VanR.A_Gly"     "VanS.A_Gly"     "VanX.M_Gly"     "VanY.A_Gly"    
+[31] "VanZ.A_Gly"    
+
+# Make a tree based on the MLST loci, and plot gene content as a matrix. 
+# cluster=T turns on hierarchical clustering of the columns (=genes); labelHeight, infoWidth and treeWidth control the relative dimensions of the plotting areas available for the tree, printed MLST information, and gene labels.
+
+geneContentPlot(m=Ef_JAMA, mlst_columns = 2:9, gene_columns = 13:31, strain_names=1, cluster=T, labelHeight=40, infoWidth=15, treeWidth=5)
+
+2. EXAMPLE FROM FIGURE 7C (http://www.genomemedicine.com/content/6/11/90/figure/F7): viewing summaries of resistance genes by ST, in a set of isolates that have been analysed for MLST + resistance genes
+
+# read in a compiled MLST + genes table output by SRST2
+Ef_Howden<-read.delim("srst2/EfaeciumHowden__compiledResults.txt", stringsAsFactors = F)
+
+# Make a tree of STs based on the MLST alleles and plot this; Group isolates by ST and calculate the number of strains in each ST that contain each resistance gene;  plot these counts as a heatmap. Note that barplots of the number of strains in each ST are also plotted to the right.
+geneSTplot(d,mlst_columns=8:15,gene_columns=17:59,plot_type="count",cluster=T)
+
+# Same as above but plot the rate of detection of each gene within each ST, not the raw counts
+geneSTplot(d,mlst_columns=8:15,gene_columns=17:59,plot_type="rate",cluster=T)
+
+# To suppress SNPs, i.e. collapse ST1 and ST1* into a single group for summarisation at the clonal complex level, set suppressSNPs=T.
+
+# To suppress uncertainty due to low depth, i.e. collapse ST1 and ST1? into a single group for summarisation at the clonal complex level, set suppressUncertainty=T.
+```
+
+Note, heatmap colours can be set via the 'matrix.colours' parameter in both of these functions. The default value is matrix.colours=colorRampPalette(c("white","yellow","blue"),space="rgb")(100), i.e. white=0% gene frequency, yellow = 50% and blue = 100%.
