@@ -65,7 +65,7 @@ Contents
 
 [Example - Shigella sonnei public data](example.txt)
 
-Current release - v0.1.6 - November 20, 2015
+Current release - v0.1.7 - December 22, 2015
 -----
 
 Dependencies:
@@ -78,6 +78,14 @@ Dependencies:
 
 - SAMtools v0.1.18   https://sourceforge.net/projects/samtools/files/samtools/0.1.18/ (NOTE later versions can be used, but better results are obtained with v0.1.18 especially at low read depths (<20x))
 
+-----------
+
+Updates in v0.1.7
+
+1. Use the following environment variables to specify your prefered samtools and bowtie2 executables:
+- SRST2_SAMTOOLS
+- SRST2_BOWTIE2
+- SRST2_BOWTIE2_BUILD
 
 -----------
 
@@ -156,6 +164,17 @@ Installation
 - bowtie2 v2.1.0 http://bowtie-bio.sourceforge.net/bowtie2/index.shtml
 
 - SAMtools v0.1.18 https://sourceforge.net/projects/samtools/files/samtools/0.1.18/ (NOTE 0.1.19 DOES NOT WORK)
+
+N.B. If you have multiple versions of samtools or bowtie2 installed, you can pick which one srst2 or slurm_srst2 should use by
+setting the following environment variables.
+
+- SRST2_SAMTOOLS
+- SRST2_BOWTIE2
+- SRST2_BOWTIE2_BUILD
+
+If these aren't set or are missing, they will default to looking in your `PATH` for 'samtools', 'bowtie2' and 'bowtie2-build'.
+The exception is SRST2_BOWTIE2_BUILD which, if it is not set or missing, will try adding '-build' to SRST2_BOWTIE2 if it
+exists, otherwise it defaults to looking in your `PATH`
 
 
 2 - Get and install the code
