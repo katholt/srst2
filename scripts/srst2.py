@@ -138,8 +138,9 @@ def bowtie_index(fasta_files):
 	'Build a bowtie2 index from the given input fasta(s)'
 
 	# check that bowtie has the right version
+	bowtie_exec, bowtie_build_exec = get_bowtie_execs()
 
-	check_command_versions(['bowtie2', '--version'],
+	check_command_versions([bowtie_exec, '--version'],
 				['bowtie2-align version 2.1.0','bowtie2-align-s version 2.2.3','bowtie2-align-s version 2.2.4'],
 				'bowtie',
 				['2.1.0','2.2.3','2.2.4'])
@@ -150,7 +151,7 @@ def bowtie_index(fasta_files):
 			logging.info('Index for {} is already built...'.format(fasta))
 		else:
 			logging.info('Building bowtie2 index for {}...'.format(fasta))
-			run_command(['bowtie2-build', fasta, fasta])
+			run_command([bowtie_build_exec, fasta, fasta])
 
 
 def modify_bowtie_sam(raw_bowtie_sam,max_mismatch):
@@ -548,24 +549,48 @@ def check_command_versions(command_list, version_identifiers, command_name, requ
 		logging.error("{} versions compatible with SRST2 are ".format(command_name) + ", ".join(required_versions))
 		exit(-1)
 
+def get_bowtie_execs():
+	'Return the "best" bowtie2 executables'
+
+	exec_from_environment = os.environ.get('SRST2_BOWTIE2')
+	if exec_from_environment and os.path.isfile(exec_from_environment):
+		bowtie2_exec = exec_from_environment
+	else:
+		bowtie2_exec = None
+
+	exec_from_environment = os.environ.get('SRST2_BOWTIE2_BUILD')
+	if exec_from_environment and os.path.isfile(exec_from_environment):
+		bowtie2_build_exec = exec_from_environment
+	elif bowtie2_exec and os.path.isfile(bowtie2_exec+'-build'):
+		bowtie2_build_exec = bowtie2_exec+'-build'
+	else:
+		bowtie2_build_exec = 'bowtie2-build'
+
+	if bowtie2_exec is None:
+		bowtie2_exec = 'bowtie2'
+
+	return (bowtie2_exec, bowtie2_build_exec)
 
 def run_bowtie(mapping_files_pre,sample_name,fastqs,args,db_name,db_full_path):
 
-	print "Starting mapping with bowtie2"
+	logging.info("Starting mapping with bowtie2")
+
+	bowtie_exec, bowtie_build_exec = get_bowtie_execs()
+	samtools_exec = get_samtools_exec()
 	
 	# check that both bowtie and samtools have the right versions
-	check_command_versions(['bowtie2', '--version'],
+	check_command_versions([bowtie_exec, '--version'],
 				['bowtie2-align version 2.1.0','bowtie2-align-s version 2.2.3','bowtie2-align-s version 2.2.4'],
 				'bowtie',
 				['2.1.0','2.2.3','2.2.4'])
 
 
-	check_command_versions(['samtools'],
+	check_command_versions([samtools_exec],
 				['Version: 0.1.18','Version: 0.1.19','Version: 1.0','Version: 1.1'],
 				'samtools',
 				['0.1.18','0.1.19','1.0','1.1','(0.1.18 is recommended)'])
 
-	command = ['bowtie2']
+	command = [bowtie_exec]
 
 	if len(fastqs)==1:
 		# single end
@@ -602,15 +627,25 @@ def run_bowtie(mapping_files_pre,sample_name,fastqs,args,db_name,db_full_path):
 	
 	return(sam)
 	
+def get_samtools_exec():
+	'Return the "best" samtools executable'
+
+	exec_from_environment = os.environ.get('SRST2_SAMTOOLS')
+	if exec_from_environment and os.path.isfile(exec_from_environment):
+		return exec_from_environment
+	else:
+		return 'samtools'
+
 def get_pileup(args,mapping_files_pre,raw_bowtie_sam,bowtie_sam_mod,fasta,pileup_file):
 	# Analyse output with SAMtools
+	samtools_exec = get_samtools_exec()
 	logging.info('Processing Bowtie2 output with SAMtools...')
 	logging.info('Generate and sort BAM file...')
 	out_file_bam = mapping_files_pre + ".unsorted.bam"
-	run_command(['samtools', 'view', '-b', '-o', out_file_bam,
+	run_command([samtools_exec, 'view', '-b', '-o', out_file_bam,
 				 '-q', str(args.mapq), '-S', bowtie_sam_mod])
 	out_file_bam_sorted = mapping_files_pre + ".sorted"
-	run_command(['samtools', 'sort', out_file_bam, out_file_bam_sorted])
+	run_command([samtools_exec, 'sort', out_file_bam, out_file_bam_sorted])
 
 	# Delete interim files (sam, modified sam, unsorted bam) unless otherwise specified.
 	# Note users may also want to delete final sorted bam and pileup on completion to save space.
@@ -623,7 +658,7 @@ def get_pileup(args,mapping_files_pre,raw_bowtie_sam,bowtie_sam_mod,fasta,pileup
 		
 	logging.info('Generate pileup...')
 	with open(pileup_file, 'w') as sam_pileup:
-		mpileup_command = ['samtools', 'mpileup', '-L', '1000', '-f', fasta,
+		mpileup_command = [samtools_exec, 'mpileup', '-L', '1000', '-f', fasta,
 					 '-Q', str(args.baseq), '-q', str(args.mapq), '-B', out_file_bam_sorted + '.bam']
 		if args.samtools_args:
 			x = args.samtools_args
@@ -1115,13 +1150,14 @@ def run_srst2(args, fileSets, dbs, run_type):
 	return db_reports, db_results_list
 
 def samtools_index(fasta_file):
-	check_command_versions(['samtools'],
+	samtools_exec = get_samtools_exec()
+	check_command_versions([samtools_exec],
 				['Version: 0.1.18','Version: 0.1.19','Version: 1.0','Version: 1.1'],
 				'samtools',
 				['0.1.18','0.1.19','1.0','1.1','(0.1.18 is recommended)'])
 	fai_file = fasta_file + '.fai'
 	if not os.path.exists(fai_file):
-		run_command(['samtools', 'faidx', fasta_file])
+		run_command([samtools_exec, 'faidx', fasta_file])
 	return fai_file
 
 def process_fasta_db(args, fileSets, run_type, db_reports, db_results_list, fasta):
