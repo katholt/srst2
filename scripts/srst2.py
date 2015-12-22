@@ -1114,12 +1114,17 @@ def run_srst2(args, fileSets, dbs, run_type):
 
 	return db_reports, db_results_list
 
-def process_fasta_db(args, fileSets, run_type, db_reports, db_results_list, fasta):
-
+def samtools_index(fasta_file):
 	check_command_versions(['samtools'],
 				['Version: 0.1.18','Version: 0.1.19','Version: 1.0','Version: 1.1'],
 				'samtools',
 				['0.1.18','0.1.19','1.0','1.1','(0.1.18 is recommended)'])
+	fai_file = fasta_file + '.fai'
+	if not os.path.exists(fai_file):
+		run_command(['samtools', 'faidx', fasta_file])
+	return fai_file
+
+def process_fasta_db(args, fileSets, run_type, db_reports, db_results_list, fasta):
 
 	logging.info('Processing database ' + fasta)
 
@@ -1132,9 +1137,7 @@ def process_fasta_db(args, fileSets, run_type, db_reports, db_results_list, fast
 	# Get sequence lengths and gene names
 	#  lengths are needed for MLST heuristic to distinguish alleles from their truncated forms
 	#  gene names read from here are needed for non-MLST dbs
-	fai_file = fasta + '.fai'
-	if not os.path.exists(fai_file):
-		run_command(['samtools', 'faidx', fasta])
+	fai_file = samtools_index(fasta)
 	size, gene_names, unique_gene_symbols, unique_allele_symbols, cluster_symbols = \
 		parse_fai(fai_file,run_type,args.mlst_delimiter)
 
