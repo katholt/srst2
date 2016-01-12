@@ -65,7 +65,7 @@ Contents
 
 [Example - Shigella sonnei public data](example.txt)
 
-Current release - v0.1.7 - December 22, 2015
+Current release - v0.1.7 - January 12, 2015
 -----
 
 Dependencies:
@@ -82,10 +82,11 @@ Dependencies:
 
 Updates in v0.1.7
 
-1. Use the following environment variables to specify your prefered samtools and bowtie2 executables:
+1. Use the following environment variables to specify your prefered samtools and bowtie2 executables (thanks to Ben Taylor for this):
 - SRST2_SAMTOOLS
 - SRST2_BOWTIE2
 - SRST2_BOWTIE2_BUILD
+2. Added mcr1, the plasmid-borne colisting resistance gene to the included ARG-Annot-based resistance gene DB (ARGannot.r1.fasta)
 
 -----------
 
