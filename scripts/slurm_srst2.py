@@ -185,11 +185,34 @@ def check_command_versions(command_list, version_identifiers, command_name, requ
 		logging.error("{} versions compatible with SRST2 are ".format(command_name) + ", ".join(required_versions))
 		exit(-1)
 
+def get_bowtie_execs():
+	'Return the "best" bowtie2 executables'
+
+	exec_from_environment = os.environ.get('SRST2_BOWTIE2')
+	if exec_from_environment and os.path.isfile(exec_from_environment):
+		bowtie2_exec = exec_from_environment
+	else:
+		bowtie2_exec = None
+
+	exec_from_environment = os.environ.get('SRST2_BOWTIE2_BUILD')
+	if exec_from_environment and os.path.isfile(exec_from_environment):
+		bowtie2_build_exec = exec_from_environment
+	elif bowtie2_exec and os.path.isfile(bowtie2_exec+'-build'):
+		bowtie2_build_exec = bowtie2_exec+'-build'
+	else:
+		bowtie2_build_exec = 'bowtie2-build'
+
+	if bowtie2_exec is None:
+		bowtie2_exec = 'bowtie2'
+
+	return (bowtie2_exec, bowtie2_build_exec)
+
 def bowtie_index(fasta_files):
 	'Build a bowtie2 index from the given input fasta(s)'
 
+	bowtie_exec, bowtie_build_exec = get_bowtie_execs()
 	# check that bowtie has the right versions
-	check_command_versions(['bowtie2', '--version'],
+	check_command_versions([bowtie_exec, '--version'],
 				['bowtie2-align version 2.1.0','bowtie2-align-s version 2.2.3','bowtie2-align-s version 2.2.4'],
 				'bowtie',
 				['2.1.0','2.2.3','2.2.4'])
@@ -200,13 +223,23 @@ def bowtie_index(fasta_files):
 			print 'Bowtie 2 index for {} is already built...'.format(fasta)
 		else:
 			print 'Building bowtie2 index for {}...'.format(fasta)
-			run_command(['bowtie2-build', fasta, fasta])
+			run_command([bowtie_build_exec, fasta, fasta])
 			
+def get_samtools_exec():
+	'Return the "best" samtools executable'
+
+	exec_from_environment = os.environ.get('SRST2_SAMTOOLS')
+	if exec_from_environment and os.path.isfile(exec_from_environment):
+		return exec_from_environment
+	else:
+		return 'samtools'
+
 def samtools_index(fasta_files):
 	'Build a samtools faidx index from the given input fasta(s)'
 
 	# check that samtools has the right versions
-	check_command_versions(['samtools'],
+	samtools_exec = get_samtools_exec()
+	check_command_versions([samtools_exec],
 				['Version: 0.1.18','Version: 0.1.19','Version: 1.0','Version: 1.1'],
 				'samtools',
 				['0.1.18','0.1.19','1.0','1.1','(0.1.18 is recommended)'])
@@ -217,7 +250,7 @@ def samtools_index(fasta_files):
 			print 'Samtools index for {} is already built...'.format(fasta)
 		else:
 			print 'Building samtools faidx index for {}...'.format(fasta)
-			run_command(['samtools', 'faidx', fasta])
+			run_command([samtools_exec, 'faidx', fasta])
 
 def main():
 
