@@ -804,9 +804,13 @@ def get_allele_name_from_db(allele,unique_allele_symbols,unique_cluster_symbols,
 	return gene_name, allele_name, cluster_id, seqid
 
 def create_allele_pileup(allele_name, all_pileup_file):
-	all_pileup_file_name = os.path.basename(all_pileup_file)
-	all_pileup_file_dir = os.path.dirname(all_pileup_file)
-	outpileup = all_pileup_file_dir + '/' + allele_name + "." + all_pileup_file_name
+	output_components = all_pileup_file.split("/")	
+	if len(output_components) > 1:
+		all_pileup_file_name = os.path.basename(all_pileup_file)
+		all_pileup_file_dir = os.path.dirname(all_pileup_file)
+		outpileup = all_pileup_file_dir + '/' + allele_name + "." + all_pileup_file_name
+	else:
+		outpileup = allele_name + "." + all_pileup_file
 	with open(outpileup, 'w') as allele_pileup:
 		with open(all_pileup_file) as all_pileup:
 			for line in all_pileup:
