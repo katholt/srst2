@@ -61,7 +61,7 @@ Contents
 
 * [Using the EcOH database for serotyping E. coli with SRST2](https://github.com/katholt/srst2#using-the-ecoh-database-for-serotyping-e-coli-with-srst2)
 
-[Typing the LEE pathogenicity island of E. coli](https://github.com/katholt/srst2#typing-the-lee-pathogenicity-island-of-E-coli)
+[Typing the LEE pathogenicity island of E. coli](https://github.com/katholt/srst2#typing-the-lee-pathogenicity-island-of-e-coli)
 
 [Plotting output in R](https://github.com/katholt/srst2#plotting-output-in-r)
 
