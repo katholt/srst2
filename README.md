@@ -83,7 +83,7 @@ Dependencies:
 
 Updates in master branch, to be in next release
 
-1. /data directory includes files for subtyping of the LEE pathogenicity island of E. coli, as per [Ingle et al, 2016, Nature Microbiology](doi:10.1038/nmicrobiol.2015.10). [Instructions below](https://github.com/katholt/srst2#typing-the-lee-pathogenicity-island-of-E-coli)
+1. /data directory includes files for subtyping of the LEE pathogenicity island of E. coli, as per [Ingle et al, 2016, Nature Microbiology](http://www.nature.com/articles/nmicrobiol201510). [Instructions below](https://github.com/katholt/srst2#typing-the-lee-pathogenicity-island-of-E-coli)
 
 -----------
 
@@ -883,7 +883,7 @@ No alleles for flnA were detected in these strains, indicating they are not phas
 
 ### Typing the LEE pathogenicity island of E. coli
 
-Details can be found in [this Nature Microbiology paper](doi:10.1038/nmicrobiol.2015.10).
+Details can be found in [this Nature Microbiology paper](http://www.nature.com/articles/nmicrobiol201510).
 
 The LEE typing database is based on analysis of >250 LEE-containing E. coli genomes and includes 7 loci (eae (i.e. intimin), tir, espA, espB, espD, espH, espZ). The data is provided as a MLST-style database, in which combinations of alleles are assigned to a LEE subtype, to facilitate a common nomenclature for LEE subtypes. However please note the database does not contain every known allele and is not intended to function as a typical MLST scheme. Rather, each sequence in the database represents a cluster of closely related alleles that have been assigned to the same locus type. So you will generally not get precise matches to a known allele, and this is not something to worry about - the goal is to identify the locus type and the overall LEE subtype. 
 
