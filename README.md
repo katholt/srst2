@@ -61,6 +61,8 @@ Contents
 
 * [Using the EcOH database for serotyping E. coli with SRST2](https://github.com/katholt/srst2#using-the-ecoh-database-for-serotyping-e-coli-with-srst2)
 
+* [Typing the LEE pathogenicity island of E. coli](https://github.com/katholt/srst2#typing-the-lee-pathogenicity-island-of-E-coli)
+
 [Plotting output in R](https://github.com/katholt/srst2#plotting-output-in-r)
 
 [Example - Shigella sonnei public data](example.txt)
@@ -77,6 +79,11 @@ Dependencies:
 - bowtie2 v2.1.0, 2.2.3 or 2.2.4     http://bowtie-bio.sourceforge.net/bowtie2/index.shtml
 
 - SAMtools v0.1.18   https://sourceforge.net/projects/samtools/files/samtools/0.1.18/ (NOTE later versions can be used, but better results are obtained with v0.1.18 especially at low read depths (<20x))
+
+
+Updates in master branch, to be in next release
+
+1. /data directory includes files for subtyping of the LEE pathogenicity island of E. coli, as per [Ingle et al, 2016, Nature Microbiology](doi:10.1038/nmicrobiol.2015.10). [Instructions below](https://github.com/katholt/srst2#typing-the-lee-pathogenicity-island-of-E-coli)
 
 -----------
 
@@ -872,6 +879,49 @@ ERR178156 has matching wzm and wzt hits for O9 and fliC allele H33, thus the pre
 Note that each O antigen type is associated with loci containing EITHER wzx and wzy, OR wzm and wzt genes.
 
 No alleles for flnA were detected in these strains, indicating they are not phase variable for flagellin.
+
+
+### Typing the LEE pathogenicity island of E. coli
+
+Details can be found in [this Nature Microbiology paper](doi:10.1038/nmicrobiol.2015.10).
+
+The LEE typing database is based on analysis of >250 LEE-containing E. coli genomes and includes 7 loci (eae (i.e. intimin), tir, espA, espB, espD, espH, espZ). The data is provided as a MLST-style database, in which combinations of alleles are assigned to a LEE subtype, to facilitate a common nomenclature for LEE subtypes. However please note the database does not contain every known allele and is not intended to function as a typical MLST scheme. Rather, each sequence in the database represents a cluster of closely related alleles that have been assigned to the same locus type. So you will generally not get precise matches to a known allele, and this is not something to worry about - the goal is to identify the locus type and the overall LEE subtype. 
+
+Also note that the LEE scheme includes three distinct lineages: Lineage 1 consists of LEE subtypes 1-2; Lineage 2 consists of LEE subtypes 3-8; Lineage 3 consists of LEE subtypes 9-30. See the paper for more details. 
+
+The database files (sequences + MLST-style profile definitions) are in the SRST2 distribution under /data.
+
+#### Basic Usage – Typing E. coli LEE variants
+
+    srst2 --input_pe strainA_1.fastq.gz strainA_2.fastq.gz --output strainA_LEE --log --mlst_db LEE_mlst.fasta --mlst_definitions LEE_STscheme.txt
+
+#### Example
+
+Note these reads sets are each ~100 MB each, so you need to download 400 MB of test data to run this example
+
+```
+wget ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR178/ERR178148/ERR178148_1.fastq.gz
+wget ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR178/ERR178148/ERR178148_2.fastq.gz
+wget ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR178/ERR178156/ERR178156_1.fastq.gz
+wget ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR178/ERR178156/ERR178156_2.fastq.gz
+
+srst2 --input_pe ERR178156*.fastq.gz ERR124656*.fastq.gz --output LEE --log --mlst_db LEE_mlst.fasta --mlst_definitions LEE_STscheme.txt
+```
+
+Results will be output in: "[prefix]__mlst__LEE_mlst__results.txt"
+
+Output from the above example would appear in: "LEE__mlst__LEE_mlst__results.txt"
+
+```
+Sample  ST      eae     tir     espA    espB    espD    espH    espZ    mismatches      uncertainty     depth   maxMAF
+ERR178148       30*     19      10*     9*      5*      6*      4*      13*     tir-10/33snp3indel;espA-9/3snp;espB-5/4snp;espD-6/9snp;espH-4/1snp;espZ-13/3snp -
+       59.8217142857   0.285714285714
+ERR178156       9*      6*      5*      5*      3*      3*      4*      8       eae-6/4snp;tir-5/18snp;espA-5/6snp;espB-3/4snp;espD-3/8snp;espH-4/3snp  -       33.5062857143   0.444444444444
+```
+
+#### Interpretation
+
+ERR178148 and ERR178156 carry LEE subtypes 30 and 9 respectively, which both belong to LEE lineage 3. The imprecise matches are to be expected and can be taken as a confident assignment of LEE type.
 
 ### Plotting output in R
 
