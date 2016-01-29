@@ -11,7 +11,7 @@ Authors - Michael Inouye, Harriet Dashnow, Bernie Pope, Kathryn Holt (University
 		
 How to cite - The peer-reviewed open-access paper is available in Genome Medicine: http://genomemedicine.com/content/6/11/90
 
-Story-behind-the-paper is here: http://bacpathgenomics.wordpress.com/
+Story-behind-the-paper is [here](http://holtlab.net/2014/12/27/behind-the-paper-srst2-for-short-read-sequence-typing-of-bacterial-pathogens/)
 		
 Problems? Please post an issue here in github: https://github.com/katholt/srst2/issues.
 
