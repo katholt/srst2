@@ -85,6 +85,8 @@ Updates in master branch, to be in next release
 
 1. /data directory includes files for subtyping of the LEE pathogenicity island of E. coli, as per [Ingle et al, 2016, Nature Microbiology](http://www.nature.com/articles/nmicrobiol201510). [Instructions below](https://github.com/katholt/srst2#typing-the-lee-pathogenicity-island-of-E-coli)
 
+2. Fixed ARGannot.r1.fasta to include proper mcr1 DNA sequence
+
 -----------
 
 Updates in v0.1.7
