@@ -87,6 +87,8 @@ Updates in master branch, to be in next release
 
 2. Fixed ARGannot.r1.fasta to include proper mcr1 DNA sequence
 
+3. Fixed some issues with handling of missing data (i.e. where there were no hits to MLST and/or no hits to genes) when compiling results into a table via --prev_output. This could result in misalignment of gene columns in previous versions.
+
 -----------
 
 Updates in v0.1.7
