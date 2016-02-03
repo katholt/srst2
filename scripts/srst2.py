@@ -1218,12 +1218,12 @@ def process_fasta_db(args, fileSets, run_type, db_reports, db_results_list, fast
 				unique_gene_symbols, unique_allele_symbols,run_type,ST_db,results,gene_list,db_report,cluster_symbols,max_mismatch)
 
 				# if we get an error from one of the commands we called
-				# log the error message and continue onto the next fasta db
+				# log the error message, record as failed, and continue onto the next fasta db
             	except CommandError as e:
                 	logging.error(e.message)
                 	# record results as unknown, so we know that we did attempt to analyse this readset
                 	if run_type == "mlst":
-                		st_result_string = "\t".join( [sample_name,"-"] + ["-"] * (len(gene_names)+3)) # record missing results
+                		st_result_string = "\t".join( [sample_name,"failed"] + ["-"] * (len(gene_names) + 4)) # record missing results
                 		db_report.write( st_result_string + "\n")
                 		logging.info(" " + st_result_string)
                 		results[sample_name] = st_result_string
@@ -1249,12 +1249,12 @@ def process_fasta_db(args, fileSets, run_type, db_reports, db_results_list, fast
 				else:
 					# no data on this, as the sample failed mapping
 					for cluster_id in gene_list:
-						db_report.write("\t?") # 
-						results[sample_name][cluster_id] = "?" # record as unknown
+						db_report.write("\t-f") # 
+						results[sample_name][cluster_id] = "-f" # record as unknown as this strain failed
 			else:
 				# no data on this because genes were not found (but no mapping errors)
 				for cluster_id in gene_list:
-					db_report.write("\t?") # 
+					db_report.write("\t-?") # 
 					results[sample_name][cluster_id] = "-" # record as absent
 			db_report.write("\n")
 
@@ -1437,11 +1437,11 @@ def compile_results(args,mlst_results,db_results,compiled_output_file):
 			else:
 				test_string = mlst_result[mlst_result.keys()[0]] # no header line?
 			test_string_split = test_string.split("\t")
-			this_mlst_cols = len(test_string)
+			this_mlst_cols = len(test_string_split)
 			
 			if (mlst_cols == 0) or (mlst_cols == this_mlst_cols):
 				mlst_cols = this_mlst_cols
-				blank_mlst_section = "\t" * (mlst_cols-1) # blank MLST string in case some samples missing
+				blank_mlst_section = "?\t" * (mlst_cols-1) + "?" # blank MLST string in case some samples missing
 				# use this data
 				for sample in mlst_result:
 					mlst_results_master[sample] = mlst_result[sample]
