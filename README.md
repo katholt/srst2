@@ -67,7 +67,7 @@ Contents
 
 [Example - Shigella sonnei public data](example.txt)
 
-Current release - v0.1.7 - January 12, 2015
+Current release - v0.1.8 - March 15, 2016
 -----
 
 Dependencies:
@@ -81,7 +81,7 @@ Dependencies:
 - SAMtools v0.1.18   https://sourceforge.net/projects/samtools/files/samtools/0.1.18/ (NOTE later versions can be used, but better results are obtained with v0.1.18 especially at low read depths (<20x))
 
 
-Updates in master branch, to be in next release
+Updates in v0.1.8
 
 1. /data directory includes files for subtyping of the LEE pathogenicity island of E. coli, as per [Ingle et al, 2016, Nature Microbiology](http://www.nature.com/articles/nmicrobiol201510). [Instructions below](https://github.com/katholt/srst2#typing-the-lee-pathogenicity-island-of-e-coli)
 
