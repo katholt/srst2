@@ -83,9 +83,11 @@ Dependencies:
 
 Updates in master branch, to be in next release
 
-1. /data directory includes files for subtyping of the LEE pathogenicity island of E. coli, as per [Ingle et al, 2016, Nature Microbiology](http://www.nature.com/articles/nmicrobiol201510). [Instructions below](https://github.com/katholt/srst2#typing-the-lee-pathogenicity-island-of-E-coli)
+1. /data directory includes files for subtyping of the LEE pathogenicity island of E. coli, as per [Ingle et al, 2016, Nature Microbiology](http://www.nature.com/articles/nmicrobiol201510). [Instructions below](https://github.com/katholt/srst2#typing-the-lee-pathogenicity-island-of-e-coli)
 
-2. Fixed ARGannot.r1.fasta to include proper mcr1 DNA sequence
+2. Resistance gene database updates:
+- Fixed ARGannot.r1.fasta to include proper mcr1 DNA sequence.
+- Added columns to the ARGannot_clustered80.csv table, to indicate classes of beta-lactamases included in the ARGannot.r1.fasta database according to the [NCBI beta-lactamase resource](http://www.ncbi.nlm.nih.gov/pathogens/beta-lactamase-data-resources/) (new location for the Lahey list).
 
 3. Fixed some issues with handling of missing data (i.e. where there were no hits to MLST and/or no hits to genes) when compiling results into a table via --prev_output. This could result in misalignment of gene columns in previous versions.
 
