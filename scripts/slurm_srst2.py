@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 import string, re, collections
-import os, sys, subprocess		
+import os, sys, subprocess, logging
 from subprocess import call, check_output, CalledProcessError, STDOUT
 from argparse import (ArgumentParser, FileType)
 
