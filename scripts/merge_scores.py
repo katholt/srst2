@@ -22,7 +22,7 @@ Other notes:
     This script erases contents of files if these files have the same name as those of output files.
 
 Author: Yu Wan (wanyuac@gmail.com)
-Last update: 7 April 2016
+Last update: 8 April 2016
 """
 
 from argparse import ArgumentParser
@@ -96,10 +96,16 @@ def read_allele_calls(files, allele_type, mlst_delimiter = "-"):
                     if allele_type == "mlst":
                         allele_table[sample][genes[j]] = genes[j] + mlst_delimiter + allele_numbers[j]
                     else:
-                        allele_table[sample][genes[j]] = genes[j] + "__" + allele_numbers[j]
+                        allele_table[sample][genes[j]] = allele_numbers[j]  # It is unnecessary to attach a gene name to an allele number for non-MLST genes.
+                        #allele_table[sample][genes[j]] = genes[j] + "__" + allele_numbers[j]
+                        """
+                        Although it is logically correct, do not use the command above for ARGannot.r1.fasta and earlier versions of the database because there is a problem
+                        in the definition line of the sequence "55__CmlA_PheCmlA5__CmlA5__1538", which causes a discrepancy between gene names in the allele profile and the
+                        score file. You will lose alleles if you use this command, where the string "55__CmlA_Phe__CmlA5__1538" is not in "55__CmlA_PheCmlA5__CmlA5__1538".
+                        """
         else:
             print("File " + file_name + " is skipped as it does not contain allele information.")
-            
+    
     return allele_table
 
 def merge_allele_scores(allele_table, score_files, allele_type, output_prefix):
@@ -131,7 +137,7 @@ def merge_allele_scores(allele_table, score_files, allele_type, output_prefix):
         for i in range(0, len(alleles_unsigned)):
             alleles_unsigned[i] = re.sub("[*?]", "", alleles_unsigned[i])  # removes "*" and "?" characters from the string "allele"
         
-        content = open(file_name, "rU").read().splitlines()[1 : ]  # omit the header line
+        content = open(file_name, "rU").read().splitlines()[1 : ]  # omit the header line in every score file
         
         # go through every line in the score file and only keep those called by SRST2
         for line in content:
