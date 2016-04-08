@@ -1,4 +1,4 @@
-'''
+"""
 This script merges score files (*.scores) produced by SRST2, only retaining scores of allele calls in every sample. First, it reads files of allele calls to construct a table for
 allele calls of every sample. Then, it reads every score file and only add those corresponding to allele calls into a new tab-delimited file. Finally, two files of filtered scores
 will be stored under the current working directory, one for MLST allele calls and the other for non-MLST allele calls.
@@ -23,7 +23,7 @@ Other notes:
 
 Author: Yu Wan (wanyuac@gmail.com)
 Last update: 7 April 2016
-'''
+"""
 
 from argparse import ArgumentParser
 import sys, collections, re, copy
@@ -32,11 +32,11 @@ def parse_arguments():
     # a function that creates an ArgumentParser object, which reads arguments for this script
     # use the command python merge_scores.py -h to show the list and description of arguments
     
-    parser = ArgumentParser(description = "Read arguments")
-    parser.add_argument("--mlst_calls", type = str, nargs='+', required = False, default = "", help = "A tab-delimited output of SRST2 consisting of MLST calls")
-    parser.add_argument("--mlst_scores", type = str, nargs='+', required = False, default = "", help = "*.scores files produced by SRST2 for MLST genes")
-    parser.add_argument("--allele_calls", type = str, nargs='+', required = False, default = "", help = "A tab-delimited output of SRST2 consisting of allele calls for non-MLST genes")
-    parser.add_argument("--allele_scores", type = str, nargs='+', required = False, default = "", help = "*.scores files produced by SRST2 for non-MLST genes")
+    parser = ArgumentParser(description = "Merge scores of allele calls")
+    parser.add_argument("--mlst_calls", type = str, nargs="+", required = False, default = "", help = "A tab-delimited output of SRST2 consisting of MLST calls")
+    parser.add_argument("--mlst_scores", type = str, nargs="+", required = False, default = "", help = "*.scores files produced by SRST2 for MLST genes")
+    parser.add_argument("--allele_calls", type = str, nargs="+", required = False, default = "", help = "A tab-delimited output of SRST2 consisting of allele calls for non-MLST genes")
+    parser.add_argument("--allele_scores", type = str, nargs="+", required = False, default = "", help = "*.scores files produced by SRST2 for non-MLST genes")
     parser.add_argument("--mlst_delimiter", type = str, required = False, default = "-", help = "The delimiter separating gene names and allele numbers in your MLST database (default: '-')")
     parser.add_argument("--prefix", type = str, required = False, default = "", help = "The prefix of every output file")
     
@@ -51,11 +51,11 @@ def search(query, subject):
         return -1  # not found
 
 def read_allele_calls(files, allele_type, mlst_delimiter = "-"):
-    '''
+    """
     read allele calls of every sample and store this information in a table
     allele_type: either "mlst" or "gene"
     The argument mlst_delimiter is useless if allele_type = "gene".
-    '''
+    """
     
     allele_table = collections.defaultdict(dict)  # [sample][gene] = allele_name
     
@@ -88,11 +88,11 @@ def read_allele_calls(files, allele_type, mlst_delimiter = "-"):
             # Here, a gene name is always associated with an allele name. Therefore, they share the same index.
             for j in range(0, len(genes)):
                 if allele_numbers[j] != "-":
-                    '''
+                    """
                     skip the gene without an allele call
                     Uncertainty marks ('*', '?', or '*?') are also included in resultant allele names.
                     Allele name = gene name + delimiter + allele number
-                    '''
+                    """
                     if allele_type == "mlst":
                         allele_table[sample][genes[j]] = genes[j] + mlst_delimiter + allele_numbers[j]
                     else:
@@ -116,11 +116,11 @@ def merge_allele_scores(allele_table, score_files, allele_type, output_prefix):
     print >> output_file, "\t".join(["Sample"] + header)  # write the header into the output file
     
     for file_name in score_files:
-        '''
+        """
         assumed format of the file name: [sample name]_[prefix]__[sample name].[MLST/gene database name].scores
         Note that this assumption may be violated by the structure of prefixes in your input file names.
         Please check or edit the following code to fit your format.
-        '''
+        """
         sample = (file_name.split(".")[0]).split("__")[-1]  # obtain the sample name from each file name
         
         genes = allele_table[sample].keys()  # a list of gene names of the current sample
@@ -136,12 +136,12 @@ def merge_allele_scores(allele_table, score_files, allele_type, output_prefix):
         # go through every line in the score file and only keep those called by SRST2
         for line in content:
             fields = line.split("\t")
-            '''
+            """
             fields[0]: the allele name in the score file. No uncertainty sign is attached to this name.
             The following codes work if the current allele is recorded in the table of allele calls. Obviously, un-called alleles (denoted by '-') will not present
             in the merged score file.
             These codes also have to deal with allele names with uncertainty marks in the allele table.
-            '''
+            """
             if allele_type == "mlst":
                 j = search(fields[0], alleles_unsigned)
                 if j != -1:  # equivalent to "if field[0] in alleles_unsigned"

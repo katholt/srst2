@@ -1,4 +1,4 @@
-'''
+"""
 This script combines allele sequences in every sample into a FASTA file per locus, organising consensus sequences according to loci.
 
 Input:
@@ -17,7 +17,8 @@ Notes about arguments:
 	"gene" if these files only consist of the other kind of allele sequences. The program does work successfully if you use a wrong value for this argument.
 	
 Author: Kathryn Holt (kholt@unimelb.edu.au), Yu Wan (wanyuac@gmail.com)
-'''
+Last update: 6 April 2016
+"""
 
 # modules
 import string, os, sys
@@ -53,10 +54,10 @@ def parse_descr_gene(locus):
 
 def main():
 	args = parse_args()
-	'''
+	"""
 	read in every sequence and print each new locus to a file
 	Otherwise, allele sequences are appended to corresponding extant files.
-	'''
+	"""
 	for fasta_file in args.input:
 		for record in SeqIO.parse(open(fasta_file, "r"), "fasta"):
 			locus, sample = record.description.split(" ") # locus sample
