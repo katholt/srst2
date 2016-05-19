@@ -860,7 +860,7 @@ def parse_ST_database(ST_filename,gene_names_from_fai):
 		print "Read ST database " + ST_filename + " successfully"
 		return (ST_db, gene_names)
 
-def get_allele_name_from_db(allele,unique_allele_symbols,unique_cluster_symbols,run_type,args):
+def get_allele_name_from_db(allele,run_type,args,unique_allele_symbols=False,unique_cluster_symbols=False):
 	
 	if run_type != "mlst":
 		# header format: >[cluster]___[gene]___[allele]___[uniqueID] [info]
@@ -881,10 +881,10 @@ def get_allele_name_from_db(allele,unique_allele_symbols,unique_cluster_symbols,
 			
 	else:
 		gene_name = allele.split(args.mlst_delimiter)
-		allele_name = allele
+		allele_name = gene_name[1]
+		gene_name = gene_name[0]
 		seqid = None
 		cluster_id = None
-		
 	return gene_name, allele_name, cluster_id, seqid
 
 def create_allele_pileup(allele_name, all_pileup_file):
@@ -902,24 +902,31 @@ def create_allele_pileup(allele_name, all_pileup_file):
 					allele_pileup.write(line)
 	return outpileup
 
+
+def group_allele_dict_by_gene(by_allele,run_type,args,unique_cluster_symbols=False, unique_allele_symbols=False):
+	# sort into hash for each gene locus
+	by_gene = collections.defaultdict(dict) # key1 = gene, key2 = allele, value = original value
+	
+	if run_type=="mlst":	
+		component_ind = 0 # gene_name
+	else:
+		component_ind = 2 # cluster_id
+	for allele in by_allele:
+		gene_name = get_allele_name_from_db(allele,run_type,args,unique_allele_symbols,unique_cluster_symbols)[component_ind]
+		by_gene[gene_name][allele] = by_allele[allele]
+	return dict(by_gene)
+
+
 def parse_scores(run_type,args,scores, hash_edge_depth, 
 					avg_depth_allele, coverage_allele, mismatch_allele, indel_allele,  
 					missing_allele, size_allele, next_to_del_depth_allele,
 					unique_cluster_symbols,unique_allele_symbols, pileup_file):
 					
 	# sort into hash for each gene locus
-	scores_by_gene = collections.defaultdict(dict) # key1 = gene, key2 = allele, value = score
-	
-	if run_type=="mlst":	
-		for allele in scores:
-			if coverage_allele[allele] > args.min_coverage:
-				allele_info = allele.split(args.mlst_delimiter)
-				scores_by_gene[allele_info[0]][allele] = scores[allele]
-	else:
-		for allele in scores:
-			if coverage_allele[allele] > args.min_coverage:
-				gene_name = get_allele_name_from_db(allele,unique_allele_symbols,unique_cluster_symbols,run_type,args)[2] # cluster ID
-				scores_by_gene[gene_name][allele] = scores[allele]
+	scores_by_gene = group_allele_dict_by_gene(dict( (allele,val) for (allele,val) in scores.items() \
+			if coverage_allele[allele] > args.min_coverage ),
+			run_type,args,
+			unique_cluster_symbols,unique_allele_symbols)
 	
 	# determine best allele for each gene locus/cluster
 	results = {} # key = gene, value = (allele,diffs,depth)
@@ -1456,7 +1463,7 @@ def map_fileSet_to_db(args,sample_name,fastq_inputs,db_name,fasta,size,gene_name
 		for gene in allele_scores:
 			(allele,diffs,depth_problem,divergence) = allele_scores[gene] # gene = top scoring alleles for each cluster
 			gene_name, allele_name, cluster_id, seqid = \
-				get_allele_name_from_db(allele,unique_allele_symbols,unique_gene_symbols,run_type,args)
+				get_allele_name_from_db(allele,run_type,args,unique_allele_symbols,unique_gene_symbols)
 				
 			# store for gene result table only if divergence passes minimum threshold:
 			if divergence*100 <= float(args.max_divergence):
