@@ -23,7 +23,7 @@ from argparse import (ArgumentParser, FileType)
 import logging
 from subprocess import call, check_output, CalledProcessError, STDOUT
 import os, sys, re, collections, operator
-from scipy.stats import binom_test, linregress
+from scipy.stats import binom, linregress
 from math import log
 from itertools import groupby
 from operator import itemgetter
@@ -526,10 +526,8 @@ def score_alleles(args, mapping_files_pre, hash_alignment, hash_max_depth, hash_
 				if nuc_info is not None:
 					match, mismatch, prob_success = nuc_info
 					if match > 0 or mismatch > 0:
-						if mismatch == 0:
-							p_value = 1.0
-						else:
-							p_value = binom_test([match, mismatch], None, prob_success)
+						# One-tailed test - prob to get that many or fewer matches
+						p_value = binom.cdf(match,int(round(match+mismatch)),prob_success)
 						# Weight pvalue by (depth/max_depth)
 						max_depth = hash_max_depth[allele]
 						weight = (match + mismatch) / float(max_depth)
