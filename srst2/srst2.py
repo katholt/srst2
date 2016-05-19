@@ -238,7 +238,7 @@ def modify_bowtie_sam(raw_bowtie_sam,max_mismatch,max_unaligned_overlap):
 				fields = line.split('\t')
 				left_unali,right_unali = get_unaligned_read_end_lengths_sam(fields,ref_lens[fields[2].strip()])
 				if left_unali > max_unaligned_overlap or right_unali > max_unaligned_overlap:
-					logging.info("Excluding read from SAM file due to too long unaligned end overlapping the reference: {}".format(line))
+					logging.debug("Excluding read from SAM file due to too long unaligned end overlapping the reference: {}".format(line))
 					continue
 				flag = int(fields[1])
 				flag = (flag - 256) if (flag & 256) else flag
@@ -322,7 +322,6 @@ def read_pileup_data(pileup_file, size, prob_err, consensus_file = ""):
 		hash_alignment = {}
 		hash_max_depth = {}
 		hash_edge_depth = {}
-		max_depth = 1
 		avg_depth_allele = {}
 		next_to_del_depth_allele = {}
 		coverage_allele = {}
@@ -339,6 +338,7 @@ def read_pileup_data(pileup_file, size, prob_err, consensus_file = ""):
 			# Reset variables for new allele
 			allele_line = 1 # Keep track of line for this allele
 			exp_nuc_num = 0 # Expected position in ref allele
+			max_depth = 1
 			allele_size = size[allele]
 			total_depth = 0
 			depth_a = depth_z = 0
