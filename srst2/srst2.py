@@ -507,8 +507,17 @@ def read_pileup_data(pileup_file, size, prob_err, consensus_file = ""):
 
 def score_alleles(args, mapping_files_pre, hash_alignment, hash_max_depth, hash_edge_depth, 
 		avg_depth_allele, coverage_allele, mismatch_allele, indel_allele, missing_allele, 
-		size_allele, next_to_del_depth_allele, run_type):
-	
+		size_allele, next_to_del_depth_allele, run_type,unique_gene_symbols, unique_allele_symbols):
+	# sort into hash for each gene locus
+	depth_by_gene = group_allele_dict_by_gene(dict( (allele,val) for (allele,val) in avg_depth_allele.items() \
+			if (run_type == "mlst") or (coverage_allele[allele] > args.min_coverage) ),
+			run_type,args,
+			unique_gene_symbols,unique_allele_symbols)
+	stat_depth_by_gene = dict(
+			(gene,max(alleles.values())) for (gene,alleles) in depth_by_gene.items()
+			)
+	allele_to_gene = dict_of_dicts_inverted_ind(depth_by_gene)
+
 	if args.save_scores:
 		scores_output = file(mapping_files_pre + '.scores', 'w')
 		scores_output.write("Allele\tScore\tAvg_depth\tEdge1_depth\tEdge2_depth\tPercent_coverage\tSize\tMismatches\tIndels\tTruncated_bases\tDepthNeighbouringTruncation\tmaxMAF\tLeastConfident_Rate\tLeastConfident_Mismatches\tLeastConfident_Depth\tLeastConfident_Pvalue\n")
@@ -517,19 +526,33 @@ def score_alleles(args, mapping_files_pre, hash_alignment, hash_max_depth, hash_
 	mix_rates = {} # key = allele, value = highest minor allele frequency, 0 -> 0.5
 	
 	for allele in hash_alignment:
+		stat_depth_allele = avg_depth_allele[allele]
 		if (run_type == "mlst") or (coverage_allele[allele] > args.min_coverage):
+			gene = allele_to_gene[allele]
+			stat_depth_gene = stat_depth_by_gene[gene]
+			count_scale_factor = 1
+			if stat_depth_allele > 0:
+				count_scale_factor = stat_depth_gene / stat_depth_allele
 			pvals = []
 			min_pval = 1.0
 			min_pval_data = (999,999) # (mismatch, depth) for position with lowest p-value
 			mix_rate = 0 # highest minor allele frequency 0 -> 0.5
 			for nuc_info in hash_alignment[allele]:
 				if nuc_info is not None:
+					# Scale counts toward same depth (max allele average over gene) in order to prevent
+					# steaper regression coefficients for deep coverage true alleles vs
+					# low coverage wrong alleles where only very few reads mapped.
+					# Note: since we modify match and mismatch counts here, the logging
+					# output will see the modified values.
 					match, mismatch, prob_success = nuc_info
+					max_depth = hash_max_depth[allele]
+					match = int(round(match * count_scale_factor))
+					mismatch = int(round(mismatch * count_scale_factor))
+					max_depth = int(round(max_depth * count_scale_factor))
 					if match > 0 or mismatch > 0:
 						# One-tailed test - prob to get that many or fewer matches
 						p_value = binom.cdf(match,int(round(match+mismatch)),prob_success)
 						# Weight pvalue by (depth/max_depth)
-						max_depth = hash_max_depth[allele]
 						weight = (match + mismatch) / float(max_depth)
 						p_value *= weight
 						if p_value < min_pval:
@@ -916,6 +939,12 @@ def group_allele_dict_by_gene(by_allele,run_type,args,unique_cluster_symbols=Fal
 		by_gene[gene_name][allele] = by_allele[allele]
 	return dict(by_gene)
 
+
+def dict_of_dicts_inverted_ind(dd):
+	res = dict()
+	for (key,val) in dd.items():
+		res.update(dict((key2,key) for key2 in val))
+	return res
 
 def parse_scores(run_type,args,scores, hash_edge_depth, 
 					avg_depth_allele, coverage_allele, mismatch_allele, indel_allele,  
@@ -1407,7 +1436,7 @@ def map_fileSet_to_db(args,sample_name,fastq_inputs,db_name,fasta,size,gene_name
 		logging.info(' Scoring alleles...')
 		scores, mix_rates = score_alleles(args, mapping_files_pre, hash_alignment, hash_max_depth, hash_edge_depth, \
 				avg_depth_allele, coverage_allele, mismatch_allele, indel_allele, missing_allele, \
-				size_allele, next_to_del_depth_allele, run_type)
+				size_allele, next_to_del_depth_allele, run_type,unique_gene_symbols, unique_allele_symbols)
 		
 	# GET BEST SCORE for each gene/cluster
 	#  result = dict, with key = gene, value = (allele,diffs,depth_problem)
