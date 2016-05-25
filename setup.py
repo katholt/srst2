@@ -8,11 +8,11 @@ setup(
     author='Kathryn Holt',
     author_email='drkatholt@gmail.com',
     packages=['srst2'],
-    scripts=['scripts/getmlst.py', 'scripts/scores_vs_expected.py', 'scripts/slurm_srst2.py'],
+    srst2=['srst2/getmlst.py', 'srst2/scores_vs_expected.py', 'srst2/slurm_srst2.py'],
     entry_points={
         'console_scripts': ['srst2 = srst2.srst2:main']
     },
-    package_dir = {'srst2': 'scripts'},
+    package_dir = {'srst2': 'srst2'},
     package_data={'srst2': ['data/resistance.*']},
     url='http://katholt.github.io/srst2/',
     license='LICENSE.txt',
