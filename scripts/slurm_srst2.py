@@ -280,15 +280,13 @@ def main():
 	# build and submit commands
 	for sample in fileSets:		
 		cmd = "#!/bin/bash"
-		cmd += "\n#SBATCH -p main"
+		cmd += "\n#SBATCH -p sysgen"
 		cmd += "\n#SBATCH --job-name=srst2" + sample + args.output
 		cmd += "\n#SBATCH --ntasks=1"
 		cmd += "\n#SBATCH --mem-per-cpu=" + args.memory
 		cmd += "\n#SBATCH --time=" + args.walltime
 		cmd += "\ncd " + args.rundir
-		cmd += "\nmodule load bowtie2-intel/2.1.0"
-		cmd += "\nmodule load samtools-intel/0.1.18"
-		cmd += "\nmodule load python-gcc"
+		cmd += "\nmodule load srst2/0.1.8-Python-2.7.10"
 		cmd += "\n" + args.script
 		fastq = fileSets[sample]
 		if len(fastq) > 1:
