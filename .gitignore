@@ -1,0 +1,55 @@
+#vim backup files
+*~
+*.swp
+
+#python compiled files
+*.py[cod]
+
+# Packages
+*.egg
+*.egg-info
+dist
+build
+eggs
+sdist
+develop-eggs
+.installed.cfg
+__pycache__
+
+# Installer logs
+pip-log.txt
+
+# Translations
+*.mo
+
+# Compiled Object files
+*.slo
+*.lo
+*.o
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+
+#VStudio parsed headers
+ipch/
+
+files_vs2010.*
+
+#PyCharm IDE files
+.idea
+
+#MacOS crud
+.DS_Store
+
+# our test run dirs
+test_run/
+
+# who creates that one?
+.cache
+
