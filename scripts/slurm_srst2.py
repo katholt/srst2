@@ -1,4 +1,13 @@
 #!/usr/bin/env python
+'''
+This script generates SRST2 jobs for the SLURM scheduling system (http://slurm.schedmd.com/). It
+allows many samples to be processed in parallel. After they all complete, the results can be
+merged together using SRST2's --prev_output argument.
+
+Some of the specifics are set up for the cluster used by Kat Holt's lab, so modifications may be
+necessary to make it run properly on a different cluster using SLURM.  
+'''
+
 import string, re, collections
 import os, sys, subprocess		
 from subprocess import call, check_output, CalledProcessError, STDOUT
