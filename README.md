@@ -7,7 +7,7 @@ This program is designed to take Illumina sequence data, a MLST database and/or 
 of gene sequences (e.g. resistance genes, virulence genes, etc) and report the presence of
 STs and/or reference genes.
 
-Authors - Michael Inouye, Harriet Dashnow, Bernie Pope, Kathryn Holt (University of Melbourne)
+Authors - Michael Inouye, Harriet Dashnow, Bernie Pope, Ryan Wick, Kathryn Holt (University of Melbourne)
 		
 How to cite - The peer-reviewed open-access paper is available in Genome Medicine: http://genomemedicine.com/content/6/11/90
 
@@ -80,6 +80,18 @@ Dependencies:
 
 - SAMtools v0.1.18   https://sourceforge.net/projects/samtools/files/samtools/0.1.18/ (NOTE later versions can be used, but better results are obtained with v0.1.18 especially at low read depths (<20x))
 
+
+Updates in current master branch
+
+1. Updated E. coli serotype database to remove duplicate sequences
+
+2. Some improvements to allele calling, particularly for Klebsiella MLST locus mdh, kindly contributed by andreyto. Includes rejection of reads that are clipped on both ends, and minor bug fixes associated with depth calculations.
+
+3. Added scripts/qsub_srst2.py to generate SRST2 jobs for the Grid Engine (qsub) scheduling system (http://gridscheduler.sourceforge.net/). Thanks to Ramon Fallon from the University of St Andrews for putting this together. Some of the specifics are set up for his cluster, so modifications may be necessary to make it run properly on a different cluster using Grid Engine.
+
+NOTE: VFDB formatting code is currently broken since VFDB has changed their DB format and headers; thanks to those who have offered fixes, we will update this soon.
+
+-----------
 
 Updates in v0.1.8
 
@@ -813,9 +825,11 @@ An easy way to add sequences to this database would be to add new rows to the ta
 
 ### Using the VFDB Virulence Factor Database with SRST2
 
+***NOTE: This is currently broken since VFDB has changed their DB format and headers; thanks to those who have offered fixes, we will update this soon.***
+
 The VFDB houses sets of virulence genes for a range of bacterial genera, see http://www.mgc.ac.cn/VFs/.
 
-To type these virulence genes using SRST2, download the full set of sequences from the VFDB website (http://www.mgc.ac.cn/VFs/Down/CP_VFs.ffn.gz) and follow these steps to generate SRST2-compatible files for your genus of interest.
+To type these virulence genes using SRST2, download the full set of sequences from the VFDB website (http://www.mgc.ac.cn/VFs/Down/VFDB_setB_nt.fas.gz) and follow these steps to generate SRST2-compatible files for your genus of interest.
 
 1 - Extract virulence genes by genus from the main VFDB file, CP_VFs.ffn:
 
