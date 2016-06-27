@@ -68,13 +68,13 @@ def parse_args():
 	parser.add_argument('--mlst_definitions', type=str, required=False,
 		help='ST definitions for MLST scheme (required if mlst_db supplied and you want to calculate STs)')
 	parser.add_argument('--mlst_max_mismatch', type=str, required=False, default = "10",
-		help='Maximum number of mismatches per read for MLST allele calling (default 10)')	
+		help='Maximum number of mismatches per read for MLST allele calling (default 10). Turn off filtering with "-1"')	
 		
 	# Gene database parameters
 	parser.add_argument('--gene_db', type=str, required=False, nargs='+', help='Fasta file/s for gene databases (optional)')
 	parser.add_argument('--no_gene_details', action="store_false", required=False, help='Switch OFF verbose reporting of gene typing')
 	parser.add_argument('--gene_max_mismatch', type=str, required=False, default = "10",
-		help='Maximum number of mismatches per read for gene detection and allele calling (default 10)')
+		help='Maximum number of mismatches per read for gene detection and allele calling (default 10). Turn off filtering with "-1"')
 		
 	# Cutoffs for scoring/heuristics
 	parser.add_argument('--min_coverage', type=float, required=False, help='Minimum %%coverage cutoff for gene reporting (default 90)',default=90)
@@ -246,7 +246,8 @@ def modify_bowtie_sam(raw_bowtie_sam,max_mismatch,max_unaligned_overlap):
 				m = re.search("NM:i:(\d+)\s",line)
 				if m != None:
 					num_mismatch = m.group(1)
-					if int(num_mismatch) <= int(max_mismatch):
+                                        # write only if we have less then maximum mismatch or turn off by user with '-1'
+					if int(num_mismatch) <= int(max_mismatch) or int(max_mismatch) == -1:
 						sam_mod.write('\t'.join([fields[0], str(flag)] + fields[2:]))
 				else:
 					logging.info('Excluding read from SAM file due to missing NM (num mismatches) field: ' + fields[0])
