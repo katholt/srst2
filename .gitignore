@@ -4,6 +4,7 @@
 
 #python compiled files
 *.py[cod]
+scripts/*.py[cod]
 
 # Packages
 *.egg
@@ -49,6 +50,10 @@ files_vs2010.*
 
 # our test run dirs
 test_run/
+
+# Bowtie index files
+data/*.bt2
+data/*.fai
 
 # who creates that one?
 .cache
