@@ -1547,10 +1547,9 @@ def compile_results(args,mlst_results,db_results,compiled_output_file):
 				test_string = mlst_result[mlst_result.keys()[0]] # no header line?
 			test_string_split = test_string.split("\t")
 			this_mlst_cols = len(test_string_split)
-			
 			if (mlst_cols == 0) or (mlst_cols == this_mlst_cols):
 				mlst_cols = this_mlst_cols
-				blank_mlst_section = "?\t" * (mlst_cols-1) + "?" # blank MLST string in case some samples missing
+				blank_mlst_section = "\t?" * (mlst_cols-1) # blank MLST string in case some samples missing
 				# use this data
 				for sample in mlst_result:
 					mlst_results_master[sample] = mlst_result[sample]
