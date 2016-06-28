@@ -1,7 +1,7 @@
 #!/usr/local/Modules/modulefiles/tools/python/2.7.6/bin/python2.7
 '''
 This script generates SRST2 jobs for the Grid Engine (qsub) scheduling system
-(http://gridscheduler.sourceforge.net/).  It allows many samples to be processed in parallel. After
+(http://gridscheduler.sourceforge.net/). It allows many samples to be processed in parallel. After
 they all complete, the results can be merged together using SRST2's --prev_output argument.
 
 Thanks to Ramon Fallon from the University of St Andrews for putting this together! Some of the
@@ -10,7 +10,7 @@ on a different cluster using Grid Engine.
 '''
 
 import string, re, collections
-import os, sys, subprocess		
+import os, sys, subprocess
 from subprocess import call, check_output, CalledProcessError, STDOUT
 from argparse import (ArgumentParser, FileType)
 
@@ -22,7 +22,7 @@ def parse_args():
 	# Job details: walltime and memory removed.
 	parser.add_argument(
 		'--rundir', type=str, required=False, help='directory to run in (default current dir)')
-	
+
 	# SRST2 inputs
 	# script argument removed .. mystified by its inclusion, its the main srst2 executable, with the py extension dropped (which is what the modern version of srst2 did)
 	parser.add_argument(
@@ -34,15 +34,15 @@ def parse_args():
 	parser.add_argument(
 		'--input_pe', nargs='+', type=str, required=False, help='Paired end read files for analysing (may be gzipped)')
 	parser.add_argument(
-		'--forward', type=str, required=False, default="_1", 
+		'--forward', type=str, required=False, default="_1",
 			help='Designator for forward reads (only used if NOT in MiSeq format sample_S1_L001_R1_001.fastq.gz; otherwise default is _1, i.e. expect forward reads as sample_1.fastq.gz)')
 	parser.add_argument(
-		'--reverse', type=str, required=False, default="_2", 
+		'--reverse', type=str, required=False, default="_2",
 			help='Designator for reverse reads (only used if NOT in MiSeq format sample_S1_L001_R2_001.fastq.gz; otherwise default is _2, i.e. expect forward reads as sample_2.fastq.gz)')
 	parser.add_argument(
 		'--other_args', type=str, required=False, help='single string (i.e. surround with quotes) containing all other arguments as they would be passed to normal (serial) srst2')
-		
-	return parser.parse_args() 
+
+	return parser.parse_args()
 
 def get_readFile_components(full_file_path):
 	(file_path,file_name) = os.path.split(full_file_path)
@@ -56,12 +56,12 @@ def get_readFile_components(full_file_path):
 	full_ext = ext2+ext
 	return(file_path,file_name_before_ext,full_ext)
 
-def read_file_sets(args):	
+def read_file_sets(args):
 
 	fileSets = {} # key = id, value = list of files for that sample
 	num_single_readsets = 0
 	num_paired_readsets = 0
-	
+
 	if args.input_se:
 		# single end
 		for fastq in args.input_se:
@@ -72,7 +72,7 @@ def read_file_sets(args):
 			else:
 				fileSets[m.groups()[0]] = [fastq] # Illumina names
 			num_single_readsets += 1
-			
+
 	elif args.input_pe:
 		# paired end
 		forward_reads = {} # key = sample, value = full path to file
@@ -100,7 +100,7 @@ def read_file_sets(args):
 						print "Could not determine forward/reverse read status for input file " + fastq
 			else:
 				# matches default Illumina file naming format, e.g. m.groups() = ('samplename', '_S1', '_L001', '_R1', '_001')
-				baseName, read  = m.groups()[0], m.groups()[3]
+				baseName, read = m.groups()[0], m.groups()[3]
 				if read == "_R1":
 					forward_reads[baseName] = fastq
 				elif read == "_R2":
@@ -124,17 +124,17 @@ def read_file_sets(args):
 				fileSets[sample] = reverse_reads[sample] # no forward found
 				num_single_readsets += 1
 				print 'Warning, could not find pair for read:' + reverse_reads[sample]
-				
+
 	if num_paired_readsets > 0:
 		print 'Total paired readsets found:' + str(num_paired_readsets)
 	if num_single_readsets > 0:
 		print 'Total single reads found:' + str(num_single_readsets)
 
 	return fileSets
-	
+
 class CommandError(Exception):
 	pass
-	
+
 def run_command(command, **kwargs):
 	'Execute a shell command and check the exit status and any O/S exceptions'
 	command_str = ' '.join(command)
@@ -148,27 +148,15 @@ def run_command(command, **kwargs):
 		message = "Command '{}' failed with non-zero exit status: {}".format(command_str, exit_status)
 		raise CommandError({"message": message})
 
-def check_command_version(command_list, version_identifier, command_name, required_version):
-	try:
-		command_stdout = check_output(command_list, stderr=STDOUT)
-	except OSError as e:
-		print "Failed command: {}".format(' '.join(command_list))
-		print str(e)
-		print "Could not determine the version of {}.".format(command_name)
-		print "Do you have {} installed in your PATH?".format(command_name)
-		exit(-1)
-	except CalledProcessError as e:
-		# some programs such as samtools return a non-zero exit status
-		# when you ask for the version (sigh). We ignore it here.
-		command_stdout = e.output
+def check_bowtie_version():
+	check_command_versions([get_bowtie_execs()[0], '--version'], 'version ', 'bowtie',
+						   ['2.1.0','2.2.3','2.2.4','2.2.5','2.2.6','2.2.7','2.2.8','2.2.9'])
 
-	if version_identifier not in command_stdout:
-		print "Incorrect version of {} installed.".format(command_name)
-		print "{} version {} is required by SRST2.".format(command_name, required_version)
-		exit(-1)
+def check_samtools_version():
+	check_command_versions([get_samtools_exec()], 'Version: ', 'samtools',
+						   ['0.1.18','0.1.19','1.0','1.1','1.2','(0.1.18 is recommended)'])
 
-# allow multiple specific versions that have been specifically tested
-def check_command_versions(command_list, version_identifiers, command_name, required_versions):
+def check_command_versions(command_list, version_prefix, command_name, required_versions):
 	try:
 		command_stdout = check_output(command_list, stderr=STDOUT)
 	except OSError as e:
@@ -183,10 +171,10 @@ def check_command_versions(command_list, version_identifiers, command_name, requ
 		command_stdout = e.output
 
 	version_ok = False
-	for v in version_identifiers:
-		if v in command_stdout:
+	for v in required_versions:
+		if version_prefix + v in command_stdout:
 			version_ok = True
-			
+
 	if not version_ok:
 		logging.error("Incorrect version of {} installed.".format(command_name))
 		logging.error("{} versions compatible with SRST2 are ".format(command_name) + ", ".join(required_versions))
@@ -216,22 +204,15 @@ def get_bowtie_execs():
 
 def bowtie_index(fasta_files):
 	'Build a bowtie2 index from the given input fasta(s)'
-
-	bowtie_exec, bowtie_build_exec = get_bowtie_execs()
-	# check that bowtie has the right versions
-	check_command_versions([bowtie_exec, '--version'],
-				['bowtie2-align version 2.1.0','bowtie2-align-s version 2.2.3','bowtie2-align-s version 2.2.4'],
-				'bowtie',
-				['2.1.0','2.2.3','2.2.4'])
-
+	check_bowtie_version()
 	for fasta in fasta_files:
 		built_index = fasta + '.1.bt2'
 		if os.path.exists(built_index):
 			print 'Bowtie 2 index for {} is already built...'.format(fasta)
 		else:
 			print 'Building bowtie2 index for {}...'.format(fasta)
-			run_command([bowtie_build_exec, fasta, fasta])
-			
+			run_command([get_bowtie_execs()[1], fasta, fasta])
+
 def get_samtools_exec():
 	'Return the "best" samtools executable'
 
@@ -243,21 +224,14 @@ def get_samtools_exec():
 
 def samtools_index(fasta_files):
 	'Build a samtools faidx index from the given input fasta(s)'
-
-	# check that samtools has the right versions
-	samtools_exec = get_samtools_exec()
-	check_command_versions([samtools_exec],
-				['Version: 0.1.18','Version: 0.1.19','Version: 1.0','Version: 1.1'],
-				'samtools',
-				['0.1.18','0.1.19','1.0','1.1','(0.1.18 is recommended)'])
-
+	check_samtools_version()
 	for fasta in fasta_files:
 		built_index = fasta + '.fai'
 		if os.path.exists(built_index):
 			print 'Samtools index for {} is already built...'.format(fasta)
 		else:
 			print 'Building samtools faidx index for {}...'.format(fasta)
-			run_command([samtools_exec, 'faidx', fasta])
+			run_command([get_samtools_exec(), 'faidx', fasta])
 
 def main():
 
@@ -268,7 +242,7 @@ def main():
 
 	# parse list of file sets to analyse
 	fileSets = read_file_sets(args) # get list of files to process
-	
+
 	# make sure the databases are formated for bowtie2 and samtools before running the jobs
 	db = []
 	m = re.search( r'(--mlst_db) (.*?) .*', args.other_args)
@@ -283,9 +257,9 @@ def main():
 			db += g.group(2).split()
 	bowtie_index(db)
 	samtools_index(db)
-	
+
 	# build and submit commands
-	for sample in fileSets:		
+	for sample in fileSets:
 		cmd = "#!/bin/bash"
 		cmd += "\n#$ -V"
 		cmd += "\n#$ -cwd"
@@ -306,7 +280,7 @@ def main():
 		cmd += " --output " + sample + "_" + args.output
 		cmd += " --log"
 		cmd += " " + args.other_args
-		
+
 		# print and run command
 		print cmd
 		echo_for_cmd = ["echo", "-e", "%s" % cmd] # we need this for the Popen pipe
