@@ -143,22 +143,14 @@ def run_command(command, **kwargs):
 
 def bowtie_index(fasta_files):
 	'Build a bowtie2 index from the given input fasta(s)'
-
-	# check that bowtie has the right version
-	bowtie_exec, bowtie_build_exec = get_bowtie_execs()
-
-	check_command_versions([bowtie_exec, '--version'],
-				['bowtie2-align version 2.1.0','bowtie2-align-s version 2.2.3','bowtie2-align-s version 2.2.4'],
-				'bowtie',
-				['2.1.0','2.2.3','2.2.4'])
-				
+	check_bowtie_version()
 	for fasta in fasta_files:
 		built_index = fasta + '.1.bt2'
 		if os.path.exists(built_index):
 			logging.info('Index for {} is already built...'.format(fasta))
 		else:
 			logging.info('Building bowtie2 index for {}...'.format(fasta))
-			run_command([bowtie_build_exec, fasta, fasta])
+			run_command([get_bowtie_execs()[1], fasta, fasta])
 
 def get_clips_cigar(cigar):
 	## remove padding first if present;
@@ -617,7 +609,15 @@ def check_command_version(command_list, version_identifier, command_name, requir
 
 
 # allow multiple specific versions that have been specifically tested
-def check_command_versions(command_list, version_identifiers, command_name, required_versions):
+def check_bowtie_version():
+	check_command_versions([get_bowtie_execs()[0], '--version'], 'version ', 'bowtie',
+						   ['2.1.0','2.2.3','2.2.4','2.2.5','2.2.6','2.2.7','2.2.8','2.2.9'])
+
+def check_samtools_version():
+	check_command_versions([get_samtools_exec()], 'Version: ', 'samtools',
+						   ['0.1.18','0.1.19','1.0','1.1','1.2','(0.1.18 is recommended)'])
+
+def check_command_versions(command_list, version_prefix, command_name, required_versions):
 	try:
 		command_stdout = check_output(command_list, stderr=STDOUT)
 	except OSError as e:
@@ -632,10 +632,10 @@ def check_command_versions(command_list, version_identifiers, command_name, requ
 		command_stdout = e.output
 
 	version_ok = False
-	for v in version_identifiers:
-		if v in command_stdout:
+	for v in required_versions:
+		if version_prefix + v in command_stdout:
 			version_ok = True
-			
+
 	if not version_ok:
 		logging.error("Incorrect version of {} installed.".format(command_name))
 		logging.error("{} versions compatible with SRST2 are ".format(command_name) + ", ".join(required_versions))
@@ -667,22 +667,10 @@ def run_bowtie(mapping_files_pre,sample_name,fastqs,args,db_name,db_full_path):
 
 	logging.info("Starting mapping with bowtie2")
 
-	bowtie_exec, bowtie_build_exec = get_bowtie_execs()
-	samtools_exec = get_samtools_exec()
-	
-	# check that both bowtie and samtools have the right versions
-	check_command_versions([bowtie_exec, '--version'],
-				['bowtie2-align version 2.1.0','bowtie2-align-s version 2.2.3','bowtie2-align-s version 2.2.4'],
-				'bowtie',
-				['2.1.0','2.2.3','2.2.4'])
+	check_bowtie_version()
+	check_samtools_version()
 
-
-	check_command_versions([samtools_exec],
-				['Version: 0.1.18','Version: 0.1.19','Version: 1.0','Version: 1.1'],
-				'samtools',
-				['0.1.18','0.1.19','1.0','1.1','(0.1.18 is recommended)'])
-
-	command = [bowtie_exec]
+	command = [get_bowtie_execs()[0]]
 
 	if len(fastqs)==1:
 		# single end
@@ -1262,14 +1250,10 @@ def run_srst2(args, fileSets, dbs, run_type):
 	return db_reports, db_results_list
 
 def samtools_index(fasta_file):
-	samtools_exec = get_samtools_exec()
-	check_command_versions([samtools_exec],
-				['Version: 0.1.18','Version: 0.1.19','Version: 1.0','Version: 1.1'],
-				'samtools',
-				['0.1.18','0.1.19','1.0','1.1','(0.1.18 is recommended)'])
+	check_samtools_version()
 	fai_file = fasta_file + '.fai'
 	if not os.path.exists(fai_file):
-		run_command([samtools_exec, 'faidx', fasta_file])
+		run_command([get_samtools_exec(), 'faidx', fasta_file])
 	return fai_file
 
 def process_fasta_db(args, fileSets, run_type, db_reports, db_results_list, fasta):
