@@ -12,6 +12,7 @@ import string, re, collections
 import os, sys, subprocess
 from subprocess import call, check_output, CalledProcessError, STDOUT
 from argparse import (ArgumentParser, FileType)
+import logging
 
 def parse_args():
 	"Parse the input arguments, use '-h' for help"

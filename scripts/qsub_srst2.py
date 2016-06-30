@@ -13,11 +13,12 @@ import string, re, collections
 import os, sys, subprocess
 from subprocess import call, check_output, CalledProcessError, STDOUT
 from argparse import (ArgumentParser, FileType)
+import logging
 
 def parse_args():
 	"Parse the input arguments, use '-h' for help"
 
-	parser = ArgumentParser(description='Submit SRST2 jobs through Gridengine (qsub)')
+	parser = ArgumentParser(description='Submit SRST2 jobs through Grid Engine (qsub)')
 
 	# Job details: walltime and memory removed.
 	parser.add_argument(
