@@ -29,7 +29,7 @@ def parse_args():
 
 	# SRST2 inputs
 	parser.add_argument(
-		'--script', type=str, required=True, help='path to srst2 (default srst2)', default="srst")
+		'--script', type=str, required=True, help='path to srst2')
 	parser.add_argument(
 		'--output', type=str, required=True, help='identifier for outputs (will be combined with read set identifiers)')
 	parser.add_argument(
@@ -43,7 +43,7 @@ def parse_args():
 		'--reverse', type=str, required=False, default="_2",
 			help='Designator for reverse reads (only used if NOT in MiSeq format sample_S1_L001_R2_001.fastq.gz; otherwise default is _2, i.e. expect forward reads as sample_2.fastq.gz)')
 	parser.add_argument(
-		'--other_args', type=str, required=False, help='string containing all other arguments to pass to srst2')
+		'--other_args', type=str, required=True, help='string containing all other arguments to pass to srst2')
 
 	return parser.parse_args()
 

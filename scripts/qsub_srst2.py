@@ -41,7 +41,7 @@ def parse_args():
 		'--reverse', type=str, required=False, default="_2",
 			help='Designator for reverse reads (only used if NOT in MiSeq format sample_S1_L001_R2_001.fastq.gz; otherwise default is _2, i.e. expect forward reads as sample_2.fastq.gz)')
 	parser.add_argument(
-		'--other_args', type=str, required=False, help='single string (i.e. surround with quotes) containing all other arguments as they would be passed to normal (serial) srst2')
+		'--other_args', type=str, required=True, help='single string (i.e. surround with quotes) containing all other arguments as they would be passed to normal (serial) srst2')
 
 	return parser.parse_args()
 
