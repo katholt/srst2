@@ -143,7 +143,7 @@ def run_command(command, **kwargs):
 		raise CommandError({"message": message})
 
 
-def bowtie_index(fasta_files, threads):
+def bowtie_index(fasta_files):
 	'Build a bowtie2 index from the given input fasta(s)'
 	check_bowtie_version()
 	for fasta in fasta_files:
@@ -152,11 +152,7 @@ def bowtie_index(fasta_files, threads):
 			logging.info('Index for {} is already built...'.format(fasta))
 		else:
 			logging.info('Building bowtie2 index for {}...'.format(fasta))
-			cmd = [get_bowtie_execs()[1]]
-			if threads > 1:
-				cmd += ['--threads', str(threads)]
-			cmd += [fasta, fasta]
-			run_command(cmd)
+			run_command([get_bowtie_execs()[1], fasta, fasta])
 
 def get_clips_cigar(cigar):
 	## remove padding first if present;
@@ -1714,7 +1710,7 @@ def main():
 			logging.info(" allele sequences: " + str(args.mlst_db))
 			logging.info(" these will be mapped and scored, but STs can not be calculated")
 
-		bowtie_index(args.mlst_db, args.threads) # index the MLST database
+		bowtie_index(args.mlst_db) # index the MLST database
 
 		# score file sets against MLST database
 		mlst_report, mlst_results = run_srst2(args, fileSets, args.mlst_db, "mlst")
@@ -1727,7 +1723,7 @@ def main():
 	# run gene detection
 	if fileSets and args.gene_db:
 
-		bowtie_index(args.gene_db, args.threads) # index the gene databases
+		bowtie_index(args.gene_db) # index the gene databases
 
 		db_reports, db_results = run_srst2(args,fileSets,args.gene_db,"genes")
 
