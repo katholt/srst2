@@ -737,12 +737,13 @@ def get_pileup(args, mapping_files_pre, raw_bowtie_sam, bowtie_sam_mod, fasta, p
 	run_command(view_command)
 	out_file_bam_sorted = mapping_files_pre + ".sorted"
 	sort_command = [samtools_exec, 'sort']
-	if args.threads > 1 and samtools_v1:
-		sort_command += ['-@', str(args.threads)]
-	sort_command.append(out_file_bam)
 	if samtools_v1:
-		sort_command.append('-o')
-	sort_command.append(out_file_bam_sorted)
+		if args.threads > 1:
+			sort_command += ['-@', str(args.threads)]
+		temp = mapping_files_pre + ".sort_temp"
+		sort_command += ['-o', out_file_bam_sorted + '.bam', '-O', 'bam', '-T', temp, out_file_bam]
+	else:  # samtools 0.x
+		sort_command += [out_file_bam, out_file_bam_sorted]
 	run_command(sort_command)
 
 	# Delete interim files (sam, modified sam, unsorted bam) unless otherwise specified.
