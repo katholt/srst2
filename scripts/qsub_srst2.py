@@ -155,7 +155,7 @@ def check_bowtie_version():
 
 def check_samtools_version():
 	check_command_versions([get_samtools_exec()], 'Version: ', 'samtools',
-						   ['0.1.18','0.1.19','1.0','1.1','1.2','(0.1.18 is recommended)'])
+						   ['0.1.18','0.1.19','1.0','1.1','1.2','1.3','(0.1.18 is recommended)'])
 
 def check_command_versions(command_list, version_prefix, command_name, required_versions):
 	try:

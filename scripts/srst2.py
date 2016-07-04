@@ -113,6 +113,8 @@ def parse_args():
 		help='Use existing scores files if available, otherwise they will be generated') # to facilitate testing of reporting from scores
 	parser.add_argument('--keep_interim_alignment', action="store_true", required=False, default=False,
 		help='Keep interim files (sam & unsorted bam), otherwise they will be deleted after sorted bam is created') # to facilitate testing of sam processing
+	parser.add_argument('--threads', type=int, required=False, default=1,
+		help='Use multiple threads in Bowtie and Samtools')
 #	parser.add_argument('--keep_final_alignment', action="store_true", required=False, default=False,
 #		help='Keep interim files (sam & unsorted bam), otherwise they will be deleted after sorted bam is created') # to facilitate testing of sam processing
 
@@ -141,7 +143,7 @@ def run_command(command, **kwargs):
 		raise CommandError({"message": message})
 
 
-def bowtie_index(fasta_files):
+def bowtie_index(fasta_files, threads):
 	'Build a bowtie2 index from the given input fasta(s)'
 	check_bowtie_version()
 	for fasta in fasta_files:
@@ -150,7 +152,11 @@ def bowtie_index(fasta_files):
 			logging.info('Index for {} is already built...'.format(fasta))
 		else:
 			logging.info('Building bowtie2 index for {}...'.format(fasta))
-			run_command([get_bowtie_execs()[1], fasta, fasta])
+			cmd = [get_bowtie_execs()[1]]
+			if threads > 1:
+				cmd += ['--threads', str(threads)]
+			cmd += [fasta, fasta]
+			run_command(cmd)
 
 def get_clips_cigar(cigar):
 	## remove padding first if present;
@@ -610,12 +616,13 @@ def check_command_version(command_list, version_identifier, command_name, requir
 
 # allow multiple specific versions that have been specifically tested
 def check_bowtie_version():
-	check_command_versions([get_bowtie_execs()[0], '--version'], 'version ', 'bowtie',
-						   ['2.1.0','2.2.3','2.2.4','2.2.5','2.2.6','2.2.7','2.2.8','2.2.9'])
+	return check_command_versions([get_bowtie_execs()[0], '--version'], 'version ', 'bowtie',
+								  ['2.1.0','2.2.3','2.2.4','2.2.5','2.2.6','2.2.7','2.2.8','2.2.9'])
 
 def check_samtools_version():
-	check_command_versions([get_samtools_exec()], 'Version: ', 'samtools',
-						   ['0.1.18','0.1.19','1.0','1.1','1.2','(0.1.18 is recommended)'])
+	return check_command_versions([get_samtools_exec()], 'Version: ', 'samtools',
+								  ['0.1.18','0.1.19','1.0','1.1','1.2','1.3','(0.1.18 is '
+																			 'recommended)'])
 
 def check_command_versions(command_list, version_prefix, command_name, required_versions):
 	try:
@@ -631,15 +638,13 @@ def check_command_versions(command_list, version_prefix, command_name, required_
 		# when you ask for the version (sigh). We ignore it here.
 		command_stdout = e.output
 
-	version_ok = False
 	for v in required_versions:
 		if version_prefix + v in command_stdout:
-			version_ok = True
+			return v
 
-	if not version_ok:
-		logging.error("Incorrect version of {} installed.".format(command_name))
-		logging.error("{} versions compatible with SRST2 are ".format(command_name) + ", ".join(required_versions))
-		exit(-1)
+	logging.error("Incorrect version of {} installed.".format(command_name))
+	logging.error("{} versions compatible with SRST2 are ".format(command_name) + ", ".join(required_versions))
+	exit(-1)
 
 def get_bowtie_execs():
 	'Return the "best" bowtie2 executables'
@@ -689,6 +694,8 @@ def run_bowtie(mapping_files_pre,sample_name,fastqs,args,db_name,db_full_path):
 				'-a',					 # Search for and report all alignments
 				'-x', db_full_path			   # The index to be aligned to
 			   ]
+	if args.threads > 1:
+		command += ['--threads', str(args.threads)]
 
 	if args.stop_after:
 		try:
@@ -720,16 +727,27 @@ def get_samtools_exec():
 	else:
 		return 'samtools'
 
-def get_pileup(args,mapping_files_pre,raw_bowtie_sam,bowtie_sam_mod,fasta,pileup_file):
+def get_pileup(args, mapping_files_pre, raw_bowtie_sam, bowtie_sam_mod, fasta, pileup_file):
 	# Analyse output with SAMtools
 	samtools_exec = get_samtools_exec()
+	samtools_v1 = check_samtools_version().split('.')[0] == '1'  # Usage changed in version 1.0
 	logging.info('Processing Bowtie2 output with SAMtools...')
 	logging.info('Generate and sort BAM file...')
 	out_file_bam = mapping_files_pre + ".unsorted.bam"
-	run_command([samtools_exec, 'view', '-b', '-o', out_file_bam,
-				 '-q', str(args.mapq), '-S', bowtie_sam_mod])
+	view_command = [samtools_exec, 'view']
+	if args.threads > 1 and samtools_v1:
+		view_command += ['-@', str(args.threads)]
+	view_command += ['-b', '-o', out_file_bam, '-q', str(args.mapq), '-S', bowtie_sam_mod]
+	run_command(view_command)
 	out_file_bam_sorted = mapping_files_pre + ".sorted"
-	run_command([samtools_exec, 'sort', out_file_bam, out_file_bam_sorted])
+	sort_command = [samtools_exec, 'sort']
+	if args.threads > 1 and samtools_v1:
+		sort_command += ['-@', str(args.threads)]
+	sort_command.append(out_file_bam)
+	if samtools_v1:
+		sort_command.append('-o')
+	sort_command.append(out_file_bam_sorted)
+	run_command(sort_command)
 
 	# Delete interim files (sam, modified sam, unsorted bam) unless otherwise specified.
 	# Note users may also want to delete final sorted bam and pileup on completion to save space.
@@ -1245,7 +1263,8 @@ def run_srst2(args, fileSets, dbs, run_type):
 	db_results_list = [] # list of results hashes, one per db
 
 	for fasta in dbs:
-		db_reports, db_results_list = process_fasta_db(args, fileSets, run_type, db_reports, db_results_list, fasta)
+		db_reports, db_results_list = process_fasta_db(args, fileSets, run_type, db_reports,
+													   db_results_list, fasta)
 
 	return db_reports, db_results_list
 
@@ -1306,8 +1325,9 @@ def process_fasta_db(args, fileSets, run_type, db_reports, db_results_list, fast
 			# __mlst__ will be printed during this routine if this is a mlst run
 			# __fullgenes__ will be printed during this routine if requested and this is a gene_db run
 			gene_list, results = \
-				map_fileSet_to_db(args,sample_name,fastq_inputs,db_name,fasta,size,gene_names,\
-				unique_gene_symbols, unique_allele_symbols,run_type,ST_db,results,gene_list,db_report,cluster_symbols,max_mismatch)
+				map_fileSet_to_db(args, sample_name, fastq_inputs, db_name, fasta,size,gene_names,
+								  unique_gene_symbols, unique_allele_symbols, run_type,ST_db,
+								  results,gene_list, db_report, cluster_symbols, max_mismatch)
 
 		# if we get an error from one of the commands we called
 		# log the error message, record as failed, and continue onto the next fasta db
@@ -1357,8 +1377,9 @@ def process_fasta_db(args, fileSets, run_type, db_reports, db_results_list, fast
 
 	return db_reports, db_results_list
 
-def map_fileSet_to_db(args,sample_name,fastq_inputs,db_name,fasta,size,gene_names,\
-	unique_gene_symbols, unique_allele_symbols,run_type,ST_db,results,gene_list,db_report,cluster_symbols,max_mismatch):
+def map_fileSet_to_db(args, sample_name, fastq_inputs, db_name, fasta, size, gene_names,
+					  unique_gene_symbols, unique_allele_symbols, run_type, ST_db, results,
+					  gene_list, db_report, cluster_symbols, max_mismatch):
 
 	mapping_files_pre = args.output + '__' + sample_name + '.' + db_name
 	pileup_file = mapping_files_pre + '.pileup'
@@ -1393,7 +1414,7 @@ def map_fileSet_to_db(args,sample_name,fastq_inputs,db_name,fasta,size,gene_name
 					max_unaligned_overlap=args.max_unaligned_overlap)
 
 			# generate pileup from sam (via sorted bam)
-			get_pileup(args,mapping_files_pre,raw_bowtie_sam,bowtie_sam_mod,fasta,pileup_file)
+			get_pileup(args, mapping_files_pre, raw_bowtie_sam, bowtie_sam_mod, fasta, pileup_file)
 
 		# Get scores
 
@@ -1693,10 +1714,10 @@ def main():
 			logging.info(" allele sequences: " + str(args.mlst_db))
 			logging.info(" these will be mapped and scored, but STs can not be calculated")
 
-		bowtie_index(args.mlst_db) # index the MLST database
+		bowtie_index(args.mlst_db, args.threads) # index the MLST database
 
 		# score file sets against MLST database
-		mlst_report, mlst_results = run_srst2(args,fileSets,args.mlst_db,"mlst")
+		mlst_report, mlst_results = run_srst2(args, fileSets, args.mlst_db, "mlst")
 
 		logging.info('MLST output printed to ' + mlst_report[0])
 
@@ -1706,7 +1727,7 @@ def main():
 	# run gene detection
 	if fileSets and args.gene_db:
 
-		bowtie_index(args.gene_db) # index the gene databases
+		bowtie_index(args.gene_db, args.threads) # index the gene databases
 
 		db_reports, db_results = run_srst2(args,fileSets,args.gene_db,"genes")
 
