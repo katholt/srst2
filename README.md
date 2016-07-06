@@ -231,8 +231,6 @@ OR do both at once:
 
     getmlst.py -h
 
-    scores_vs_expected.py -h
-
     slurm_srst2.py -h
 
 

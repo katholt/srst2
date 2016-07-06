@@ -8,7 +8,7 @@ setup(
     author='Kathryn Holt',
     author_email='drkatholt@gmail.com',
     packages=['srst2'],
-    scripts=['scripts/getmlst.py', 'scripts/scores_vs_expected.py', 'scripts/slurm_srst2.py'],
+    scripts=['scripts/getmlst.py', 'scripts/slurm_srst2.py'],
     entry_points={
         'console_scripts': ['srst2 = srst2.srst2:main']
     },
