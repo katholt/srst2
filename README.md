@@ -89,7 +89,9 @@ Updates in current master branch
 
 3. Added scripts/qsub_srst2.py to generate SRST2 jobs for the Grid Engine (qsub) scheduling system (http://gridscheduler.sourceforge.net/). Thanks to Ramon Fallon from the University of St Andrews for putting this together. Some of the specifics are set up for his cluster, so modifications may be necessary to make it run properly on a different cluster using Grid Engine.
 
-NOTE: VFDB formatting code is currently broken since VFDB has changed their DB format and headers; thanks to those who have offered fixes, we will update this soon.
+4. Updated scripts for formatting VFDB files for use with SRST2.
+
+5. Added mcr-2 colistin resistance gene to ARGannot.r1.fasta resistance gene database.
 
 -----------
 
@@ -822,8 +824,6 @@ An easy way to add sequences to this database would be to add new rows to the ta
     csv_to_gene_db.py -t rawseqs_clustered.csv -o seqs_clustered.fasta -s rawseqs.fasta -c 5
 
 ### Using the VFDB Virulence Factor Database with SRST2
-
-***NOTE: This is currently broken since VFDB has changed their DB format and headers; thanks to those who have offered fixes, we will update this soon.***
 
 The VFDB houses sets of virulence genes for a range of bacterial genera, see http://www.mgc.ac.cn/VFs/.
 
