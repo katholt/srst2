@@ -55,7 +55,8 @@ def main():
 			gene = in_brackets[1]
 		else:
 			gene = in_brackets[0]
-		allele = gene + "_" + in_brackets[-1]
+		gene = gene.split()[0]
+		allele = gene + "_" + full_name.split(")]")[0].split("(")[-1]
 		if seqID in seq2cluster:
 			clusterid = seq2cluster[seqID]
 			outstring = ",".join([seqID, clusterid, gene, allele, str(record.seq), re.sub(",","",record.description)]) + "\n"
