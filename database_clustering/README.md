@@ -88,6 +88,7 @@ To type these virulence genes using SRST2, download the full set of sequences fr
 - Extract virulence genes by genus from the main VFDB file, VFDB_setB_nt.fas:
 
 gunzip VFDB_setB_nt.fas.gz
+
 python VFDBgenus.py --infile VFDB_setB_nt.fas --genus Clostridium
 
 or, to get all available genera in separate files:
