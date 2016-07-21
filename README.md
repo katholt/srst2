@@ -72,26 +72,33 @@ Current release - v0.1.8 - March 15, 2016
 
 Dependencies:
 
-- python (v2.7.5)
+- python (v2.7.5 or later)
 
-- scipy, numpy		http://www.scipy.org/install.html
+- scipy, numpy   http://www.scipy.org/install.html
 
-- bowtie2 v2.1.0, 2.2.3 or 2.2.4     http://bowtie-bio.sourceforge.net/bowtie2/index.shtml
+- bowtie2 (v2.1.0 or later)   http://bowtie-bio.sourceforge.net/bowtie2/index.shtml
 
-- SAMtools v0.1.18   https://sourceforge.net/projects/samtools/files/samtools/0.1.18/ (NOTE later versions can be used, but better results are obtained with v0.1.18 especially at low read depths (<20x))
+- SAMtools v0.1.18   https://sourceforge.net/projects/samtools/files/samtools/0.1.18/ (NOTE: later versions can be used, but better results are obtained with v0.1.18, especially at low read depths (<20x))
 
+-----------
 
-Updates in current master branch
+Updates in v0.2.0
 
-1. Updated E. coli serotype database to remove duplicate sequences
+1. Some improvements to allele calling, particularly for Klebsiella MLST locus mdh, kindly contributed by andreyto. Includes rejection of read alignments that are clipped on both ends (likely to be spurious) and minor bug fixes associated with depth calculations.
 
-2. Some improvements to allele calling, particularly for Klebsiella MLST locus mdh, kindly contributed by andreyto. Includes rejection of reads that are clipped on both ends, and minor bug fixes associated with depth calculations.
+2. Updated E. coli serotype database to remove duplicate sequences.
 
-3. Added scripts/qsub_srst2.py to generate SRST2 jobs for the Grid Engine (qsub) scheduling system (http://gridscheduler.sourceforge.net/). Thanks to Ramon Fallon from the University of St Andrews for putting this together. Some of the specifics are set up for his cluster, so modifications may be necessary to make it run properly on a different cluster using Grid Engine.
+3. Added mcr-2 colistin resistance gene to ARGannot.r1.fasta resistance gene database.
 
-4. Updated scripts for formatting VFDB files for use with SRST2.
+4. A `--threads` option was added, which makes SRST2 call Bowtie and Samtools with their threading options. The resulting speed up is mostly due to the Bowtie mapping step which parallelises very well.
 
-5. Added mcr-2 colistin resistance gene to ARGannot.r1.fasta resistance gene database.
+5. The `VFDB_cdhit_to_csv.py` script was updated to work with the new VFDB FASTA format.
+
+6. Versions of Bowtie2 up to 2.2.9 are now supported. Samtools v1.3 can now be used as well, however v0.1.18 is still the recommended version (for reasons discussed below).
+
+7. Added `scripts/qsub_srst2.py` to generate SRST2 jobs for the Grid Engine (qsub) scheduling system (http://gridscheduler.sourceforge.net/). Thanks to Ramon Fallon from the University of St Andrews for putting this together. Some of the specifics are set up for his cluster, so modifications may be necessary to make it run properly on a different cluster using Grid Engine.
+
+8. Various other small bug fixes!
 
 -----------
 
@@ -266,11 +273,9 @@ srst2 --input_pe strainA_1.fastq.gz strainA_2.fastq.gz --output strainA_test --l
 
 (i) MLST results are output in: "strainA\_test\_\_mlst\_\_Escherichia\_coli\_\_results.txt"
 
-```
-Sample  ST      adk     fumC    gyrB    icd     mdh     purA    recA    mismatches      uncertainty     depth
-
-strainA     152     11      63      7       1       14      7       7                       25.8319955826
-```
+Sample | ST | adk | fumC | gyrB | icd | mdh | purA | recA | mismatches | uncertainty | depth | maxMAF
+:---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---:
+strainA | 152 | 11 | 63 | 7 | 1 | 14 | 7 | 7 | 0 | - | 25.8319955826 | 0.125
 
 Basic usage - Resistance genes
 ====
@@ -289,11 +294,9 @@ srst2 --input_pe strainA_1.fastq.gz strainA_2.fastq.gz --output strainA_test --l
 
 (i) Gene detection results are output in: "strainA_test__genes__resistance__results.txt"
 
-```
-Sample  aadA    dfrA    sul2    tet(B)
-
-strainA     aadA1-5 dfrA1_1 sul2_2  tet(B)_4
-```
+Sample | aadA | dfrA | sul2 | tet(B)
+:---: | :---: | :---: | :---: | :---:
+strainA | aadA1-5 | dfrA1_1 | sul2_2 | tet(B)_4
 
 All usage options
 ====
@@ -462,11 +465,10 @@ Output files
 If MLST sequences and profiles were provided, STs will be printed in tab-delim format to a file called "[outputprefix]\_\_mlst\_\_[db]\_\_results.txt", e.g.: "strainArun1\_\_mlst\_\_Escherichia\_coli\_\_results.txt".
 
 The format looks like this:
-```
-Sample  ST      adk     fumC    gyrB    icd     mdh     purA    recA    mismatches      uncertainty     depth
 
-strainA     1502    6       63      7       1       14      7       7                       12.3771855735
-```
+Sample | ST | adk | fumC | gyrB | icd | mdh | purA | recA | mismatches | uncertainty | depth | maxMAF
+:---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---:
+strainA | 1502 | 6 | 63 | 7 | 1 | 14 | 7 | 7 | 0 | - | 12.3771855735 | 0.275
 
 Each locus has a column in which the best scoring allele number is printed. 
 
@@ -495,23 +497,15 @@ Two output files are produced:
 
 1 - A detailed report, [outputprefix]\_\_fullgenes\_\_[db]\_\_results.txt, with one row per gene per sample:
 
-```
-Sample  DB      gene    allele  coverage        depth   diffs   uncertainty     cluster seqid   annotation
-
-strainA     resistance      dfrA    dfrA1_1 100.0   6.79368421053           edge1.5 590     137     
-
-strainA     resistance      aadA    aadA1-5 100.0   10.6303797468                   162     1631    
-
-strainA     resistance      sul2    sul2_9  100.0   79.01992966                     265     1763    
-
-strainA     resistance      blaTEM  blaTEM-1_5      100.0   70.8955916473                   258     1396    
-
-strainA     resistance      tet(A)  tet(A)_4        97.6666666667   83.5831202046   28holes edge0.0 76      1208    
-
-strainB     resistance      strB    strB1   100.0   90.0883054893                   282     1720    
-
-strainB     resistance      strA    strA4   100.0   99.0832298137                   325     1142 
-```
+Sample | DB | gene | allele | coverage | depth | diffs | uncertainty | cluster | seqid | annotation
+:---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---:
+strainA | resistance | dfrA | dfrA1_1 | 100.0 | 6.79368421053 | | edge1.5 | 590 | 137 | 
+strainA | resistance | aadA | aadA1-5 | 100.0 | 10.6303797468 | | | 162 | 1631 | 
+strainA | resistance | sul2 | sul2_9 | 100.0 | 79.01992966 | | | 265 | 1763 | 
+strainA | resistance | blaTEM | blaTEM-1_5 | 100.0 | 70.8955916473 | | | 258 | 1396 | 
+strainA | resistance | tet(A) | tet(A)_4 | 97.6666666667 | 83.5831202046 | 28holes | edge0.0 | 76 | 1208 | 
+strainB | resistance | strB | strB1 | 100.0 | 90.0883054893 | | | 282 | 1720 | 
+strainB | resistance | strA | strA4 | 100.0 | 99.0832298137 | | | 325 | 1142 |
 
 *coverage* indicates the % of the gene length that was covered (if clustered DB, then this is the highest coverage of any members of the cluster)
 
@@ -519,13 +513,10 @@ strainB     resistance      strA    strA4   100.0   99.0832298137               
 
 2 - A tabulated summary report of samples x genes, [outputprefix]\_\_genes\_\_[db]\_\_results.txt:
 
-```
-Sample  aadA    blaTEM  dfrA    strA    strB    sul2    tet(A)
-
-strainA     aadA1-5 blaTEM-1_5      dfrA1_1?        -   -   sul2_9  tet(A)_4*?
-
-strainB     -     -      -        strA4   strB1   -  -
-```
+Sample | aadA | blaTEM | dfrA | strA | strB | sul2 | tet(A)
+:---: | :---: | :---: | :---: | :---: | :---: | :---: | :---:
+strainA | aadA1-5 | blaTEM-1_5 | dfrA1_1? | - | - | sul2_9 | tet(A)_4*?
+strainB | - | - | - | strA4 | strB1 | - | -
 
 The first column indicates the sample name, all other columns report the genes/alleles that were detected in the sample set. If multiple samples were input, or if previous outputs were provided for compiling results, then all the genes detected in ANY of the samples will have their own column in this table.
 
@@ -542,11 +533,9 @@ If you were using a clustered gene database (such as the resistance.fasta databa
 
 If more then one database is provided for typing (via --mlst_db and/or --gene_db), or if previous results are provided for merging with the current run which contain data from >1 database (via --prev_output), then an additional table summarizing all the database results is produced. This is named "[outputprefix]\_\_compiledResults.txt" and is a combination of the MLST style table plus the tabulated gene summary (file 2 above).
 
-```
-Sample  ST      adk     fumC    gyrB    icd     mdh     purA    recA    mismatches      uncertainty     depth maxMAF   aadA    blaTEM  dfrA    strA    strB    sul2    tet(A)
-
-sampleA     152*     11      63*      7       1       14      7       7                       21.3	0.05   aadA1-5 blaTEM-1_5      dfrA1_1?        strA4   strB1   sul2_9  tet(A)_4*?
-```
+Sample | ST | adk | fumC | gyrB | icd | mdh | purA | recA | mismatches | uncertainty | depth | maxMAF | aadA | blaTEM | dfrA | strA | strB | sul2 | tet(A)
+:---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---:
+sampleA | 152* | 11 | 63* | 7 | 1 | 14 | 7 | 7 | 0 | - | 21.3 | 0.05 | aadA1-5 | blaTEM-1_5 | dfrA1_1? | strA4 | strB1 | sul2_9 | tet(A)_4*?
 
 ------------
 ### Mapping results
@@ -894,11 +883,10 @@ Results will be output in: "[prefix]__genes__EcOH__results.txt"
 
 Output from the above example would appear in: "serotypes__genes__EcOH__results.txt"
 
-```
-Sample  	fliC    	wzm     	wzt		wzx     	wzy
-ERR178148       fliC-H31_32*    -       	-       	wzx-O131_165*   wzy-O131_386
-ERR178156       fliC-H33_34     wzm-O9_93*      wzt-O9_107*     -       	-
-```
+Sample | fliC | wzm | wzt | wzx | wzy
+:---: | :---: | :---: | :---: | :---: | :---:
+ERR178148 | fliC-H31_32* | - | - | wzx-O131_165* | wzy-O131_386
+ERR178156 | fliC-H33_34 | wzm-O9_93* | wzt-O9_107* | - | -
 
 #### Interpretation
 
@@ -942,12 +930,10 @@ Results will be output in: "[prefix]__mlst__LEE_mlst__results.txt"
 
 Output from the above example would appear in: "LEE__mlst__LEE_mlst__results.txt"
 
-```
-Sample  ST      eae     tir     espA    espB    espD    espH    espZ    mismatches      uncertainty     depth   maxMAF
-ERR178148       30*     19      10*     9*      5*      6*      4*      13*     tir-10/33snp3indel;espA-9/3snp;espB-5/4snp;espD-6/9snp;espH-4/1snp;espZ-13/3snp -
-       59.8217142857   0.285714285714
-ERR178156       9*      6*      5*      5*      3*      3*      4*      8       eae-6/4snp;tir-5/18snp;espA-5/6snp;espB-3/4snp;espD-3/8snp;espH-4/3snp  -       33.5062857143   0.444444444444
-```
+Sample | ST | eae | tir | espA | espB | espD | espH | espZ | mismatches | uncertainty | depth | maxMAF
+:---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---:
+ERR178148 | 30* | 19 | 10* | 9* | 5* | 6* | 4* | 13* | tir-10/33snp3indel;espA-9/3snp;espB-5/4snp;espD-6/9snp;espH-4/1snp;espZ-13/3snp | - | 59.8217142857 | 0.285714285714
+ERR178156 | 9* | 6* | 5* | 5* | 3* | 3* | 4* | 8 | eae-6/4snp;tir-5/18snp;espA-5/6snp;espB-3/4snp;espD-3/8snp;espH-4/3snp | - | 33.5062857143 | 0.444444444444
 
 #### Interpretation
 
