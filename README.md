@@ -67,7 +67,7 @@ Contents
 
 [Example - Shigella sonnei public data](example.txt)
 
-Current release - v0.1.8 - March 15, 2016
+Current release - v0.2.0 - July 28, 2016
 -----
 
 Dependencies:
