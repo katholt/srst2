@@ -79,7 +79,7 @@ Dependencies:
 
 Updates in v0.2.0
 
-1. Some improvements to allele calling, particularly for Klebsiella MLST locus mdh, kindly contributed by andreyto. Includes rejection of read alignments that are clipped on both ends (likely to be spurious) and minor bug fixes associated with depth calculations.
+1. Some improvements to allele calling, particularly for Klebsiella MLST locus mdh, kindly contributed by @andreyto. Includes rejection of read alignments that are clipped on both ends (likely to be spurious) and minor bug fixes associated with depth calculations.
 2. Updated E. coli serotype database to remove duplicate sequences.
 3. Added mcr-2 colistin resistance gene to `ARGannot.r1.fasta` resistance gene database.
 4. A `--threads` option was added, which makes SRST2 call Bowtie and Samtools with their threading options. The resulting speed up is mostly due to the Bowtie mapping step which parallelises very well.
