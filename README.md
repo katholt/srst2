@@ -81,7 +81,7 @@ Updates in v0.2.0
 
 1. Some improvements to allele calling, particularly for Klebsiella MLST locus mdh, kindly contributed by andreyto. Includes rejection of read alignments that are clipped on both ends (likely to be spurious) and minor bug fixes associated with depth calculations.
 2. Updated E. coli serotype database to remove duplicate sequences.
-3. Added mcr-2 colistin resistance gene to ARGannot.r1.fasta resistance gene database.
+3. Added mcr-2 colistin resistance gene to `ARGannot.r1.fasta` resistance gene database.
 4. A `--threads` option was added, which makes SRST2 call Bowtie and Samtools with their threading options. The resulting speed up is mostly due to the Bowtie mapping step which parallelises very well.
 5. The `VFDB_cdhit_to_csv.py` script was updated to work with the new VFDB FASTA format.
 6. Versions of Bowtie2 up to 2.2.9 are now supported. Samtools v1.3 can now be used as well, however v0.1.18 is still the recommended version (for reasons discussed below).
@@ -94,8 +94,8 @@ Updates in v0.1.8
 
 1. /data directory includes files for subtyping of the LEE pathogenicity island of E. coli, as per [Ingle et al, 2016, Nature Microbiology](http://www.nature.com/articles/nmicrobiol201510). [Instructions below](https://github.com/katholt/srst2#typing-the-lee-pathogenicity-island-of-e-coli)
 2. Resistance gene database updates:
-  * Fixed ARGannot.r1.fasta to include proper mcr1 DNA sequence.
-  * Added columns to the ARGannot_clustered80.csv table, to indicate classes of beta-lactamases included in the ARGannot.r1.fasta database according to the [NCBI beta-lactamase resource](http://www.ncbi.nlm.nih.gov/pathogens/beta-lactamase-data-resources/) (new location for the Lahey list).
+  * Fixed `ARGannot.r1.fasta` to include proper mcr1 DNA sequence.
+  * Added columns to the `ARGannot_clustered80.csv` table, to indicate classes of beta-lactamases included in the `ARGannot.r1.fasta` database according to the [NCBI beta-lactamase resource](http://www.ncbi.nlm.nih.gov/pathogens/beta-lactamase-data-resources/) (new location for the Lahey list).
 3. Fixed some issues with handling of missing data (i.e. where there were no hits to MLST and/or no hits to genes) when compiling results into a table via `--prev_output`. This could result in misalignment of gene columns in previous versions.
 
 -----------
@@ -106,7 +106,7 @@ Updates in v0.1.7
   * SRST2_SAMTOOLS
   * SRST2_BOWTIE2
   * SRST2_BOWTIE2_BUILD
-2. Added mcr1, the plasmid-borne colisting resistance gene to the included ARG-Annot-based resistance gene DB (ARGannot.r1.fasta)
+2. Added mcr1, the plasmid-borne colisting resistance gene to the included ARG-Annot-based resistance gene DB (`ARGannot.r1.fasta`)
 3. Fixed a problem with writing consensus files that occurred when a directory structure was specified using `--output` (bug introduced in v0.1.6)
 
 -----------
@@ -116,7 +116,7 @@ Updates in v0.1.6
 1. The original validation of SRST2 (see [paper](http://genomemedicine.com/content/6/11/90)) was performed with bowtie2 version 2.1.0 and samtools v0.1.18.
   * bowtie2: SRST2 has now been tested on the tutorial example and other test data sets using the latest versions of bowtie2, 2.2.3 and 2.2.4, which gave identical results to those obtained with bowtie2 v2.1.0. Therefore, the SRST2 code will now run if any of these versions of bowtie2 are available: 2.1.0, 2.2.3 or 2.2.4. 
   * samtools: SRST2 has now been tested on the Staph & Salmonella test data sets used in the paper, and will work with newer samtools versions (tested up to v1.1). Note however that SRST2 still works best with [samtools v0.1.18](https://sourceforge.net/projects/samtools/files/samtools/0.1.18/), due to small changes in the mapping algorithms in later versions that result in some loss of reads at the ends of alleles. This has most impact at low read depths, however we do recommend using v0.1.18 for optimum results.
-2. Minor fixes to the ARG-Annot database of resistance genes, including removal of duplicate sequences and fixes to gene names (thanks to Wan Yu for this). Old version remains unchanged for backwards compatibility, but we recommend using the revised version (located in data/ARGannot.r1.fasta).
+2. Minor fixes to the ARG-Annot database of resistance genes, including removal of duplicate sequences and fixes to gene names (thanks to Wan Yu for this). Old version remains unchanged for backwards compatibility, but we recommend using the revised version (located in `data/ARGannot.r1.fasta`).
 3. Added EcOH database for serotyping E. coli (thanks to Danielle Ingle for this). See [Using the EcOH database for serotyping E. coli with SRST2](https://github.com/katholt/srst2#using-the-ecoh-database-for-serotyping-e-coli-with-srst2) and [this BioRxiv paper](http://biorxiv.org/content/early/2015/11/18/032151).
 4. Fixed a problem where, when analysing multiple read sets in one SRST2 call against a gene database in which cluster ids don't match gene symbols, individual gene clusters appear multiple times in the output. The compile function was unaffected and remains unchanged.
 5. Fixed behaviour so that including directory paths in `--output` parameter works (thanks to nyunyun for contributing most of this fix). E.g. `--output test_dir/test` will create output files prefixed with `test`, located in `test_dir/`, and all SRST2 functions should work correctly including consensus allele calling. If `test_dir/` doesn't exist, we attempt to create it; if this is not possible the user is alerted and SRST2 stops.
@@ -155,7 +155,7 @@ The highest such value for each gene/cluster/locus is reported in the fullgenes 
 The highest such value across all MLST loci is reported in the mlst output table.
 Note that all compiled reports will now include a maxMAF column; if you provide MLST or compiled reports from previous versions without this columns, the value “NC” will be inserted in the maxMAF column to indicate “not calculated”. This ensures the updated SRST2 (v0.1.4+) is backwards compatible with previous SRST2 outputs; do be aware though that the older versions of SRST2 (<v0.1.4) will not be forwards-compatible with output generated by more recent versions (v0.14 onwards).
 4. Added R code for plotting SRST2 output in R (plotSRST2data.R). Instructions will be added to the read me.
-5. Added formatted versions of the ARG-Annot resistance gene database, PlasmidFinder database and 18 plasmid replicon sequences to the /data directory. See /data/README.md for details and citations. It is recommended to use ARGannot.r1.fasta for detection of acquired resistance genes.
+5. Added formatted versions of the ARG-Annot resistance gene database, PlasmidFinder database and 18 plasmid replicon sequences to the /data directory. See /data/README.md for details and citations. It is recommended to use `ARGannot.r1.fasta` for detection of acquired resistance genes.
 
 -----------
  
@@ -378,7 +378,7 @@ SRST2 can parse Illumina MiSeq reads files; we assume that files with names in t
 
 ### Paired reads
 If you have paired reads that are named in some way other than the Illumina MiSeq format, e.g. from the SRA or ENA public databases, you need to tell SRST2 how to pass these to bowtie2.
-bowtie2 requires forward and reverse reads to be supplied in separate files, e.g `strainA_1.fastq.gz` and `strainA_2.fastq.gz`. SRST2 attempts to sort reads supplied via `--input_pe` into read pairs, based on the suffix (_1, _2 in this example) that occurs before the file extension (.fastq.gz in this example). So if you supplied `--input_pe strainA_1.fastq.gz strainB_1.fastq.gz strainA_2.fastq.gz strainB_2.fastq.gz`, SRST2 would sort these into two pairs (strainA_1.fastq.gz, strainA_2.fastq.gz) and (strainB_1.fastq.gz, strainB_2.fastq.gz) and pass each pair on to bowtie2 for mapping. By default, the suffixes are assumed to be `_1` for forward reads and `_2` for reverse reads, but you can tell SRST2 if you have other conventions, via `--forward` and `--reverse`. E.g. if your files were named strainA_read1.fastq.gz and strainA_read2.fastq.gz, you would use these commands: `--input_pe strainA_read1.fastq.gz strainA_read2.fastq.gz --forward _read1 --reverse _read2`. 
+bowtie2 requires forward and reverse reads to be supplied in separate files, e.g `strainA_1.fastq.gz` and `strainA_2.fastq.gz`. SRST2 attempts to sort reads supplied via `--input_pe` into read pairs, based on the suffix (_1, _2 in this example) that occurs before the file extension (.fastq.gz in this example). So if you supplied `--input_pe strainA_1.fastq.gz strainB_1.fastq.gz strainA_2.fastq.gz strainB_2.fastq.gz`, SRST2 would sort these into two pairs (`strainA_1.fastq.gz`, `strainA_2.fastq.gz`) and (`strainB_1.fastq.gz`, `strainB_2.fastq.gz`) and pass each pair on to bowtie2 for mapping. By default, the suffixes are assumed to be `_1` for forward reads and `_2` for reverse reads, but you can tell SRST2 if you have other conventions, via `--forward` and `--reverse`. E.g. if your files were named `strainA_read1.fastq.gz` and `strainA_read2.fastq.gz`, you would use these commands: `--input_pe strainA_read1.fastq.gz strainA_read2.fastq.gz --forward _read1 --reverse _read2`. 
 
 ### Sample names
 Sample names are taken from the first part of the read file name (before the suffix if you have paired reads). E.g. `strainA_1.fastq.gz` is assumed to belong to a sample called "strainA"; `strainB_C_1.fastq.gz` would be assumed to belong to a sample called "strainB_C". These sample names will be used to name all output files, and will appear in the results files.
@@ -479,7 +479,7 @@ strainB | - | - | - | strA4 | strB1 | - | -
 
 The first column indicates the sample name, all other columns report the genes/alleles that were detected in the sample set. If multiple samples were input, or if previous outputs were provided for compiling results, then all the genes detected in ANY of the samples will have their own column in this table.
 
-If you were using a clustered gene database (such as the resistance.fasta database provided), the name of each cluster (i.e. the basic gene symbol) will be printed in the column headers, while specific alleles will be printed in the sample rows.
+If you were using a clustered gene database (such as the `resistance.fasta` database provided), the name of each cluster (i.e. the basic gene symbol) will be printed in the column headers, while specific alleles will be printed in the sample rows.
 
 \* indicates mismatches
 
@@ -592,7 +592,7 @@ Run against new read sets, merge with previous reports (individual or compiled)
 ```
 ------------
 
-Run against Enterococcus reads, where read names are different from the usual _1.fastq and _2.fastq
+Run against Enterococcus reads, where read names are different from the usual `_1.fastq` and `_2.fastq`
 
 ```
 srst2 --input_pe strain_R1.fastq.gz strain_R2.fastq.gz 
@@ -707,7 +707,7 @@ clusterSymbol = blaOXA;  gene symbol for this cluster (may be shared by multiple
 alleleSymbol = blaOXA-181;  full name of this allele
 alleleUniqueIdentifier = 1;  uniquely identifies the sequence
 
-Ideally the alleleSymbol would be unique (as it is in the reference.fasta file provided). However it doesn't have to be: if allele symbols are not unique, then SRST2 will use the combination `[alleleSymbol]__[alleleUniqueIdentifier]` to  uniquely identify the sequence in the resulting reports, so that you can trace exactly which sequence was present in each sample.
+Ideally the alleleSymbol would be unique (as it is in the `reference.fasta` file provided). However it doesn't have to be: if allele symbols are not unique, then SRST2 will use the combination `[alleleSymbol]__[alleleUniqueIdentifier]` to  uniquely identify the sequence in the resulting reports, so that you can trace exactly which sequence was present in each sample.
 
 Additional gene annotation can appear on the header line, after a space. This additional info will be printed in the full genes report, but not in the compiled results files.
 
@@ -718,7 +718,7 @@ e.g. for the blaOXA sequence above, the full header is actually:
 
 ### Sourcing suitable gene databases
 
-To get started, we have provided a resistance gene database (data/resistance.fasta) and code (database_clustering/) to extract virulence factors for a genus of interest from the Virulence Factor DB (detailed instructions below).
+To get started, we have provided a resistance gene database (`data/resistance.fasta`) and code (`database_clustering/`) to extract virulence factors for a genus of interest from the Virulence Factor DB (detailed instructions below).
 
 If you want to use your own database of allele sequences, with the reporting behaviour described, you will need to assign your sequences to clusters and use this header format. To facilitate this, use the scripts provided in the database_clustering directory provided with SRST2, and follow the instructions below.
 
@@ -762,12 +762,17 @@ seqID,clusterid,gene,allele,(DNAseq),other....
 
 which will be used to make headers of the required form `[clusterID]__[gene]__[allele]__[seqID] [other stuff]`
 
-If you have the sequences as a column in the table, specify which column they are in using -s:
+If you have the sequences as a column in the table, specify which column they are in using `-s`:
+
+```
 csv_to_gene_db.py -t genes.csv -o genes.fasta -s 5
+```
 
-Alternatively, if you have sequences in a separate fasta file, you can provide this file via -f. You will also need to have a column in the table that links the rows to unique sequences, specify which column this is using -c:
+Alternatively, if you have sequences in a separate fasta file, you can provide this file via `-f`. You will also need to have a column in the table that links the rows to unique sequences, specify which column this is using `-c`:
+
+```
 csv_to_gene_db.py -t genes.csv -o genes.fasta -f rawseqs.fasta -c 5
-
+```
 
 ### Clustering sequences
 
@@ -775,7 +780,9 @@ If your sequences are not already assigned to gene clusters, you can do this aut
 
 1 - Run CD-HIT to cluster the sequences at 90% nucleotide identity:
 
-    cdhit-est -i rawseqs.fasta -o rawseqs_cdhit90 -d 0 > rawseqs_cdhit90.stdout
+```
+cdhit-est -i rawseqs.fasta -o rawseqs_cdhit90 -d 0 > rawseqs_cdhit90.stdout
+```
 
 2 - Parse the cluster output and tabulate the results, check for inconsistencies between gene names and the sequence clusters, and generate individual fasta files for each cluster to facilitate further checking:
 
@@ -787,9 +794,11 @@ For comparing gene names to cluster assignments, this script assumes very basic 
 
 3 - Convert the resulting csv table to a sequence database using:
 
-    csv_to_gene_db.py -t rawseqs_clustered.csv -o seqs_clustered.fasta -f rawseqs.fasta -c 4
+```
+csv_to_gene_db.py -t rawseqs_clustered.csv -o seqs_clustered.fasta -f rawseqs.fasta -c 4
+```
 
-The output file, seqs_clustered.fasta, should now be ready to use with srst2 (`--gene_db seqs_clustered.fasta`).
+The output file, `seqs_clustered.fasta`, should now be ready to use with srst2 (`--gene_db seqs_clustered.fasta`).
 
 If there are potential inconsistencies detected at step 2 above (e.g. multiple clusters for the same gene, or different gene names within the same cluster), you may like to investigate further and change some of the cluster assignments or cluster names. You may find it useful to generate neighbour joining trees for each cluster that contains >2 genes, using align_plot_tree_min3.py
 
@@ -798,7 +807,9 @@ A preliminary set of resistance genes is in the /data directory of srst2, this i
 
 An easy way to add sequences to this database would be to add new rows to the table, and then generate an updated fasta file using:
 
-    csv_to_gene_db.py -t rawseqs_clustered.csv -o seqs_clustered.fasta -s rawseqs.fasta -c 5
+```
+csv_to_gene_db.py -t rawseqs_clustered.csv -o seqs_clustered.fasta -s rawseqs.fasta -c 5
+```
 
 ### Using the VFDB Virulence Factor Database with SRST2
 
@@ -806,7 +817,7 @@ The VFDB houses sets of virulence genes for a range of bacterial genera, see htt
 
 To type these virulence genes using SRST2, download the full set of sequences from the VFDB website (http://www.mgc.ac.cn/VFs/Down/VFDB_setB_nt.fas.gz) and follow these steps to generate SRST2-compatible files for your genus of interest.
 
-1 - Extract virulence genes by genus from the main VFDB file, CP_VFs.ffn:
+1 - Extract virulence genes by genus from the main VFDB file, `CP_VFs.ffn`:
 
 ```
 python VFDBgenus.py --infile CP_VFs.ffn --genus Clostridium
@@ -836,13 +847,13 @@ python VFDB_cdhit_to_csv.py --cluster_file Clostridium_cdhit90.clstr --infile Cl
 python csv_to_gene_db.py -t Clostridium_cdhit90.csv -o Clostridium_VF_clustered.fasta -s 5
 ```
     
-The output file, Clostridium_VF_clustered.fasta, should now be ready to use with srst2 (`--gene_db Clostridium_VF_clustered.fasta`).
+The output file, `Clostridium_VF_clustered.fasta`, should now be ready to use with srst2 (`--gene_db Clostridium_VF_clustered.fasta`).
 
 ### Using the EcOH database for serotyping E. coli with SRST2
 
 Details can be found in [this BioRxiv paper](http://biorxiv.org/content/early/2015/11/18/032151).
 
-The EcOH database includes genes for identifying O and H types in E. coli, see /data/EcOH.fasta
+The EcOH database includes genes for identifying O and H types in E. coli, see `/data/EcOH.fasta`
 
 O types are represented by the presence of two loci (either wzy and wzy, or wzm and wzt). Note that allelic variation is possible but does not impact serotype in a predictable way, so typing calls should be made based on the presence of genes rather than allele assignments (i.e. it is generally safe to ignore *? characters)
 
