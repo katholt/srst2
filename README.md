@@ -119,7 +119,7 @@ Updates in v0.1.6
 2. Minor fixes to the ARG-Annot database of resistance genes, including removal of duplicate sequences and fixes to gene names (thanks to Wan Yu for this). Old version remains unchanged for backwards compatibility, but we recommend using the revised version (located in data/ARGannot.r1.fasta).
 3. Added EcOH database for serotyping E. coli (thanks to Danielle Ingle for this). See [Using the EcOH database for serotyping E. coli with SRST2](https://github.com/katholt/srst2#using-the-ecoh-database-for-serotyping-e-coli-with-srst2) and [this BioRxiv paper](http://biorxiv.org/content/early/2015/11/18/032151).
 4. Fixed a problem where, when analysing multiple read sets in one SRST2 call against a gene database in which cluster ids don't match gene symbols, individual gene clusters appear multiple times in the output. The compile function was unaffected and remains unchanged.
-5. Fixed behaviour so that including directory paths in `--output` parameter works (thanks to nyunyun for contributing most of this fix). E.g. `--output test_dir/test` will create output files prefixed with 'test', located in test_dir/, and all SRST2 functions should work correctly including consensus allele calling. If test_dir/ doesn't exist, we attempt to create it; if this is not possible the user is alerted and SRST2 stops.
+5. Fixed behaviour so that including directory paths in `--output` parameter works (thanks to nyunyun for contributing most of this fix). E.g. `--output test_dir/test` will create output files prefixed with `test`, located in `test_dir/`, and all SRST2 functions should work correctly including consensus allele calling. If `test_dir/` doesn't exist, we attempt to create it; if this is not possible the user is alerted and SRST2 stops.
 6. Fixed problem when using a gene database with a simple fasta header (ie not clustered for SRST2; note best results are achieved by pre-clusering your sequence database beforehand) (thanks to cglambert for this one).
 7. Fixes contributed by ppcherng (thanks!): 
   * Fixed KeyErrors that occured when a given seqID was not found in the seq2cluster dictionary, which tended to happen if the FASTA file (gene database) contained empty entries that only have a header and no sequence.
@@ -164,7 +164,7 @@ Updates in v0.1.3
 1. Fixed a bug that occurred while trying to type genes from a user-supplied database (see issue #5, thanks to Scott Long)
 2. Fixed a bug in gene detection reporting - genes are now correctly reported by cluster, rather than by gene symbol (see issue #7)
 3. Added maximum divergence option for reporting (`--max_divergence`), default is now to report only hits with <10% divergence from the database (see issue #8)
-4. added parameter to pass to bowtie2 parameter '-u N' to stop mapping after the first N reads. Default behaviour remains to map all reads. However, for large read sets (e.g. >100x), extra reads do not help and merely increase the time taken for mapping and scoring, and you may want to limit to the first million reads (100x of a 2 Mbp genome) using `--stop_after 1000000`.
+4. added parameter to pass to bowtie2 parameter `-u N` to stop mapping after the first N reads. Default behaviour remains to map all reads. However, for large read sets (e.g. >100x), extra reads do not help and merely increase the time taken for mapping and scoring, and you may want to limit to the first million reads (100x of a 2 Mbp genome) using `--stop_after 1000000`.
 
 
 # Installation
@@ -182,7 +182,7 @@ N.B. If you have multiple versions of samtools or bowtie2 installed, you can pic
 * `SRST2_BOWTIE2`
 * `SRST2_BOWTIE2_BUILD`
 
-If these aren't set or are missing, they will default to looking in your `PATH` for 'samtools', 'bowtie2' and 'bowtie2-build'. The exception is SRST2_BOWTIE2_BUILD which, if it is not set or missing, will try adding '-build' to SRST2_BOWTIE2 if it exists, otherwise it defaults to looking in your `PATH`
+If these aren't set or are missing, they will default to looking in your `PATH` for `samtools`, `bowtie2` and `bowtie2-build`. The exception is `SRST2_BOWTIE2_BUILD` which, if it is not set or missing, will try adding `-build` to `SRST2_BOWTIE2` if it exists, otherwise it defaults to looking in your `PATH`
 
 
 ### 2 - Get and install the code
@@ -238,14 +238,13 @@ Sample | ST | adk | fumC | gyrB | icd | mdh | purA | recA | mismatches | uncerta
 strainA | 152 | 11 | 63 | 7 | 1 | 14 | 7 | 7 | 0 | - | 25.8319955826 | 0.125
 
 
-
 # Basic usage - Resistance genes 
 
 ### 1 - Gather your input files
 
 (i) sequence reads (this example uses paired reads in gzipped fastq format, see below for options)
 
-(ii) a fasta sequence database to match to. For resistance genes, this means a fasta file of all the resistance genes/alleles that you want to screen for, clustered into gene groups. Some suitable databases are distributed with SRST2 (in the /data directory); we recommend using /data/ARGannot.r1.fasta for acquired resistance genes.
+(ii) a fasta sequence database to match to. For resistance genes, this means a fasta file of all the resistance genes/alleles that you want to screen for, clustered into gene groups. Some suitable databases are distributed with SRST2 (in the /data directory); we recommend using `/data/ARGannot.r1.fasta` for acquired resistance genes.
 
 ### 2 - Run gene detection
 
@@ -255,7 +254,7 @@ srst2 --input_pe strainA_1.fastq.gz strainA_2.fastq.gz --output strainA_test --l
 
 ### 3 - Check the outputs
 
-(i) Gene detection results are output in: "strainA_test__genes__resistance__results.txt"
+(i) Gene detection results are output in: `strainA_test__genes__resistance__results.txt`
 
 Sample | aadA | dfrA | sul2 | tet(B)
 :---: | :---: | :---: | :---: | :---:
@@ -375,7 +374,7 @@ Reads can be in any format readable by bowtie2. The format is passed on to the b
 Reads may be gzipped.
 
 ### Read names 
-SRST2 can parse Illumina MiSeq reads files; we assume that files with names in the format `XXX_S1_L001_R1_001.fastq.gz` and `XXX_S1_L001_R2_001.fastq.gz` are the forward and reverse reads from a sample named 'XXX'. So, you can simply use `srst2 --input_pe XXX_S1_L001_R1_001.fastq.gz XXX_S1_L001_R2_001.fastq.gz` and SRST2 will recognise these as forward and reverse reads of a sample named XXX. If you have single rather than paired MiSeq reads, you would use `srst2 --input_se XXX_S1_L001_R1_001.fastq.gz`.
+SRST2 can parse Illumina MiSeq reads files; we assume that files with names in the format `XXX_S1_L001_R1_001.fastq.gz` and `XXX_S1_L001_R2_001.fastq.gz` are the forward and reverse reads from a sample named "XXX". So, you can simply use `srst2 --input_pe XXX_S1_L001_R1_001.fastq.gz XXX_S1_L001_R2_001.fastq.gz` and SRST2 will recognise these as forward and reverse reads of a sample named "XXX". If you have single rather than paired MiSeq reads, you would use `srst2 --input_se XXX_S1_L001_R1_001.fastq.gz`.
 
 ### Paired reads
 If you have paired reads that are named in some way other than the Illumina MiSeq format, e.g. from the SRA or ENA public databases, you need to tell SRST2 how to pass these to bowtie2.
@@ -520,8 +519,8 @@ By default, no allele sequences are generated, the results are simply tabulated.
 For all samples and loci where the top scoring allele contains SNPs:
 
 * a pileup file will be generated for the top scoring allele, with the name `[allele].[output]__[readset].[database].pileup`
-* the consensus sequence will be printed to a fasta file with the name "[output].new_consensus_alleles.fasta"
-* fasta headers will be in the format ">[allele].variant [sample]"
+* the consensus sequence will be printed to a fasta file with the name `[output].new_consensus_alleles.fasta`
+* fasta headers will be in the format `>[allele].variant [sample]`
 
 
 IN ADDITION TO THE NOVEL ALLELES FILE OUTLINED ABOVE, the following will ALSO occur:
@@ -674,12 +673,12 @@ optional arguments:
   --other_args OTHER_ARGS
                         string containing all other arguments to pass to srst2
 ```
-                        
+
 # Known issues
 
-Reference indexing - SRST2 uses bowtie2 for mapping reads to reference sequences. To do this, SRST2 must first check the index exists, call bowtie2-build to generate the index if it doesn't already exist, and then call bowtie2 to map the reads to this indexed reference. Occasionallly bowtie2 will return an Error message saying that it doesn't like the index. This seems to be due to the fact that if you submit multiple SRST2 jobs to a cluster at the same time, they will all test for the presence of the index and, if index files are present, will proceed with mapping... but this doesn't mean the indexing process is actually finished, and so errors will arise. 
+Reference indexing - SRST2 uses bowtie2 for mapping reads to reference sequences. To do this, SRST2 must first check the index exists, call `bowtie2-build` to generate the index if it doesn't already exist, and then call bowtie2 to map the reads to this indexed reference. Occasionallly bowtie2 will return an Error message saying that it doesn't like the index. This seems to be due to the fact that if you submit multiple SRST2 jobs to a cluster at the same time, they will all test for the presence of the index and, if index files are present, will proceed with mapping... but this doesn't mean the indexing process is actually finished, and so errors will arise. 
 
-The simple way out of this is, if you are running lots of SRST2 jobs, FIRST index your reference(s) for bowtie2 and samtools (using 'bowtie2-build ref.fasta ref.fasta' and 'samtools faidx ref.fasta'), then submit your SRST2 jobs. The slurm_srst2.py script takes care of this for you by formatting the databases before submitting any SRST2 jobs.
+The simple way out of this is, if you are running lots of SRST2 jobs, FIRST index your reference(s) for bowtie2 and samtools (using `bowtie2-build ref.fasta ref.fasta` and `samtools faidx ref.fasta`), then submit your SRST2 jobs. The slurm_srst2.py script takes care of this for you by formatting the databases before submitting any SRST2 jobs.
 
 
 # Generating SRST2-compatible clustered database from raw sequences
@@ -708,7 +707,7 @@ clusterSymbol = blaOXA;  gene symbol for this cluster (may be shared by multiple
 alleleSymbol = blaOXA-181;  full name of this allele
 alleleUniqueIdentifier = 1;  uniquely identifies the sequence
 
-Ideally the alleleSymbol would be unique (as it is in the reference.fasta file provided). However it doesn't have to be: if allele symbols are not unique, then SRST2 will use the combination '[alleleSymbol]__[alleleUniqueIdentifier]' to  uniquely identify the sequence in the resulting reports, so that you can trace exactly which sequence was present in each sample.
+Ideally the alleleSymbol would be unique (as it is in the reference.fasta file provided). However it doesn't have to be: if allele symbols are not unique, then SRST2 will use the combination `[alleleSymbol]__[alleleUniqueIdentifier]` to  uniquely identify the sequence in the resulting reports, so that you can trace exactly which sequence was present in each sample.
 
 Additional gene annotation can appear on the header line, after a space. This additional info will be printed in the full genes report, but not in the compiled results files.
 
@@ -868,9 +867,9 @@ wget ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR178/ERR178156/ERR178156_2.fastq.gz
 srst2 --input_pe ERR178156*.fastq.gz ERR124656*.fastq.gz --output serotypes --log --gene_db EcOH.fasta
 ```
 
-Results will be output in: "[prefix]__genes__EcOH__results.txt"
+Results will be output in: `[prefix]__genes__EcOH__results.txt`
 
-Output from the above example would appear in: "serotypes__genes__EcOH__results.txt"
+Output from the above example would appear in: `serotypes__genes__EcOH__results.txt`
 
 Sample | fliC | wzm | wzt | wzx | wzy
 :---: | :---: | :---: | :---: | :---: | :---:
@@ -917,9 +916,9 @@ wget ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR178/ERR178156/ERR178156_2.fastq.gz
 srst2 --input_pe ERR178156*.fastq.gz ERR124656*.fastq.gz --output LEE --log --mlst_db LEE_mlst.fasta --mlst_definitions LEE_STscheme.txt
 ```
 
-Results will be output in: "[prefix]__mlst__LEE_mlst__results.txt"
+Results will be output in: `[prefix]__mlst__LEE_mlst__results.txt`
 
-Output from the above example would appear in: "LEE__mlst__LEE_mlst__results.txt"
+Output from the above example would appear in: `LEE__mlst__LEE_mlst__results.txt`
 
 Sample | ST | eae | tir | espA | espB | espD | espH | espZ | mismatches | uncertainty | depth | maxMAF
 :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---:
@@ -934,7 +933,7 @@ ERR178148 and ERR178156 carry LEE subtypes 30 and 9 respectively, which both bel
 
 Some R functions are provided in scripts/plotSRST2data.R for plotting SRST2 output to produce images like those in the paper (e.g. Figure 8: http://www.genomemedicine.com/content/6/11/90/figure/F8)
 
-These functions require the 'ape' package to be installed.
+These functions require the `ape` package to be installed.
 
 Example usage:
 
@@ -978,4 +977,4 @@ geneSTplot(d,mlst_columns=8:15,gene_columns=17:59,plot_type="rate",cluster=T)
 # To suppress uncertainty due to low depth, i.e. collapse ST1 and ST1? into a single group for summarisation at the clonal complex level, set suppressUncertainty=T.
 ```
 
-Note, heatmap colours can be set via the 'matrix.colours' parameter in both of these functions. The default value is matrix.colours=colorRampPalette(c("white","yellow","blue"),space="rgb")(100), i.e. white=0% gene frequency, yellow = 50% and blue = 100%.
+Note, heatmap colours can be set via the `matrix.colours` parameter in both of these functions. The default value is matrix.colours=colorRampPalette(c("white","yellow","blue"),space="rgb")(100), i.e. white=0% gene frequency, yellow = 50% and blue = 100%.
