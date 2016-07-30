@@ -1,5 +1,4 @@
-SRST2
-====
+# SRST2
 
 Short Read Sequence Typing for Bacterial Pathogens
 
@@ -168,8 +167,8 @@ Updates in v0.1.3
 4. added parameter to pass to bowtie2 parameter '-u N' to stop mapping after the first N reads. Default behaviour remains to map all reads. However, for large read sets (e.g. >100x), extra reads do not help and merely increase the time taken for mapping and scoring, and you may want to limit to the first million reads (100x of a 2 Mbp genome) using `--stop_after 1000000`.
 
 
-Installation
-====
+# Installation
+
 ### 1 - Install dependencies
 
 * python (v2.7.5)
@@ -212,8 +211,7 @@ The downloaded directory also contains things that might be useful for SRST2 use
 
 
 
-Basic usage - MLST
-====
+# Basic usage - MLST
 
 ### 1 - Gather your input files
 
@@ -241,8 +239,7 @@ strainA | 152 | 11 | 63 | 7 | 1 | 14 | 7 | 7 | 0 | - | 25.8319955826 | 0.125
 
 
 
-Basic usage - Resistance genes
-====
+# Basic usage - Resistance genes 
 
 ### 1 - Gather your input files
 
@@ -265,8 +262,7 @@ Sample | aadA | dfrA | sul2 | tet(B)
 strainA | aadA1-5 | dfrA1_1 | sul2_2 | tet(B)_4
 
 
-All usage options
-====
+# All usage options
 
 ```
 srst2 -h
@@ -369,8 +365,7 @@ optional arguments:
                         this run will also be incorporated)
 ```
 
-Input read formats and options
-====
+# Input read formats and options
 
 Any number of readsets can be provided using `--input_se` (for single end reads) and/or `--input_pe` (for paired end reads). You can provide both types of reads at once. Note however that if you do this, each readset will be typed one by one (in serial). So if it takes 2 minutes to type each read set, and you provide 10 read sets, it will take 20 minutes to get your results. The better way to proces lots of samples quickly is to give each one its own SRST2 job (e.g. submitted simultaneously to your job scheduler or server); then compile the results into a single report using `srst2 --prev_output *results.txt --output all`. That way each readset's 2 minutes of analysis is occurring in parallel on different nodes, and you'll get your results for all 10 samples in 2 minutes rather than 20.
 
@@ -393,8 +388,8 @@ Sample names are taken from the first part of the read file name (before the suf
 The flag `--merge_paired` tells SRST2 to assume that all the input reads belong to the same sample. Outputs will be named as `[prefix]__combined.xxx`, where SRST2 was run using `--output [prefix]`. If this flag is not used, SRST2 will operate as usual and assume that each read pair is a new sample, with output files named as `[prefix]__[sample].xxx`, where [sample] is taken from the base name of the reads fastq files. Note that if you have lots of multi-run read sets to analyse, the ease of job submission will depend heavily on how your files are named and you will need to figure out your own approach to manage this (ie there is no way to submit multiple sets of multiple reads).
 
 
-MLST Database format
-====
+# MLST Database format
+
 MLST databases are specified by allele sequences, and a profiles table. These can be downloaded from the public databases, ready to use with SRST2, using the provided script getmlst.py (see above).
 
 ### Allele sequences file, fasta format. 
@@ -413,8 +408,7 @@ The names of the alleles (i.e. the fasta headers) are critical for a functioning
 
 This is the file that tells you the ST number that is assigned to known combinations of alleles. Column 1 is the ST, and subsequent columns are the loci that make up the scheme. The names of these loci must match the allele names in the sequences database, e.g. adk, fumC, gyrB, icd, mdh, purA, recA in the E. coli scheme. If you download data from pubmlst this should not be a problem. Sometimes there are additional columns in this file, e.g. a column assigning STs to clonal complexes. SRST2 will ignore any columns that don't match gene names found in the allele sequences file.
 
-Gene databases
-====
+# Gene databases
 
 In addition to MLST, SRST2 can do gene/allele detection. This works by mapping reads to each of the reference sequences in a fasta file(s) (provided through `--gene_db`) and reporting details of all genes that are covered above a certain level (`--min_coverage`, 90% by default). 
 
@@ -424,8 +418,7 @@ We have provided some databases of resistance genes, plasmid genes and [E. coli 
 
 You can however format any sequence set for screening with SRST2. [See instructions below](https://github.com/katholt/srst2#generating-srst2-compatible-clustered-database-from-raw-sequences).
 
-Output files
-====
+# Output files
 
 ### MLST results
 
@@ -512,8 +505,7 @@ The bowtie2 alignment of reads to each input database is stored in `[outputprefi
 If you used `--save_scores`, a table of scores for each allele in the database is printed to `[outputprefix]__[sample].[db].scores`.
 
 
-Printing consensus sequences
-====
+# Printing consensus sequences
 
 SRST2 can optionally report consensus sequences & pileups for novel alleles, or for all alleles. Note that only SNPs are included in the consensus fasta sequence as these can be reliably extracted from the read alignments; if there are indels (reported in the output tables) these will not be included in the consensus fasta file and we suggest you assembly the mapped reads (these are in the bam file).
 
@@ -559,8 +551,7 @@ For mlst:
 python srst2/scripts/consensus_alignment.py --in *.all_consensus_alleles.fasta --pre test --type mlst --mlst_delimiter _
 ```
 
-More basic usage examples
-====
+# More basic usage examples
 
 Run single read sets against MLST database and resistance database
 
@@ -613,16 +604,14 @@ srst2 --input_pe strain_R1.fastq.gz strain_R2.fastq.gz
 	--mlst_definitions efaecium.txt
 ```
 	
-Compile results from completed runs
-====
+# Compile results from completed runs
 
 ```
 srst2 --prev_output *compiledResults.txt --output Shigella_report
 ``` 
 
 
-Running lots of jobs and compiling results
-====
+# Running lots of jobs and compiling results
 
 Run against multiple read sets: submitting 1 job per readset to SLURM queueing system.
 
@@ -686,15 +675,14 @@ optional arguments:
                         string containing all other arguments to pass to srst2
 ```               
                         
-Known issues
-====
+# Known issues
 
 Reference indexing - SRST2 uses bowtie2 for mapping reads to reference sequences. To do this, SRST2 must first check the index exists, call bowtie2-build to generate the index if it doesn't already exist, and then call bowtie2 to map the reads to this indexed reference. Occasionallly bowtie2 will return an Error message saying that it doesn't like the index. This seems to be due to the fact that if you submit multiple SRST2 jobs to a cluster at the same time, they will all test for the presence of the index and, if index files are present, will proceed with mapping... but this doesn't mean the indexing process is actually finished, and so errors will arise. 
 
 The simple way out of this is, if you are running lots of SRST2 jobs, FIRST index your reference(s) for bowtie2 and samtools (using 'bowtie2-build ref.fasta ref.fasta' and 'samtools faidx ref.fasta'), then submit your SRST2 jobs. The slurm_srst2.py script takes care of this for you by formatting the databases before submitting any SRST2 jobs.
 
-Generating SRST2-compatible clustered database from raw sequences
-====
+
+# Generating SRST2-compatible clustered database from raw sequences
 
 ### Gene database format
 In addition to MLST, SRST2 can do gene/allele detection. This works by mapping reads to each of the reference sequences in a fasta file(s) (provided through `--gene_db`) and reporting details of all genes that are covered above a certain level (`--min_coverage`, 90% by default). 
