@@ -608,7 +608,7 @@ srst2 --input_pe strain_R1.fastq.gz strain_R2.fastq.gz
 
 ```
 srst2 --prev_output *compiledResults.txt --output Shigella_report
-``` 
+```
 
 
 # Running lots of jobs and compiling results
@@ -673,7 +673,7 @@ optional arguments:
                         
   --other_args OTHER_ARGS
                         string containing all other arguments to pass to srst2
-```               
+```
                         
 # Known issues
 
