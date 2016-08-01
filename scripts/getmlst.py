@@ -22,7 +22,7 @@ try again.
 from argparse import ArgumentParser
 import xml.dom.minidom as xml
 import urllib2 as url
-import re, os
+import re, os, glob
 from urlparse import urlparse
 
 def parse_args():
@@ -125,19 +125,26 @@ def main():
 		if info != None:
 			found_species.append(info)
 	if len(found_species) == 0:
-		print("No species matched your query.")
+		print "No species matched your query."
 		exit(1)
 	if len(found_species) > 1:
-		print("The following {} species match your query, please be more specific:".format(len(found_species)))
+		print "The following {} species match your query, please be more specific:".format(len(found_species))
 		for info in found_species:
-			print(info.name)
+			print info.name
 		exit(2)
-			
-	# output information for the single matching species
+
 	assert len(found_species) == 1
 	species_info = found_species[0]
 	species_name_underscores = species_info.name.replace(' ', '_')
 	species_name_underscores = species_name_underscores.replace('/', '_')
+
+	# Remove any Bowtie/Samtools index files that already exist.
+	for filename in glob.glob(species_name_underscores + '*.bt2'):
+		os.remove(filename)
+	for filename in glob.glob(species_name_underscores + '*.fai'):
+		os.remove(filename)
+
+	# output information for the single matching species
 	species_all_fasta_filename = species_name_underscores + '.fasta'
 	species_all_fasta_file = open(species_all_fasta_filename, 'w')
 	log_filename = "mlst_data_download_{}_{}.log".format(species_name_underscores, species_info.retrieved)
@@ -168,7 +175,7 @@ def main():
 	log_file.write("all loci: {}\n".format(species_all_fasta_filename))
 	log_file.close()
 	species_all_fasta_file.close()
-	
+
 	print "\n  For SRST2, remember to check what separator is being used in this allele database"
 	head = os.popen('head -n 1 ' + species_all_fasta_filename).read().rstrip()
 	m = re.match('>(.*)([_-])(\d*)',head).groups()
@@ -185,7 +192,7 @@ def main():
 	print "--mlst_definitions " + format(profile_filename),
 	print "--mlst_delimiter '" + m[1] + "'"
 	print
-	
+
 
 if __name__ == '__main__':
 	main()

@@ -78,24 +78,26 @@ An easy way to add sequences to this database would be to add new rows to the ta
 
 csv_to_gene_db.py -t rawseqs_clustered.csv -s rawseqs.fasta -c 5
 
-Using the VFBD Virulence Factor Database
+Using the VFDB Virulence Factor Database
 ====
 
-The VFDB houses sets of virulence genes for a range of bacterial genera, see http://www.mgc.ac.cn/VFs/. 
+The VFDB houses sets of virulence genes for a range of bacterial genera (http://www.mgc.ac.cn/VFs/main.htm).
 
-To type these virulence genes using SRST2, download the full set of sequences from the VFDB website (http://www.mgc.ac.cn/VFs/Down/CP_VFs.ffn.gz) and follow these steps to generate SRST2-compatible files for your genus of interest.
+To type these virulence genes using SRST2, download the full set of sequences from the VFDB website (http://www.mgc.ac.cn/VFs/Down/VFDB_setB_nt.fas.gz) and follow these steps to generate SRST2-compatible files for your genus of interest.
 
-- Extract virulence genes by genus from the main VFDB file, CP_VFs.ffn:
+- Extract virulence genes by genus from the main VFDB file, VFDB_setB_nt.fas:
 
-python VFDBgenus.py --infile CP_VFs.ffn --genus Clostridium
+gunzip VFDB_setB_nt.fas.gz
 
-or, to get all availabel genera in separate files:
+python VFDBgenus.py --infile VFDB_setB_nt.fas --genus Clostridium
 
-python VFDBgenus.py --infile CP_VFs.ffn
+or, to get all available genera in separate files:
+
+python VFDBgenus.py --infile VFDB_setB_nt.fas
 
 - Run CD-HIT to cluster the sequences for this genus, at 90% nucleotide identity:
 
-cd-hit -i Clostridium.fsa -o Clostridium_cdhit90 -c 0.9 > Clostridium_cdhit90.stdout
+cd-hit-est -i Clostridium.fsa -o Clostridium_cdhit90 -c 0.9 > Clostridium_cdhit90.stdout
 
 - Parse the cluster output and tabulate the results using the specific Virulence gene DB compatible script:
 
