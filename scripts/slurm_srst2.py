@@ -26,10 +26,12 @@ def parse_args():
 		'--memory', type=str, required=False, help='mem (default 4096 = 4gb)', default="4096")
 	parser.add_argument(
 		'--rundir', type=str, required=False, help='directory to run in (default current dir)')
+	parser.add_argument(
+		'--threads', type=int, required=False, help='number of CPUs per job', default=1)
 
 	# SRST2 inputs
 	parser.add_argument(
-		'--script', type=str, required=True, help='path to srst2')
+		'--script', type=str, required=True, help='path to srst2.py')
 	parser.add_argument(
 		'--output', type=str, required=True, help='identifier for outputs (will be combined with read set identifiers)')
 	parser.add_argument(
@@ -240,7 +242,10 @@ def main():
 
 	args = parse_args()
 
-	if not args.rundir:
+	if args.rundir:
+		if not os.path.exists(args.rundir):
+			os.makedirs(args.rundir)
+	else:
 		args.rundir = os.getcwd()
 
 	# parse list of file sets to analyse
@@ -265,8 +270,10 @@ def main():
 	for sample in fileSets:
 		cmd = "#!/bin/bash"
 		cmd += "\n#SBATCH -p sysgen"
-		cmd += "\n#SBATCH --job-name=srst2" + sample + args.output
+		cmd += "\n#SBATCH --job-name=srst2_" + sample + "_" + args.output
+		cmd += "\n#SBATCH --nodes=1"
 		cmd += "\n#SBATCH --ntasks=1"
+		cmd += "\n#SBATCH --cpus-per-task=" + str(args.threads)
 		cmd += "\n#SBATCH --mem-per-cpu=" + args.memory
 		cmd += "\n#SBATCH --time=" + args.walltime
 		cmd += "\ncd " + args.rundir
@@ -281,11 +288,14 @@ def main():
 			cmd += " --input_se " + fastq[0]
 		cmd += " --output " + sample + "_" + args.output
 		cmd += " --log"
+		cmd += " --threads " + str(args.threads)
 		cmd += " " + args.other_args
 
 		# print and run command
 		print cmd
+		print ''
 		os.system('echo "' + cmd + '" | sbatch')
+		print ''
 
 if __name__ == '__main__':
 	main()
