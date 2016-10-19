@@ -158,6 +158,8 @@ class TestRunBowtie(unittest.TestCase):
 		arg_mock.read_type = 'foo'
 		arg_mock.stop_after = False
 		arg_mock.other = False
+		arg_mock.threads = 4
+		arg_mock.use_existing_bowtie2_sam = False
 		actual_sam = srst2.run_bowtie('mapping_file', 'sample', ['fastq'], arg_mock,
 									  'db_name', 'db_path')
 		self.assertEqual(actual_sam, 'mapping_file.sam')
@@ -173,7 +175,8 @@ class TestRunBowtie(unittest.TestCase):
 			'--very-sensitive-local',
 			'--no-unal',
 			'-a',
-			'-x', 'db_path'
+			'-x', 'db_path',
+			'--threads', '4'
 		]
 		run_mock.assert_called_once_with(expected_bowtie2_command)
 
@@ -191,6 +194,8 @@ class TestRunBowtie(unittest.TestCase):
 		arg_mock.read_type = 'foo'
 		arg_mock.stop_after = False
 		arg_mock.other = False
+		arg_mock.threads = 4
+		arg_mock.use_existing_bowtie2_sam = False
 		actual_sam = srst2.run_bowtie('mapping_file', 'sample', ['fastq'], arg_mock,
 									  'db_name', 'db_path')
 		self.assertEqual(actual_sam, 'mapping_file.sam')
@@ -206,7 +211,8 @@ class TestRunBowtie(unittest.TestCase):
 			'--very-sensitive-local',
 			'--no-unal',
 			'-a',
-			'-x', 'db_path'
+			'-x', 'db_path',
+			'--threads', '4'
 		]
 		run_mock.assert_called_once_with(expected_bowtie2_command)
 

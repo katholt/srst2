@@ -8,7 +8,7 @@ Current MLST databases can be retrieved from pubmlst.org using getmlst.py (distr
 ====
 RESISTANCE GENES
 
-1. ARG-Annot (ARGannot.fasta) - *RECOMMENDED
+1. ARG-Annot (ARGannot.r1.fasta) - *RECOMMENDED
 
 Citation: Gupta et al, Antimicrob Agents Chemother 2014; 58(1):212. DOI: 10.1128/AAC.01310-13
 

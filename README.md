@@ -413,7 +413,7 @@ In addition to MLST, SRST2 can do gene/allele detection. This works by mapping r
 
 If the input database contains different alelles of the same gene, SRST2 can report just the best matching allele for that gene (much like with MLST we report the best matching allele for each locus in the scheme). This makes the output manageable, as you will get one column per gene/locus (e.g. blaCTX-M) which reports the specific allele that was called in each sample (e.g. blaCTX-M-15 in sample A, blaCTX-M-13 in sample B).
 
-We have provided some databases of resistance genes, plasmid genes and [E. coli serotyping loci](https://github.com/katholt/srst2#using-the-ecoh-database-for-serotyping-e-coli-with-srst2) in /data, ready for use with SRST2. We recommend using /data/ARGannot.r1.fasta for detecting resistance genes, but you can also use /data/ResFinder.fasta (this is the same as /data/resistance.fasta in earlier distributions of SRST2).
+We have provided some databases of resistance genes, plasmid genes and [E. coli serotyping loci](https://github.com/katholt/srst2#using-the-ecoh-database-for-serotyping-e-coli-with-srst2) in /data, ready for use with SRST2. We recommend using `data/ARGannot.r1.fasta` for detecting resistance genes, but you can also use `data/ResFinder.fasta` (this is the same as `data/resistance.fasta` in earlier distributions of SRST2).
 
 You can however format any sequence set for screening with SRST2. [See instructions below](https://github.com/katholt/srst2#generating-srst2-compatible-clustered-database-from-raw-sequences).
 
@@ -479,7 +479,7 @@ strainB | - | - | - | strA4 | strB1 | - | -
 
 The first column indicates the sample name, all other columns report the genes/alleles that were detected in the sample set. If multiple samples were input, or if previous outputs were provided for compiling results, then all the genes detected in ANY of the samples will have their own column in this table.
 
-If you were using a clustered gene database (such as the `resistance.fasta` database provided), the name of each cluster (i.e. the basic gene symbol) will be printed in the column headers, while specific alleles will be printed in the sample rows.
+If you were using a clustered gene database (such as the `ARGannot.r1.fasta` database provided), the name of each cluster (i.e. the basic gene symbol) will be printed in the column headers, while specific alleles will be printed in the sample rows.
 
 \* indicates mismatches
 
@@ -718,7 +718,7 @@ e.g. for the blaOXA sequence above, the full header is actually:
 
 ### Sourcing suitable gene databases
 
-To get started, we have provided a resistance gene database (`data/resistance.fasta`) and code (`database_clustering/`) to extract virulence factors for a genus of interest from the Virulence Factor DB (detailed instructions below).
+To get started, we have provided a resistance gene database (`data/ARGannot.r1.fasta`) and code (`database_clustering/`) to extract virulence factors for a genus of interest from the Virulence Factor DB (detailed instructions below).
 
 If you want to use your own database of allele sequences, with the reporting behaviour described, you will need to assign your sequences to clusters and use this header format. To facilitate this, use the scripts provided in the database_clustering directory provided with SRST2, and follow the instructions below.
 
@@ -803,7 +803,7 @@ The output file, `seqs_clustered.fasta`, should now be ready to use with srst2 (
 If there are potential inconsistencies detected at step 2 above (e.g. multiple clusters for the same gene, or different gene names within the same cluster), you may like to investigate further and change some of the cluster assignments or cluster names. You may find it useful to generate neighbour joining trees for each cluster that contains >2 genes, using align_plot_tree_min3.py
 
 ### Screening for resistance genes with SRST2
-A preliminary set of resistance genes is in the /data directory of srst2, this is based on the ResFinder database and CARD. The fasta file is ready for use with SRST2. The CSV table contains the same sequence information, but in tabular format for easier parsing/editing.
+A preliminary set of resistance genes based on the ResFinder database and CARD is included with SRST2: `data/ARGannot.r1.fasta`. The fasta file is ready for use with SRST2. The CSV table contains the same sequence information, but in tabular format for easier parsing/editing.
 
 An easy way to add sequences to this database would be to add new rows to the table, and then generate an updated fasta file using:
 

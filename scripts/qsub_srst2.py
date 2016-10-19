@@ -1,4 +1,4 @@
-#!/usr/local/Modules/modulefiles/tools/python/2.7.6/bin/python2.7
+#!/usr/bin/env python
 '''
 This script generates SRST2 jobs for the Grid Engine (qsub) scheduling system
 (http://gridscheduler.sourceforge.net/). It allows many samples to be processed in parallel. After

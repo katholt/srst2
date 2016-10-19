@@ -277,7 +277,7 @@ def main():
 		cmd += "\n#SBATCH --mem-per-cpu=" + args.memory
 		cmd += "\n#SBATCH --time=" + args.walltime
 		cmd += "\ncd " + args.rundir
-		cmd += "\nmodule load srst2/0.1.8-Python-2.7.10"
+		cmd += "\nmodule load srst2"
 		cmd += "\n" + args.script
 		fastq = fileSets[sample]
 		if len(fastq) > 1:
@@ -288,7 +288,8 @@ def main():
 			cmd += " --input_se " + fastq[0]
 		cmd += " --output " + sample + "_" + args.output
 		cmd += " --log"
-		cmd += " --threads " + str(args.threads)
+		if args.threads > 1:
+			cmd += " --threads " + str(args.threads)
 		cmd += " " + args.other_args
 
 		# print and run command
