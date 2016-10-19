@@ -577,8 +577,7 @@ def score_alleles(args, mapping_files_pre, hash_alignment, hash_max_depth, hash_
 				this_size = size_allele.get(allele, "NA")
 				this_next_to_del_depth = next_to_del_depth_allele.get(allele, "NA")
 				scores_output.write('\t'.join([allele, str(slope), str(this_depth), edge_depth_str,
-						str(this_coverage), str(this_size), str(this_mismatch), str(this_indel), str(this_missing), str(this_next_to_del_depth), str(mix_rate), \
-						str(float(min_pval_data[0])/min_pval_data[1]),str(min_pval_data[0]),str(min_pval_data[1]),str(min_pval)]) + '\n')
+						str(this_coverage), str(this_size), str(this_mismatch), str(this_indel), str(this_missing), str(this_next_to_del_depth), str(mix_rate), str(float(min_pval_data[0])/min_pval_data[1]),str(min_pval_data[0]),str(min_pval_data[1]),str(min_pval)]) + '\n')
 
 	if args.save_scores:
 		scores_output.close()
