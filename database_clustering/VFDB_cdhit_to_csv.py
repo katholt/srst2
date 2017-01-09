@@ -51,7 +51,7 @@ def main():
 		genus = full_name.split("[")[-1].split()[0]
 		in_brackets = re.findall('\((.*?)\)', full_name)
 		seqID = full_name.split("(")[0]
-		if in_brackets[0].startswith('gi:'):
+		if in_brackets[0].startswith('gi:') or in_brackets[0].startswith('gb|'):
 			gene = in_brackets[1]
 		else:
 			gene = in_brackets[0]
