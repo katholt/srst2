@@ -42,7 +42,11 @@ def parse_args():
 	parser.add_argument('--force_scheme_name',
 						action="store_true",
 						default = False,
-						help = 'Flage to force downloading of specific scheme name (e.g. "Clostridium difficile")')
+						help = 'Flag to force downloading of specific scheme name (e.g. "Clostridium difficile")')
+	parser.add_argument('--output',
+						type=str,
+						required=True,
+						help='Prefix for srst2 output files')
 						
 	return parser.parse_args()
 
@@ -145,12 +149,20 @@ def main():
 		os.remove(filename)
 
 	# output information for the single matching species
-	species_all_fasta_filename = species_name_underscores + '.fasta'
+	if not os.path.exists(args.output):
+		os.makedirs(args.output)
+	
+	species_all_fasta_filename = args.output + species_name_underscores + '.fasta'
 	species_all_fasta_file = open(species_all_fasta_filename, 'w')
-	log_filename = "mlst_data_download_{}_{}.log".format(species_name_underscores, species_info.retrieved)
+	
+
+	delimiter_filename = args.output + species_name_underscores + '.delimiter'
+	delimiter_file = open(delimiter_filename, 'w')
+
+	log_filename = args.output + "mlst_data_download_{}_{}.log".format(species_name_underscores, species_info.retrieved)
 	log_file = open(log_filename, "w")
 	profile_path = urlparse(species_info.profiles_url).path
-	profile_filename = profile_path.split('/')[-1]
+	profile_filename = args.output + profile_path.split('/')[-1]
 	log_file.write("definitions: {}\n".format(profile_filename))
 	log_file.write("{} profiles\n".format(species_info.profiles_count))
 	log_file.write("sourced from: {}\n\n".format(species_info.profiles_url))
@@ -161,7 +173,7 @@ def main():
 	profile_doc.close()
 	for locus in species_info.loci:
 		locus_path = urlparse(locus.url).path
-		locus_filename = locus_path.split('/')[-1]
+		locus_filename = args.output + locus_path.split('/')[-1]
 		log_file.write("locus {}\n".format(locus.name))
 		log_file.write(locus_filename + '\n')
 		log_file.write("Sourced from {}\n\n".format(locus.url))
@@ -192,7 +204,7 @@ def main():
 	print "--mlst_definitions " + format(profile_filename),
 	print "--mlst_delimiter '" + m[1] + "'"
 	print
-
+	delimiter_file.write("Suggested mlst delimiter	" + m[1] + "\n")
 
 if __name__ == '__main__':
 	main()
