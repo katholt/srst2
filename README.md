@@ -56,7 +56,7 @@ Contents
 
 [Generating SRST2-compatible clustered database from raw sequences](https://github.com/katholt/srst2#generating-srst2-compatible-clustered-database-from-raw-sequences)
 
-* [Using the VFBD Virulence Factor Database with SRST2](https://github.com/katholt/srst2#using-the-vfbd-virulence-factor-database-with-srst2)
+* [Using the VFBD Virulence Factor Database with SRST2](https://github.com/katholt/srst2#using-the-vfdb-virulence-factor-database-with-srst2)
 
 * [Using the EcOH database for serotyping E. coli with SRST2](https://github.com/katholt/srst2#using-the-ecoh-database-for-serotyping-e-coli-with-srst2)
 
