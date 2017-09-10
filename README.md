@@ -875,7 +875,7 @@ wget ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR178/ERR178148/ERR178148_2.fastq.gz
 wget ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR178/ERR178156/ERR178156_1.fastq.gz
 wget ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR178/ERR178156/ERR178156_2.fastq.gz
 
-srst2 --input_pe ERR178156*.fastq.gz ERR124656*.fastq.gz --output serotypes --log --gene_db EcOH.fasta
+srst2 --input_pe ERR178148*.fastq.gz ERR178156*.fastq.gz --output serotypes --log --gene_db EcOH.fasta
 ```
 
 Results will be output in: `[prefix]__genes__EcOH__results.txt`
