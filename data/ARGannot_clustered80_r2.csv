@@ -1490,7 +1490,6 @@ clusterid,queryID,class,gene,allele,seqID,accession,positions,size,cluster_conta
 357,QnrS2__1456,Flq,Qnr-S,QnrS2,1456,DQ485530,1-657,657,no,no
 357,QnrS3__1457,Flq,Qnr-S,QnrS3,1457,EU077611,1-656,656,no,no
 358,CatA9__1475,Phe,CatA9,CatA9,1475,K01998,288-938,651,no,no
-359,TetR__1473,Tet,TetR,TetR,1473,NC_010410,3643164-3643814,651,no,no
 360,Cat-pC221__1183,Phe,CatA,Cat-pC221,1183,X02529,2267-2914,648,no,no
 360,Cat-pC223__1184,Phe,CatA,Cat-pC223,1184,AY355285,1000-1647,648,no,no
 360,CatA7__1185,Phe,CatA,CatA7,1185,M64281,208-855,648,no,no
@@ -1511,7 +1510,6 @@ clusterid,queryID,class,gene,allele,seqID,accession,positions,size,cluster_conta
 371,CatB4__602,Phe,CatBx,CatB4,602,JX424423,100791-101339,549,no,no
 371,CatB8__603,Phe,CatBx,CatB8,603,AF227506,253-885,633,no,no
 372,CatB10__606,Phe,CatB10,CatB10,606,AJ878850,1197-1829,633,no,no
-373,TetRG__605,Tet,TetRG,TetRG,605,S52438,113-745,633,no,no
 374,VatD__608,MLS,VatD,VatD,608,L12033,162-791,630,no,no
 375,CatB1__607,Phe,CatB1,CatB1,607,M58472,148-777,630,no,no
 376,CatB5__610,Phe,CatB5,CatB5,610,AAWG01000020,33604-34233,630,no,no
