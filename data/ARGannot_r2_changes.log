@@ -69,5 +69,5 @@ Annotation	92__CMY_Bla__CMY-105__105 no;no;CMY-105;Bla;KJ207205;1040-2145;1146	(
 349__NpmA_AGly__NpmA__61 no;no;NpmA;AGly;AB261016;91164-91823;660"	Correct sequence but wrong coordinates.
 Annotation	467__Mcr1_Colistin__Mcr1__1237 no;no;Mcr1;Colistin;KP347127;22413-24038;1626	NA	NA	Changed annotation to467__Mcr1_Colistin__Mcr1__1835 no;no;Mcr1;Colistin;KP347127;22413-24038;1626	Duplicated sequence ID with AacA29b__1237
 Annotation	468__Mcr2_Colistin__Mcr2__1238 no;no;Mcr2;Colistin;LT598652;26779-28395;1617	NA	NA	468__Mcr2_Colistin__Mcr2__1836 no;no;Mcr2;Colistin;LT598652;26779-28395;1617	Duplicated sequence ID with Aac6__1238
-Removed	359__TetR_Tet__TetR__1473 no;no;TetR;Tet;NC_010410;3643164-3643814;651			Removed	TetR is not a resistance gene but regulates the resistance gene TetA gene
-Removed	373__TetRG_Tet__TetRG__605 no;no;TetRG;Tet;S52438;113-745;633			Removed	TetR is not a resistance gene but regulates the resistance gene TetA gene
+Deletion	359__TetR_Tet__TetR__1473 no;no;TetR;Tet;NC_010410;3643164-3643814;651	(Tet)TetR:HF545434:53576-54226:651	(Tet)TetR:HF545434:53576-54226:651	Removed	TetR is not a resistance gene but regulates the resistance gene tetA.
+Deletion	373__TetRG_Tet__TetRG__605 no;no;TetRG;Tet;S52438;113-745;633	(Tet)TetR(G):S52438:113-745:633	(Tet)TetR(G):S52438:113-745:633	Removed	TetRG is not a resistance gene but regulates the resistance gene tetG.
