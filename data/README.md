@@ -21,6 +21,7 @@ Citation: Gupta et al, Antimicrob Agents Chemother 2014; 58(1):212. DOI: [10.112
 * ARGannot_r2.fasta is a non-redundant (in terms of identical nucleotide sequences) database designed for screening antimicrobial resistance genes.
 * For colistin resistance determinants, six novel alleles (*Mcr1-2* - *Mcr1-7*) of the *Mcr1* gene and another two genes (*Mcr3* and *Mcr4*) were added to this database.
 * Checked and corrected gene/allele names, accession numbers, genome coordinates and sequences. The file ARGannot\_clustered80\_r2.csv in this repository provides a table of sequence annotations.
+* Removed *TetR* and *TetRG* alleles from the previous database because they are regulatory genes for *tetA* and *tetG* genes but themselves do not confer resistance.
 * Allele sequences were clustered under a 80% nucleotide identity using CD-HIT-EST. None of sequences from the ARGannot.r1.fasta database dropped out from its original cluster. As such, cluster IDs remain the same for sequences from the previous version and were assigned to new sequences accordingly. The same rule applies to sequence IDs as well.
 * See ARGannot_r2_changes.log in this repository for more details.
 
