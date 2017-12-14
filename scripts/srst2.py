@@ -450,7 +450,7 @@ def read_pileup_data(pileup_file, size, prob_err, sample_name, consensus_file = 
 				elif consensus_file.split(".")[-2] == "all_consensus_alleles":
 					consensus_type = "consensus"
 				with open(consensus_file, "a") as consensus_outfile:
-					consensus_outfile.write(">{0}.{1} {2}\n".format(allele, consensus_type, sample_name)
+					consensus_outfile.write(">{0}.{1} {2}\n".format(allele, consensus_type, sample_name))
 					outstring = consensus_seq + "\n"
 					consensus_outfile.write(outstring)
 
