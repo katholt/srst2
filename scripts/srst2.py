@@ -305,8 +305,8 @@ def parse_fai(fai_file,db_type,delimiter):
 				gene_clusters.append(gene_cluster)
 
 	if len(delimiter_check) > 0:
-		print "Warning! MLST delimiter is " + delimiter + " but these genes may violate the pattern and cause problems:"
-		print ",".join(delimiter_check)
+		print("Warning! MLST delimiter is " + delimiter + " but these genes may violate the pattern and cause problems:")
+		print(",".join(delimiter_check))
 
 	return size, gene_clusters, unique_gene_symbols, unique_allele_symbols, gene_cluster_symbols
 
@@ -697,7 +697,7 @@ def run_bowtie(mapping_files_pre,sample_name,fastqs,args,db_name,db_full_path):
 		try:
 			command += ['-u',str(int(args.stop_after))]
 		except ValueError:
-			print "WARNING. You asked to stop after mapping '" + args.stop_after + "' reads. I don't understand this, and will map all reads. Please speficy an integer with --stop_after or leave this as default to map 1 million reads."
+			print("WARNING. You asked to stop after mapping '" + args.stop_after + "' reads. I don't understand this, and will map all reads. Please speficy an integer with --stop_after or leave this as default to map 1 million reads.")
 
 	if args.other:
 		x = args.other
@@ -805,12 +805,12 @@ def calculate_ST(allele_scores, ST_db, gene_names, sample_name, mlst_delimiter, 
 		try:
 			clean_st = ST_db[allele_string]
 		except KeyError:
-			print "This combination of alleles was not found in the sequence type database:",
-			print sample_name,
+			print("This combination of alleles was not found in the sequence type database:",)
+			print(sample_name,)
 			for gene in allele_scores:
 				(allele,diffs,depth_problems,divergence) = allele_scores[gene]
-				print allele,
-			print
+				print(allele,)
+			print()
 			clean_st = "NF"
 	else:
 		clean_st = "ND"
@@ -847,7 +847,7 @@ def parse_ST_database(ST_filename,gene_names_from_fai):
 	ST_db = {} # key = allele string, value = ST
 	gene_names = []
 	num_gene_cols_expected = len(gene_names_from_fai)
-	print "Attempting to read " + str(num_gene_cols_expected) + " loci from ST database " + ST_filename
+	print("Attempting to read " + str(num_gene_cols_expected) + " loci from ST database " + ST_filename)
 	with open(ST_filename) as f:
 		count = 0
 		for line in f:
@@ -857,23 +857,23 @@ def parse_ST_database(ST_filename,gene_names_from_fai):
 				gene_names = line_split[1:min(num_gene_cols_expected+1,len(line_split))]
 				for g in gene_names_from_fai:
 					if g not in gene_names:
-						print "Warning: gene " + g + " in database file isn't among the columns in the ST definitions: " + ",".join(gene_names)
-						print " Any sequences with this gene identifer from the database will not be included in typing."
+						print("Warning: gene " + g + " in database file isn't among the columns in the ST definitions: " + ",".join(gene_names))
+						print(" Any sequences with this gene identifer from the database will not be included in typing.")
 						if len(line_split) == num_gene_cols_expected+1:
 							gene_names.pop() # we read too many columns
 							num_gene_cols_expected -= 1
 				for g in gene_names:
 					if g not in gene_names_from_fai:
-						print "Warning: gene " + g + " in ST definitions file isn't among those in the database " + ",".join(gene_names_from_fai)
-						print " This will result in all STs being called as unknown (but allele calls will be accurate for other loci)."
+						print("Warning: gene " + g + " in ST definitions file isn't among those in the database " + ",".join(gene_names_from_fai))
+						print(" This will result in all STs being called as unknown (but allele calls will be accurate for other loci).")
 			else:
 				ST = line_split[0]
 				if ST not in ST_db.values():
 					ST_string = " ".join(line_split[1:num_gene_cols_expected+1])
 					ST_db[ST_string] = ST
 				else:
-					print "Warning: this ST is not unique in the ST definitions file: " + ST
-		print "Read ST database " + ST_filename + " successfully"
+					print("Warning: this ST is not unique in the ST definitions file: " + ST)
+		print("Read ST database " + ST_filename + " successfully")
 		return (ST_db, gene_names)
 
 def get_allele_name_from_db(allele,run_type,args,unique_allele_symbols=False,unique_cluster_symbols=False):
@@ -1655,9 +1655,9 @@ def main():
 		if not os.path.exists(output_dir):
 			try:
 				os.makedirs(output_dir)
-				print "Created directory " + output_dir + " for output"
+				print("Created directory " + output_dir + " for output")
 			except:
-				print "Error. Specified output as " + args.output + " however the directory " + output_dir + " does not exist and our attempt to create one failed."
+				print("Error. Specified output as " + args.output + " however the directory " + output_dir + " does not exist and our attempt to create one failed.")
 
 	if args.log is True:
 		logfile = args.output + ".log"
@@ -1702,9 +1702,9 @@ def main():
 		if not args.mlst_definitions:
 
 			# print warning to screen to alert user, may want to stop and restart
-			print "Warning, MLST allele sequences were provided without ST definitions:"
-			print " allele sequences: " + str(args.mlst_db)
-			print " these will be mapped and scored, but STs can not be calculated"
+			print("Warning, MLST allele sequences were provided without ST definitions:")
+			print(" allele sequences: " + str(args.mlst_db))
+			print(" these will be mapped and scored, but STs can not be calculated")
 
 			# log
 			logging.info("Warning, MLST allele sequences were provided without ST definitions:")
