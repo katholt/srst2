@@ -613,11 +613,11 @@ def check_command_version(command_list, version_identifier, command_name, requir
 # allow multiple specific versions that have been specifically tested
 def check_bowtie_version():
 	return check_command_versions([get_bowtie_execs()[0], '--version'], 'version ', 'bowtie',
-								  ['2.1.0','2.2.3','2.2.4','2.2.5','2.2.6','2.2.7','2.2.8','2.2.9'])
+								  ['2.1.0','2.2.3','2.2.4','2.2.5','2.2.6','2.2.7','2.2.8','2.2.9','2.3.2'])
 
 def check_samtools_version():
 	return check_command_versions([get_samtools_exec()], 'Version: ', 'samtools',
-								  ['0.1.18','0.1.19','1.0','1.1','1.2','1.3','(0.1.18 is '
+								  ['1.5', '0.1.18','0.1.19','1.0','1.1','1.2','1.3','(0.1.18 is '
 																			 'recommended)'])
 
 def check_command_versions(command_list, version_prefix, command_name, required_versions):
@@ -635,7 +635,9 @@ def check_command_versions(command_list, version_prefix, command_name, required_
 		command_stdout = e.output
 
 	for v in required_versions:
-		if version_prefix + v in command_stdout:
+		logging.error("COMMAND_STDOUT:")
+		logging.error(command_stdout)
+		if (str(version_prefix) + str(v)).encode() in command_stdout:
 			return v
 
 	logging.error("Incorrect version of {} installed.".format(command_name))
@@ -956,7 +958,7 @@ def parse_scores(run_type,args,scores, hash_edge_depth,
 	for gene in scores_by_gene:
 
 		gene_hash = scores_by_gene[gene]
-		scores_sorted = sorted(gene_hash.iteritems(),key=operator.itemgetter(1)) # sort by score
+		scores_sorted = sorted(gene_hash.items(),key=operator.itemgetter(1)) # sort by score
 		(top_allele,top_score) = scores_sorted[0]
 
 		# check if depth is adequate for confident call
@@ -1279,7 +1281,7 @@ def process_fasta_db(args, fileSets, run_type, db_reports, db_results_list, fast
 	db_path, db_name = os.path.split(fasta) # database
 	(db_name,db_ext) = os.path.splitext(db_name)
 	db_results = "__".join([args.output,run_type,db_name,"results.txt"])
-	db_report = file(db_results,"w")
+	db_report = open(db_results, "w") # file(db_results,"w")
 	db_reports.append(db_results)
 
 	# Get sequence lengths and gene names
@@ -1475,9 +1477,9 @@ def map_fileSet_to_db(args, sample_name, fastq_inputs, db_name, fasta, size, gen
 			full_results = "__".join([args.output,"fullgenes",db_name,"results.txt"])
 			logging.info("Printing verbose gene detection results to " + full_results)
 			if os.path.exists(full_results):
-				f = file(full_results,"a")
+				f = open(full_results,"a")
 			else:
-				f = file(full_results,"w") # create and write header
+				f = open(full_results,"w") # create and write header
 				f.write("\t".join(["Sample","DB","gene","allele","coverage","depth","diffs","uncertainty","divergence","length", "maxMAF","clusterid","seqid","annotation"])+"\n")
 		for gene in allele_scores:
 			(allele,diffs,depth_problem,divergence) = allele_scores[gene] # gene = top scoring alleles for each cluster
