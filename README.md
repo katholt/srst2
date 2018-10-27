@@ -76,7 +76,7 @@ Dependencies:
 * bowtie2 (v2.1.0 or later)   http://bowtie-bio.sourceforge.net/bowtie2/index.shtml
 * SAMtools v0.1.18   https://sourceforge.net/projects/samtools/files/samtools/0.1.18/ (NOTE: later versions can be used, but better results are obtained with v0.1.18, especially at low read depths (<20x))
 
-**NOTE AMR gene database has been updated since this release, you can download the current one (ARGannot_r3.fasta) from the data directory
+**NOTE AMR gene database has been updated since this release to include all the new mcr genes and correct allele nomenclature according to this [Partridge et al, JAC 2018](https://academic.oup.com/jac/article/73/10/2625/5055843), you can download the current one (ARGannot_r3.fasta) from the data directory
 
 -----------
 
