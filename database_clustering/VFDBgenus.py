@@ -9,7 +9,6 @@ from argparse import ArgumentParser
 from Bio import SeqIO
 from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
-from Bio.Alphabet import IUPAC
 
 def parse_args():
 	parser = ArgumentParser(description='Extract virulence genes by genus from the VFDB database available at http://www.mgc.ac.cn/VFs/Down/CP_VFs.ffn.gz')

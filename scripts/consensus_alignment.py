@@ -11,7 +11,6 @@ from argparse import (ArgumentParser, FileType)
 from Bio import SeqIO
 from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
-from Bio.Alphabet import IUPAC
 
 def parse_args():
 	"Parse the input arguments, use '-h' for help."
