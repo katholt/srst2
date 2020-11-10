@@ -15,7 +15,6 @@ from optparse import OptionParser
 from Bio import SeqIO
 from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
-from Bio.Alphabet import IUPAC
 
 def main():
 
@@ -72,8 +71,7 @@ if __name__ == "__main__":
 
 			if seqid_col:
 				seq = fields.pop(seqid_col-1)
-				record = SeqRecord(Seq(seq,
-					   IUPAC.unambiguous_dna),
+				record = SeqRecord(Seq(seq),
 					   id=db_id, 
 					   description=db_id)
 			elif seqs_file_col:
