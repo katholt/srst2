@@ -15,6 +15,11 @@ from optparse import OptionParser
 from Bio import SeqIO
 from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
+try:
+	from Bio.Alphabet.IUPAC import unambiguous_dna
+except ImportError:
+	# Biopython 1.78 has no Bio.Alphabet anymore
+	unambiguous_dna = None
 
 def main():
 
@@ -71,9 +76,20 @@ if __name__ == "__main__":
 
 			if seqid_col:
 				seq = fields.pop(seqid_col-1)
-				record = SeqRecord(Seq(seq),
-					   id=db_id, 
-					   description=db_id)
+				if unambiguous_dna:
+					record = SeqRecord(
+						Seq(seq),
+						id=db_id,
+						description=db_id,
+						alphabet=unambiguous_dna
+					)
+				else:
+					record = SeqRecord(
+						Seq(seq),
+						id=db_id,
+						description=db_id
+					)
+
 			elif seqs_file_col:
 				seqs_file_id = fields.pop(seqs_file_col-1)
 				if seqs_file_id in input_seqs:
@@ -96,5 +112,3 @@ if __name__ == "__main__":
 			
 	f.close()
 	o.close()
-	
-	
