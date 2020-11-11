@@ -223,18 +223,18 @@ The downloaded directory also contains things that might be useful for SRST2 use
 (ii) a fasta sequence database to match to. For MLST, this means a fasta file of all allele sequences. If you want to assign STs, you also need a tab-delim file which defines the ST profiles as a combination of alleles. You can retrieve these files automatically from pubmlst.org/data/ using the script provided:
 
 ```
-getmlst.py --species "Escherichia coli"
+getmlst.py --species 'Escherichia coli#1'
 ```
 
 ### 2 - Run MLST
 
 ```
-srst2 --input_pe strainA_1.fastq.gz strainA_2.fastq.gz --output strainA_test --log --mlst_db Escherichia_coli.fasta --mlst_definitions ecoli.txt
+srst2 --input_pe strainA_1.fastq.gz strainA_2.fastq.gz --output strainA_test --log --mlst_db Escherichia_coli#1.fasta --mlst_definitions profiles_csv --mlst_delimiter _
 ```
 
 ### 3 - Check the outputs
 
-(i) MLST results are output in: `strainA_test__mlst__Escherichia_coli__results.txt`
+(i) MLST results are output in: `strainA_test__mlst__Escherichia_coli#1__results.txt`
 
 Sample | ST | adk | fumC | gyrB | icd | mdh | purA | recA | mismatches | uncertainty | depth | maxMAF
 :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---:
