@@ -462,7 +462,7 @@ def read_pileup_data(pileup_file, size, prob_err, consensus_file = ""):
 				# determine penalty based on coverage of last 2 bases
 				penalty = float(position_depths[nuc_num-1] + position_depths[nuc_num-2])/2
 				m = min(position_depths[nuc_num-1],position_depths[nuc_num-2])
-				hash_alignment[allele].append((0, penalty, prob_success))
+				hash_alignment[allele].append((0, round(penalty), prob_success))
 				if next_to_del_depth > m:
 					next_to_del_depth = m # keep track of lowest near-del depth for reporting
 
@@ -485,7 +485,7 @@ def read_pileup_data(pileup_file, size, prob_err, consensus_file = ""):
 				# note end-of-seq truncations are dealt with above)
 				if position_depths[j]==0 and position_depths[j+1]!=0:
 					penalty = float(position_depths[j+1]+position_depths[j+2])/2 # mean of next 2 bases
-					hash_alignment[allele].append((0, penalty, prob_success))
+					hash_alignment[allele].append((0, round(penalty), prob_success))
 					m = min(position_depths[nuc_num-1],position_depths[nuc_num-2])
 					if next_to_del_depth > m:
 						next_to_del_depth = m # keep track of lowest near-del depth for reporting
