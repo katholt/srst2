@@ -858,7 +858,7 @@ Details can be found in [this MGen paper](http://mgen.microbiologyresearch.org/c
 
 The EcOH database includes genes for identifying O and H types in E. coli, see `/data/EcOH.fasta`
 
-O types are represented by the presence of two loci (either wzy and wzy, or wzm and wzt). Note that allelic variation is possible but does not impact serotype in a predictable way, so typing calls should be made based on the presence of genes rather than allele assignments (i.e. it is generally safe to ignore *? characters)
+O types are represented by the presence of two loci (either wzx and wzy, or wzm and wzt). Note that allelic variation is possible but does not impact serotype in a predictable way, so typing calls should be made based on the presence of genes rather than allele assignments (i.e. it is generally safe to ignore *? characters)
 
 H types are represented by alleles of fliC or flnA flagellin genes (one allele per H type). Note that it is possible to carry both a fliC allele and a flnA allele, such strains should be considered phase variable for flagellin).
 
