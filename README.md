@@ -58,11 +58,11 @@ Contents
 
 * [Using the VFBD Virulence Factor Database with SRST2](https://github.com/katholt/srst2#using-the-vfdb-virulence-factor-database-with-srst2)
 
-[Preformatted databases for specialist typing with SRST2]()
+[Preformatted databases for specialist typing with SRST2](https://github.com/katholt/srst2#preformatted-databases-for-specialist-typing-with-srst2)
 
-* [Using the EcOH database for serotyping E. coli with SRST2](https://github.com/katholt/srst2#using-the-ecoh-database-for-e-coli-with-srst2)
+* [Using the EcOH database for serotyping E. coli with SRST2](https://github.com/katholt/srst2#using-the-ecoh-database-for-serotyping-e-coli-with-srst2)
 
-* [Using the GBS-SBG database for serotyping Streptococcus agalactiae (Group B Streptococcus) with SRST2]()
+* [Using the GBS-SBG database for serotyping Streptococcus agalactiae (Group B Streptococcus) with SRST2](https://github.com/katholt/srst2#using-the-gbs-sbg-database-for-serotyping-streptococcus-agalactiae-group-b-streptococcus-with-srst2)
 
 * [Typing the LEE pathogenicity island of E. coli](https://github.com/katholt/srst2#typing-the-lee-pathogenicity-island-of-e-coli)
 
