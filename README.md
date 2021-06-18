@@ -58,9 +58,13 @@ Contents
 
 * [Using the VFBD Virulence Factor Database with SRST2](https://github.com/katholt/srst2#using-the-vfdb-virulence-factor-database-with-srst2)
 
-* [Using the EcOH database for serotyping E. coli with SRST2](https://github.com/katholt/srst2#using-the-ecoh-database-for-serotyping-e-coli-with-srst2)
+[Preformatted databases for specialist typing with SRST2]()
 
-[Typing the LEE pathogenicity island of E. coli](https://github.com/katholt/srst2#typing-the-lee-pathogenicity-island-of-e-coli)
+* [Using the EcOH database for serotyping E. coli with SRST2](https://github.com/katholt/srst2#using-the-ecoh-database-for-e-coli-with-srst2)
+
+* [Using the GBS-SBG database for serotyping Streptococcus agalactiae (Group B Streptococcus) with SRST2]()
+
+* [Typing the LEE pathogenicity island of E. coli](https://github.com/katholt/srst2#typing-the-lee-pathogenicity-island-of-e-coli)
 
 [Plotting output in R](https://github.com/katholt/srst2#plotting-output-in-r)
 
@@ -806,7 +810,7 @@ The output file, `seqs_clustered.fasta`, should now be ready to use with srst2 (
 If there are potential inconsistencies detected at step 2 above (e.g. multiple clusters for the same gene, or different gene names within the same cluster), you may like to investigate further and change some of the cluster assignments or cluster names. You may find it useful to generate neighbour joining trees for each cluster that contains >2 genes, using align_plot_tree_min3.py
 
 ### Screening for resistance genes with SRST2
-A preliminary set of resistance genes based on the ResFinder database and CARD is included with SRST2: `data/ARGannot_r3.fasta`. The fasta file is ready for use with SRST2. The CSV table contains the same sequence information, but in tabular format for easier parsing/editing.
+A preliminary set of resistance genes based on the ARG-Annot, CARD and ResFinder databases is included with SRST2: `data/ARGannot_r3.fasta`. The fasta file is ready for use with SRST2. The CSV table contains the same sequence information, but in tabular format for easier parsing/editing.
 
 An easy way to add sequences to this database would be to add new rows to the table, and then generate an updated fasta file using:
 
@@ -851,6 +855,8 @@ python csv_to_gene_db.py -t Clostridium_cdhit90.csv -o Clostridium_VF_clustered.
 ```
     
 The output file, `Clostridium_VF_clustered.fasta`, should now be ready to use with srst2 (`--gene_db Clostridium_VF_clustered.fasta`).
+
+## Preformatted databases for specialist typing with SRST2
 
 ### Using the EcOH database for serotyping E. coli with SRST2
 
@@ -899,6 +905,39 @@ ERR178156 has matching wzm and wzt hits for O9 and fliC allele H33, thus the pre
 Note that each O antigen type is associated with loci containing EITHER wzx and wzy, OR wzm and wzt genes.
 
 No alleles for flnA were detected in these strains, indicating they are not phase variable for flagellin.
+
+
+### Using the GBS-SBG database for serotyping Streptococcus agalactiae (Group B Streptococcus) with SRST2
+
+Details can be found in this [preprint](https://doi.org/10.1101/2021.06.16.448630). The database and a script for typing using assemblies can be found in the [GBS-SBG GitHub repository](https://github.com/swainechen/GBS-SBG). The [fasta database](https://raw.githubusercontent.com/swainechen/GBS-SBG/main/GBS-SBG.fasta) itself is already properly formatted for SRST2 and this is all that's needed for SRST2 to type using short reads.
+
+#### Basic Usage - Serotyping GBS
+```
+srst2 --input_pe strainA_1.fastq.gz strainA_2.fastq.gz --output strainA_test --log --gene_db GBS-SBG.fasta
+```
+
+#### Example
+Note these read sets are ~150 MB each, so you need to download ~600 MB of data to run this example.
+````
+wget ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR632/000/SRR6327950/SRR6327950_1.fastq.gz
+wget ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR632/000/SRR6327950/SRR6327950_2.fastq.gz
+wget ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR632/007/SRR6327887/SRR6327887_1.fastq.gz
+wget ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR632/007/SRR6327887/SRR6327887_2.fastq.gz
+
+srst2 --input_pe SRR6327950*.fastq.gz SRR6327887*.fastq.gz --output GBS-serotypes --log --gene_db GBS-SBG.fasta
+````
+
+The output from the above will be in `GBS-serotypes__genes__GBS-SBG__results.txt`.
+
+SRR6327887 | GBS-SBG:Ia*
+:---: | :---:
+SRR6327950 | GBS-SBG:III-4
+
+#### Interpretation
+SRR6327887 is serotype Ia; it has some variants relative to the locus, which is why it has a `*`. Looking at `GBS-serotypes__fullgenes__GBS-SBG__results.txt`, we see that it has 24 SNPs and 1 indel (for a 0.358% divergence - i.e. 99.6% identical to the reference sequence (~6.7 kb)). As only one representative of each serotype is in the reference database, some divergence is not unexpected, and this appears to be a reliable call.
+SRR6327950 is serotype III, subtype 4.
+
+
 
 
 ### Typing the LEE pathogenicity island of E. coli
