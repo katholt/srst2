@@ -929,8 +929,9 @@ srst2 --input_pe SRR6327950*.fastq.gz SRR6327887*.fastq.gz --output GBS-serotype
 
 The output from the above will be in `GBS-serotypes__genes__GBS-SBG__results.txt`.
 
-SRR6327887 | GBS-SBG:Ia*
+Sample | GBS-SBG
 :---: | :---:
+SRR6327887 | GBS-SBG:Ia*
 SRR6327950 | GBS-SBG:III-4
 
 #### Interpretation
