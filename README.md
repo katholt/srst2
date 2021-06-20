@@ -80,7 +80,12 @@ Dependencies:
 * bowtie2 (v2.1.0 or later)   http://bowtie-bio.sourceforge.net/bowtie2/index.shtml
 * SAMtools v0.1.18   https://sourceforge.net/projects/samtools/files/samtools/0.1.18/ (NOTE: later versions can be used, but better results are obtained with v0.1.18, especially at low read depths (<20x))
 
-**NOTE AMR gene database has been updated since this release to include all the new mcr genes and correct allele nomenclature according to this [Partridge et al, JAC 2018](https://academic.oup.com/jac/article/73/10/2625/5055843), you can download the current one (ARGannot_r3.fasta) from the data directory
+
+Updates in current master branch (not yet in a release)
+-----
+
+1. Added new AMR gene database CARD_v3.0.8_SRST2.fasta, a curated version of CARD v3.0.8 with some fixes and additions based on comparisons with the ARG-Annot, ResFinder and NCBI AMR databases. This was done my Margaret Lam for the Kleborate paper, see details of modifications vs CARD v3.0.8 [here](https://figshare.com/articles/dataset/CARD_v3_0_8_AMR_database_curation_for_Kleborate/13256759)).
+2. Added to readme some instructions for using SRST2 to serotype Group B Streptococcus (S. agalactiae) using the GBS-SBG database, available [here](https://github.com/swainechen/GBS-SBG) - thanks to Swaine Chen and colleagues for this.
 
 -----------
 
@@ -251,12 +256,12 @@ strainA | 152 | 11 | 63 | 7 | 1 | 14 | 7 | 7 | 0 | - | 25.8319955826 | 0.125
 
 (i) sequence reads (this example uses paired reads in gzipped fastq format, see below for options)
 
-(ii) a fasta sequence database to match to. For resistance genes, this means a fasta file of all the resistance genes/alleles that you want to screen for, clustered into gene groups. Some suitable databases are distributed with SRST2 (in the /data directory); we recommend using `/data/ARGannot_r3.fasta` for acquired resistance genes (note this latest version has been added since the last SRST2 release so you may need to download it directly from the /data directory in this github repository).
+(ii) a fasta sequence database to match to. For resistance genes, this means a fasta file of all the resistance genes/alleles that you want to screen for, clustered into gene groups. Some suitable databases are distributed with SRST2 (in the /data directory); we recommend using `/data/CARD_v3.0.8_SRST2.fasta` for acquired resistance genes (note this latest version has been added since the last SRST2 release so you may need to download it directly from the /data directory in this github repository).
 
 ### 2 - Run gene detection
 
 ```
-srst2 --input_pe strainA_1.fastq.gz strainA_2.fastq.gz --output strainA_test --log --gene_db resistance.fasta
+srst2 --input_pe strainA_1.fastq.gz strainA_2.fastq.gz --output strainA_test --log --gene_db CARD_v3.0.8_SRST2.fasta
 ```
 
 ### 3 - Check the outputs
@@ -420,7 +425,7 @@ In addition to MLST, SRST2 can do gene/allele detection. This works by mapping r
 
 If the input database contains different alelles of the same gene, SRST2 can report just the best matching allele for that gene (much like with MLST we report the best matching allele for each locus in the scheme). This makes the output manageable, as you will get one column per gene/locus (e.g. blaCTX-M) which reports the specific allele that was called in each sample (e.g. blaCTX-M-15 in sample A, blaCTX-M-13 in sample B).
 
-We have provided some databases of resistance genes, plasmid genes and [E. coli serotyping loci](https://github.com/katholt/srst2#using-the-ecoh-database-for-serotyping-e-coli-with-srst2) in /data, ready for use with SRST2. We recommend using `data/ARGannot_r3.fasta` for detecting resistance genes, but you can also use `data/ResFinder.fasta` (this is the same as `data/resistance.fasta` in earlier distributions of SRST2).
+We have provided some databases of resistance genes, plasmid genes, and serotyping for E. coli and Group B Streptococcus (see [Preformatted databases for specialist typing with SRST2](https://github.com/katholt/srst2#preformatted-databases-for-specialist-typing-with-srst2) below for details on using these databases).
 
 You can however format any sequence set for screening with SRST2. [See instructions below](https://github.com/katholt/srst2#generating-srst2-compatible-clustered-database-from-raw-sequences).
 
@@ -564,7 +569,7 @@ Run single read sets against MLST database and resistance database
 ```
 srst2 --input_pe pool11_tag2_1.fastq.gz pool11_tag2_2.fastq.gz 
 	--output pool11_tag2_Shigella --log 
-	--gene_db /vlsci/VR0082/shared/srst2_sep/resistance.fasta 
+	--gene_db CARD_v3.0.8_SRST2.fasta 
 	--mlst_db Escherichia_coli.fasta 
 	--mlst_definitions ecoli.txt
 ```
@@ -576,7 +581,7 @@ Run against multiple read sets in serial
 ```
 srst2 --input_pe *.fastq.gz
 	--output Shigella --log
-	--gene_db /vlsci/VR0082/shared/srst2_sep/resistance.fasta 
+	--gene_db CARD_v3.0.8_SRST2.fasta 
 	--mlst_db Escherichia_coli.fasta 
 	--mlst_definitions ecoli.txt
 ```
@@ -588,7 +593,7 @@ Run against new read sets, merge with previous reports (individual or compiled)
 ```
 	srst2 --input_pe strainsY-Z*.fastq.gz
 		--output strainsA-Z --log
-		--gene_db /vlsci/VR0082/shared/srst2_sep/resistance.fasta 
+		--gene_db CARD_v3.0.8_SRST2.fasta 
 		--mlst_db Escherichia_coli.fasta 
 		--mlst_definitions ecoli.txt
 		--prev_output ShigellaA__genes__resistance__results.txt
@@ -605,7 +610,7 @@ Run against Enterococcus reads, where read names are different from the usual `_
 srst2 --input_pe strain_R1.fastq.gz strain_R2.fastq.gz 
 	--forward _R1 --reverse _R2 
 	--output strainA --log 
-	--gene_db /vlsci/VR0082/shared/srst2_sep/resistance.fasta 
+	--gene_db CARD_v3.0.8_SRST2.fasta 
 	--mlst_db Enterococcus_faecium.fasta 
 	--mlst_definitions efaecium.txt
 ```
@@ -625,7 +630,7 @@ Run against multiple read sets: submitting 1 job per readset to SLURM queueing s
 slurm_srst2.py --script srst2 
 	--output test 
 	--input_pe *.fastq.gz 
-	--other_args '--gene_db resistance.fasta 
+	--other_args '--gene_db CARD_v3.0.8_SRST2.fasta 
 	--mlst_db Escherichia_coli.fasta 
 	--mlst_definitions ecoli.txt 
 	--save_scores' 
@@ -655,7 +660,7 @@ optional arguments:
   
   --rundir RUNDIR       directory to run in (default current dir)
   
-  --script SCRIPT       SRST2 script (/vlsci/VR0082/shared/srst2_sep/srst2_150
+  --script SCRIPT       SRST2 script (/path/to/srst2_150
                         9_reporting2.py)
                         
   --output OUTPUT       identifier for outputs (will be combined with read set
@@ -725,7 +730,7 @@ e.g. for the blaOXA sequence above, the full header is actually:
 
 ### Sourcing suitable gene databases
 
-To get started, we have provided a resistance gene database (`data/ARGannot_r3.fasta`) and code (`database_clustering/`) to extract virulence factors for a genus of interest from the Virulence Factor DB (detailed instructions below).
+To get started, we have provided databases for resistance genes, plasmid genes, and serotyping for E. coli and Group B Streptococcus (see [Preformatted databases for specialist typing with SRST2](https://github.com/katholt/srst2#preformatted-databases-for-specialist-typing-with-srst2); and code (`database_clustering/`) to extract virulence factors for a genus of interest from the Virulence Factor DB (detailed instructions below).
 
 If you want to use your own database of allele sequences, with the reporting behaviour described, you will need to assign your sequences to clusters and use this header format. To facilitate this, use the scripts provided in the database_clustering directory provided with SRST2, and follow the instructions below.
 
@@ -810,7 +815,7 @@ The output file, `seqs_clustered.fasta`, should now be ready to use with srst2 (
 If there are potential inconsistencies detected at step 2 above (e.g. multiple clusters for the same gene, or different gene names within the same cluster), you may like to investigate further and change some of the cluster assignments or cluster names. You may find it useful to generate neighbour joining trees for each cluster that contains >2 genes, using align_plot_tree_min3.py
 
 ### Screening for resistance genes with SRST2
-A preliminary set of resistance genes based on the ARG-Annot, CARD and ResFinder databases is included with SRST2: `data/ARGannot_r3.fasta`. The fasta file is ready for use with SRST2. The CSV table contains the same sequence information, but in tabular format for easier parsing/editing.
+A database of resistance genes CARD v3.0.8 is included with SRST2: `data/CARD_v3.0.8_SRST2.fasta`. The fasta file is ready for use with SRST2. The CSV table /data/CARD_v3.0.8_clustered.csv contains the same sequence information, but in tabular format for easier parsing/editing.
 
 An easy way to add sequences to this database would be to add new rows to the table, and then generate an updated fasta file using:
 
@@ -937,8 +942,6 @@ SRR6327950 | GBS-SBG:III-4
 #### Interpretation
 SRR6327887 is serotype Ia; it has some variants relative to the locus, which is why it has a `*`. Looking at `GBS-serotypes__fullgenes__GBS-SBG__results.txt`, we see that it has 24 SNPs and 1 indel (for a 0.358% divergence - i.e. 99.6% identical to the reference sequence (~6.7 kb)). As only one representative of each serotype is in the reference database, some divergence is not unexpected, and this appears to be a reliable call.
 SRR6327950 is serotype III, subtype 4.
-
-
 
 
 ### Typing the LEE pathogenicity island of E. coli
