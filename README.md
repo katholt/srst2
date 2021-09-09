@@ -14,7 +14,7 @@ Story-behind-the-paper is [here](http://holtlab.net/2014/12/27/behind-the-paper-
 		
 Problems? Please post an issue here in github: https://github.com/katholt/srst2/issues.
 
-To be notifed of updates, join the SRST2 google group at https://groups.google.com/forum/#!forum/srst2.
+To be notified of updates, join the SRST2 google group at https://groups.google.com/forum/#!forum/srst2.
 
 Contents
 ----
